@@ -98,11 +98,15 @@ static DECLFR(Mapper268_ReadWRAM) {
 =======
 static uint8 Mapper268_ReadWRAM(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 5e2ffaf (Update libretro_core_options.h)
 	return A001B &0xA0? CartBR(A): X.DB;
 =======
 	return A001B &0xA0? CartBR(A): cpu.DB;
 >>>>>>> cf5e622 (Rename X6502 X to cpu)
+=======
+	return A001B &0xA0? CartBR(A): cpu.openbus;
+>>>>>>> 4806440 (Rename CPU.DB to cpu.openbus and rename ops.h to x6502ops.inc)
 }
 
 static void Mapper268_WriteWRAM(uint32 A, uint8 V) {
