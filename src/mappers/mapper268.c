@@ -98,11 +98,15 @@ static DECLFR(Mapper268_ReadWRAM) {
 =======
 static uint8 Mapper268_ReadWRAM(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> eefddd1 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	return A001B &0xA0? CartBR(A): X.DB;
 =======
 	return A001B &0xA0? CartBR(A): cpu.DB;
 >>>>>>> 4152142 (Rename X6502 X to cpu)
+=======
+	return A001B &0xA0? CartBR(A): cpu.openbus;
+>>>>>>> d3918c4 (Rename CPU.DB to cpu.openbus and rename ops.h to x6502ops.inc)
 }
 
 static void Mapper268_WriteWRAM(uint32 A, uint8 V) {
