@@ -159,6 +159,7 @@ static void M178WriteSnd(uint32 A, uint8 V) {
 static uint8 M178ReadSnd(uint32 A) {
 	if (A == 0x5800)
 <<<<<<< HEAD
+<<<<<<< HEAD
 		return (X.DB & 0xBF) | ((pcm_enable ^ 1) << 6);
 	return X.DB;
 <<<<<<< HEAD
@@ -181,6 +182,10 @@ static void M551Power(void) {
 		return (cpu.DB & 0xBF) | ((pcm_enable ^ 1) << 6);
 	return cpu.DB;
 >>>>>>> 19832c1 (Update Makefile.libretro)
+=======
+		return (cpu.openbus & 0xBF) | ((pcm_enable ^ 1) << 6);
+	return cpu.openbus;
+>>>>>>> 1cf99a1 (Update Makefile.libretro)
 }
 
 static void M178Power(void) {

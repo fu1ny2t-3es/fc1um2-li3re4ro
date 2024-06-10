@@ -485,9 +485,7 @@ static void M45CW(uint32 A, uint8 V) {
 	}
 }
 
-static uint8 M45ReadOB(uint32 A) {
-	return cpu.DB;
-}
+static uint8 M45ReadOB(uint32 A) { return cpu.openbus; }
 
 static void M45PW(uint32 A, uint8 V) {
 	int prgAND =~EXPREGS[3] &0x3F;
@@ -519,8 +517,8 @@ static void M45Write(uint32 A, uint8 V) {
 static uint8 M45Read(uint32 A) {
 	uint32 addr = 1 << (EXPREGS[5] + 4);
 	if (A & (addr | (addr - 1)))
-		return cpu.DB | 1;
-	return cpu.DB;
+		return cpu.openbus | 1;
+	return cpu.openbus;
 }
 
 static void M45Reset(void) {
