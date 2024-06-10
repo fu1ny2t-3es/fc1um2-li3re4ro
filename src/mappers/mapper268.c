@@ -97,8 +97,12 @@ void Mapper268_MirrorWrap(uint8 V) {
 static DECLFR(Mapper268_ReadWRAM) {
 =======
 static uint8 Mapper268_ReadWRAM(uint32 A) {
+<<<<<<< HEAD
 >>>>>>> ae063eb (Update Makefile.libretro)
 	return A001B &0xA0? CartBR(A): X.DB;
+=======
+	return A001B &0xA0? CartBR(A): cpu.DB;
+>>>>>>> c2fdd1f (Rename X6502 X to cpu)
 }
 
 static void Mapper268_WriteWRAM(uint32 A, uint8 V) {
