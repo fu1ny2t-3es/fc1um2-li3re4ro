@@ -74,7 +74,13 @@
 void strftime_am_pm(char *s, size_t len, const char* format,
       const void *ptr)
 {
+<<<<<<< HEAD
    char *local = NULL;
+=======
+#if !(defined(__linux__) && !defined(ANDROID))
+   char *local = NULL;
+#endif
+>>>>>>> 95b25f9 (Update libretro_core_options.h)
    const struct tm *timeptr = (const struct tm*)ptr;
 
    /* Ensure correct locale is set
