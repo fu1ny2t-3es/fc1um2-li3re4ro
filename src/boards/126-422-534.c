@@ -106,7 +106,7 @@ static void wrapMirroring(uint8 V) {
 	
 }
 
-static DECLFW(writeWRAM) {
+static void writeWRAM(uint32 A, uint8 V) {
 	CartBW(A, V);
 	if ((A &3) ==2) { /* CNROM Bank (D0-D3), Bank Enable (D4-D6) and Bank Enable Lock (D7) */
 		int latchMask =0xFF &~(EXPREGS[2] &0x80? 0xF0: 0x00) &~(EXPREGS [2] >>3 &0x0E);
@@ -122,6 +122,7 @@ static DECLFW(writeWRAM) {
 	}
 }
 
+<<<<<<< HEAD
 static DECLFW(MMC3_CMDWriteA) { /* In mmc3.c, MMC3_cmd is updated *after* FixMMC3PRG is called, but we need MMC3_cmd in wrapPRG, so work around this problem until the MMC3 core is properly rewritten to actually make sense. */
 	if ((A &0xE001) ==0x8000) {
 		MMC3_cmd =V;
@@ -132,6 +133,9 @@ static DECLFW(MMC3_CMDWriteA) { /* In mmc3.c, MMC3_cmd is updated *after* FixMMC
 }
 	
 static DECLFW(writeCart) {
+=======
+static void writeCart(uint32 A, uint8 V) {
+>>>>>>> 09d42d7 (Update ppu.c)
 	if ((EXPREGS[3] &0x09) ==0x09) /* UNROM and ANROM modes treat all writes to $8000-$FFFF as if they were going to $8000-$9FFF */
 		MMC3_CMDWriteA(0x8000 | (EXPREGS[3] &0x08? 1: A) &1, V); /* A0 substitution only looks at bit 3 of register 3 */
 	else
@@ -141,7 +145,7 @@ static DECLFW(writeCart) {
 		MMC3_CMDWriteA(A, V);	
 }
 
-static DECLFR(readPRG) {
+static uint8 readPRG(uint32 A) {
 	if (EXPREGS[1] &1) A =A &~1 | SL0 &1; /* Replace A0 with SL0 input */
 	return CartBR(A);
 }
