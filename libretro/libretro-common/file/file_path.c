@@ -74,7 +74,13 @@
 void strftime_am_pm(char *s, size_t len, const char* format,
       const void *ptr)
 {
+<<<<<<< HEAD
    char *local = NULL;
+=======
+#if !(defined(__linux__) && !defined(ANDROID))
+   char *local = NULL;
+#endif
+>>>>>>> dfa05f5 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
    const struct tm *timeptr = (const struct tm*)ptr;
 
    /* Ensure correct locale is set
