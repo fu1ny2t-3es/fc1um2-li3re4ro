@@ -1810,7 +1810,30 @@ enum retro_mod
                                             * even before the microphone driver is ready.
                                             */
 
+<<<<<<< HEAD
 #define RETRO_ENVIRONMENT_SET_NETPACKET_INTERFACE 76
+=======
+                                           /* Environment 76 was an obsolete version of RETRO_ENVIRONMENT_SET_NETPACKET_INTERFACE.
+                                            * It was not used by any known core at the time, and was removed from the API. */
+
+#define RETRO_ENVIRONMENT_GET_DEVICE_POWER (77 | RETRO_ENVIRONMENT_EXPERIMENTAL)
+                                           /* struct retro_device_power * --
+                                            * Returns the device's current power state as reported by the frontend.
+                                            * This is useful for emulating the battery level in handheld consoles,
+                                            * or for reducing power consumption when on battery power.
+                                            *
+                                            * The return value indicates whether the frontend can provide this information,
+                                            * even if the parameter is NULL.
+                                            *
+                                            * If the frontend does not support this functionality,
+                                            * then the provided argument will remain unchanged.
+                                            *
+                                            * Note that this environment call describes the power state for the entire device,
+                                            * not for individual peripherals like controllers.
+                                            */
+
+#define RETRO_ENVIRONMENT_SET_NETPACKET_INTERFACE 78
+>>>>>>> 51c6779 (Update ppu.c)
                                            /* const struct retro_netpacket_callback * --
                                             * When set, a core gains control over network packets sent and
                                             * received during a multiplayer session. This can be used to
@@ -1833,6 +1856,7 @@ enum retro_mod
                                             * multiplayer, where a deterministic core supporting multiple
                                             * input devices does not need to take any action on its own.
                                             */
+<<<<<<< HEAD
 
 #define RETRO_ENVIRONMENT_GET_DEVICE_POWER (77 | RETRO_ENVIRONMENT_EXPERIMENTAL)
                                            /* struct retro_device_power * --
@@ -1849,6 +1873,8 @@ enum retro_mod
                                             * Note that this environment call describes the power state for the entire device,
                                             * not for individual peripherals like controllers.
                                             */
+=======
+>>>>>>> 51c6779 (Update ppu.c)
 
 /* VFS functionality */
 
@@ -3078,6 +3104,7 @@ struct retro_disk_control_ext_callback
 
 /* Netpacket flags for retro_netpacket_send_t */
 #define RETRO_NETPACKET_UNRELIABLE  0        /* Packet to be sent unreliable, depending on network quality it might not arrive. */
+<<<<<<< HEAD
 #define RETRO_NETPACKET_RELIABLE    (1 << 0) /* Reliable packets are guaranteed to arrive at the target in the order they were send. */
 #define RETRO_NETPACKET_UNSEQUENCED (1 << 1) /* Packet will not be sequenced with other packets and may arrive out of order. Cannot be set on reliable packets. */
 
@@ -3088,22 +3115,59 @@ struct retro_disk_control_ext_callback
  * In a broadcast, the client_id argument indicates 1 client NOT to send the
  * packet to (pass 0xFFFF to send to everyone). Otherwise, the client_id
  * argument indicates a single client to send the packet to.
+=======
+#define RETRO_NETPACKET_RELIABLE    (1 << 0) /* Reliable packets are guaranteed to arrive at the target in the order they were sent. */
+#define RETRO_NETPACKET_UNSEQUENCED (1 << 1) /* Packet will not be sequenced with other packets and may arrive out of order. Cannot be set on reliable packets. */
+#define RETRO_NETPACKET_FLUSH_HINT  (1 << 2) /* Request the packet and any previously buffered ones to be sent immediately */
+
+/* Broadcast client_id for retro_netpacket_send_t */
+#define RETRO_NETPACKET_BROADCAST 0xFFFF
+
+/* Used by the core to send a packet to one or all connected players.
+ * A single packet sent via this interface can contain up to 64 KB of data.
+ *
+ * The client_id RETRO_NETPACKET_BROADCAST sends the packet as a broadcast to
+ * all connected players. This is supported from the host as well as clients.
+*  Otherwise, the argument indicates the player to send the packet to.
+>>>>>>> 51c6779 (Update ppu.c)
  *
  * A frontend must support sending reliable packets (RETRO_NETPACKET_RELIABLE).
  * Unreliable packets might not be supported by the frontend, but the flags can
  * still be specified. Reliable transmission will be used instead.
  *
+<<<<<<< HEAD
  * If this function is called passing NULL for buf, it will instead flush all
  * previously buffered outgoing packets and instantly read any incoming packets.
  * During such a call, retro_netpacket_receive_t and retro_netpacket_stop_t can
  * be called. The core can perform this in a loop to do a blocking read, i.e.,
  * wait for incoming data, but needs to handle stop getting called and also
  * give up after a short while to avoid freezing on a connection problem.
+=======
+ * Calling this with the flag RETRO_NETPACKET_FLUSH_HINT will send off the
+ * packet and any previously buffered ones immediately and without blocking.
+ * To only flush previously queued packets, buf or len can be passed as NULL/0.
+>>>>>>> 51c6779 (Update ppu.c)
  *
  * This function is not guaranteed to be thread-safe and must be called during
  * retro_run or any of the netpacket callbacks passed with this interface.
  */
+<<<<<<< HEAD
 typedef void (RETRO_CALLCONV *retro_netpacket_send_t)(int flags, const void* buf, size_t len, uint16_t client_id, bool broadcast);
+=======
+typedef void (RETRO_CALLCONV *retro_netpacket_send_t)(int flags, const void* buf, size_t len, uint16_t client_id);
+
+/* Optionally read any incoming packets without waiting for the end of the
+ * frame. While polling, retro_netpacket_receive_t and retro_netpacket_stop_t
+ * can be called. The core can perform this in a loop to do a blocking read,
+ * i.e., wait for incoming data, but needs to handle stop getting called and
+ * also give up after a short while to avoid freezing on a connection problem.
+ * It is a good idea to manually flush outgoing packets before calling this.
+ *
+ * This function is not guaranteed to be thread-safe and must be called during
+ * retro_run or any of the netpacket callbacks passed with this interface.
+ */
+typedef void (RETRO_CALLCONV *retro_netpacket_poll_receive_t)(void);
+>>>>>>> 51c6779 (Update ppu.c)
 
 /* Called by the frontend to signify that a multiplayer session has started.
  * If client_id is 0 the local player is the host of the session and at this
@@ -3112,11 +3176,20 @@ typedef void (RETRO_CALLCONV *retro_netpacket_send_t)(int flags, const void* buf
  * If client_id is > 0 the local player is a client connected to a host and
  * at this point is already fully connected to the host.
  *
+<<<<<<< HEAD
  * The core must store the retro_netpacket_send_t function pointer provided
  * here and use it whenever it wants to send a packet. This function pointer
  * remains valid until the frontend calls retro_netpacket_stop_t.
  */
 typedef void (RETRO_CALLCONV *retro_netpacket_start_t)(uint16_t client_id, retro_netpacket_send_t send_fn);
+=======
+ * The core must store the function pointer send_fn and use it whenever it
+ * wants to send a packet. Optionally poll_receive_fn can be stored and used
+ * when regular receiving between frames is not enough. These function pointers
+ * remain valid until the frontend calls retro_netpacket_stop_t.
+ */
+typedef void (RETRO_CALLCONV *retro_netpacket_start_t)(uint16_t client_id, retro_netpacket_send_t send_fn, retro_netpacket_poll_receive_t poll_receive_fn);
+>>>>>>> 51c6779 (Update ppu.c)
 
 /* Called by the frontend when a new packet arrives which has been sent from
  * another player with retro_netpacket_send_t. The client_id argument indicates
@@ -3125,8 +3198,13 @@ typedef void (RETRO_CALLCONV *retro_netpacket_start_t)(uint16_t client_id, retro
 typedef void (RETRO_CALLCONV *retro_netpacket_receive_t)(const void* buf, size_t len, uint16_t client_id);
 
 /* Called by the frontend when the multiplayer session has ended.
+<<<<<<< HEAD
  * Once this gets called the retro_netpacket_send_t function pointer passed
  * to retro_netpacket_start_t will not be valid anymore.
+=======
+ * Once this gets called the function pointers passed to
+ * retro_netpacket_start_t will not be valid anymore.
+>>>>>>> 51c6779 (Update ppu.c)
  */
 typedef void (RETRO_CALLCONV *retro_netpacket_stop_t)(void);
 
@@ -3153,6 +3231,13 @@ typedef void (RETRO_CALLCONV *retro_netpacket_disconnected_t)(uint16_t client_id
  * network packets during a multiplayer session between two or more instances
  * of a libretro frontend.
  *
+<<<<<<< HEAD
+=======
+ * Normally during connection handshake the frontend will compare library_version
+ * used by both parties and show a warning if there is a difference. When the core
+ * supplies protocol_version, the frontend will check against this instead.
+ *
+>>>>>>> 51c6779 (Update ppu.c)
  * @see RETRO_ENVIRONMENT_SET_NETPACKET_INTERFACE
  */
 struct retro_netpacket_callback
@@ -3163,6 +3248,10 @@ struct retro_netpacket_callback
    retro_netpacket_poll_t         poll;         /* Optional - may be NULL */
    retro_netpacket_connected_t    connected;    /* Optional - may be NULL */
    retro_netpacket_disconnected_t disconnected; /* Optional - may be NULL */
+<<<<<<< HEAD
+=======
+   const char* protocol_version; /* Optional - if not NULL will be used instead of core version to decide if communication is compatible */
+>>>>>>> 51c6779 (Update ppu.c)
 };
 
 enum retro_pixel_format
