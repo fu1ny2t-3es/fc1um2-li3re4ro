@@ -1,9 +1,10 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 1998 BERO
  *  Copyright (C) 2003 Xodnizel
  *  Mapper 12 code Copyright (C) 2003 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,25 +28,17 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
-uint8 MMC3_cmd;
-static uint8 *WRAM;
-static uint32 WRAMSIZE;
-static uint8 *CHRRAM;
-static uint32 CHRRAMSIZE;
-uint8 DRegBuf[8];
-uint8 EXPREGS[8];	/* For bootleg games, mostly. */
-uint8 A000B, A001B;
-uint8 mmc3opts = 0;
+MMC3 mmc3;
 
 static uint8 IRQCount, IRQLatch, IRQa;
 static uint8 IRQReload;
 
 static SFORMAT MMC3_StateRegs[] =
 {
-	{ DRegBuf, 8, "REGS" },
-	{ &MMC3_cmd, 1, "CMD" },
-	{ &A000B, 1, "A000" },
-	{ &A001B, 1, "A001" },
+	{ mmc3.reg, 8, "REGS" },
+	{ &mmc3.cmd, 1, "CMD" },
+	{ &mmc3.mirr, 1, "A000" },
+	{ &mmc3.wram, 1, "A001" },
 	{ &IRQReload, 1, "IRQR" },
 	{ &IRQCount, 1, "IRQC" },
 	{ &IRQLatch, 1, "IRQL" },
@@ -53,23 +46,35 @@ static SFORMAT MMC3_StateRegs[] =
 	{ 0 }
 };
 
-static int isRevB = 1;
+static void GENFIXPRG(void);
+static void GENFIXCHR(void);
 
-void (*pwrap)(uint32 A, uint8 V);
-void (*cwrap)(uint32 A, uint8 V);
-void (*mwrap)(uint8 V);
+static void GENPWRAP(uint16 A, uint16 V);
+static void GENCWRAP(uint16 A, uint16 V);
 
-void GenMMC3Power(void);
-void FixMMC3PRG(int V);
-void FixMMC3CHR(int V);
+int isRevB = 1;
 
-void GenMMC3_Init(CartInfo *info, int prg, int chr, int wram, int battery);
+void (*MMC3_FixPRG)(void);
+void (*MMC3_FixCHR)(void);
+void (*MMC3_FixMIR)(void);
+
+void (*MMC3_pwrap)(uint16 A, uint16 V);
+void (*MMC3_cwrap)(uint16 A, uint16 V);
+
+static void GENCWRAP(uint16 A, uint16 V) {
+	setchr1(A, V & 0xFF);
+}
+
+static void GENPWRAP(uint16 A, uint16 V) {
+	setprg8(A, (V & 0x7F));
+}
 
 /* ----------------------------------------------------------------------
  * ------------------------- Generic MM3 Code ---------------------------
  * ----------------------------------------------------------------------
  */
 
+<<<<<<< HEAD
 int MMC3CanWriteToWRAM(void) {
 	return ((A001B & 0x80) && !(A001B & 0x40));
 }
@@ -81,240 +86,265 @@ void FixMMC3PRG(int V) {
 	} else {
 		pwrap(0x8000, DRegBuf[6]);
 		pwrap(0xC000, ~1);
+=======
+uint8 MMC3_GetPRGBank(int V) {
+	if ((~V & 0x01) && (mmc3.cmd & 0x40)) {
+		V ^= 0x02;
+>>>>>>> 950f415 (Update libretro.c)
 	}
-	pwrap(0xA000, DRegBuf[7]);
-	pwrap(0xE000, ~0);
+	if (V & 0x02) {
+		return (0xFE | (V & 0x01));
+	}
+	return mmc3.reg[6 | (V & 0x01)];
 }
 
-void FixMMC3CHR(int V) {
-	int cbase = (V & 0x80) << 5;
-
-	cwrap((cbase ^ 0x000), DRegBuf[0] & (~1));
-	cwrap((cbase ^ 0x400), DRegBuf[0] | 1);
-	cwrap((cbase ^ 0x800), DRegBuf[1] & (~1));
-	cwrap((cbase ^ 0xC00), DRegBuf[1] | 1);
-
-	cwrap(cbase ^ 0x1000, DRegBuf[2]);
-	cwrap(cbase ^ 0x1400, DRegBuf[3]);
-	cwrap(cbase ^ 0x1800, DRegBuf[4]);
-	cwrap(cbase ^ 0x1c00, DRegBuf[5]);
-
-	if (mwrap) mwrap(A000B);
+uint8 MMC3_GetCHRBank(int V) {
+	if (mmc3.cmd & 0x80) {
+		V ^= 0x04;
+	}
+	if (V & 0x04) {
+		return mmc3.reg[V - 2];
+	}
+	return ((mmc3.reg[V >> 1] & ~0x01) | (V & 0x01));
 }
 
-void MMC3RegReset(void) {
-	IRQCount = IRQLatch = IRQa = MMC3_cmd = 0;
-
-	DRegBuf[0] = 0;
-	DRegBuf[1] = 2;
-	DRegBuf[2] = 4;
-	DRegBuf[3] = 5;
-	DRegBuf[4] = 6;
-	DRegBuf[5] = 7;
-	DRegBuf[6] = 0;
-	DRegBuf[7] = 1;
-
-	FixMMC3PRG(0);
-	FixMMC3CHR(0);
+int MMC3_WramIsWritable(void) {
+	return ((mmc3.wram & 0x80) && !(mmc3.wram & 0x40)) ? TRUE : FALSE;
 }
 
-void MMC3_CMDWrite(uint32 A, uint8 V) {
+static void GENFIXPRG(void) {
+	MMC3_pwrap(0x8000, MMC3_GetPRGBank(0));
+	MMC3_pwrap(0xA000, MMC3_GetPRGBank(1));
+	MMC3_pwrap(0xC000, MMC3_GetPRGBank(2));
+	MMC3_pwrap(0xE000, MMC3_GetPRGBank(3));
+}
+
+static void GENFIXCHR(void) {
+	MMC3_cwrap(0x0000, MMC3_GetCHRBank(0));
+	MMC3_cwrap(0x0400, MMC3_GetCHRBank(1));
+	MMC3_cwrap(0x0800, MMC3_GetCHRBank(2));
+	MMC3_cwrap(0x0C00, MMC3_GetCHRBank(3));
+
+	MMC3_cwrap(0x1000, MMC3_GetCHRBank(4));
+	MMC3_cwrap(0x1400, MMC3_GetCHRBank(5));
+	MMC3_cwrap(0x1800, MMC3_GetCHRBank(6));
+	MMC3_cwrap(0x1C00, MMC3_GetCHRBank(7));
+}
+
+static void GENFIXMIR(void) {
+	setmirror((mmc3.mirr & 0x01) ^ 0x01);
+}
+
+void MMC3_Reset(void) {
+	IRQCount = IRQLatch = IRQa = mmc3.cmd = 0;
+	mmc3.mirr = mmc3.wram = 0;
+
+	mmc3.reg[0] = 0;
+	mmc3.reg[1] = 2;
+	mmc3.reg[2] = 4;
+	mmc3.reg[3] = 5;
+	mmc3.reg[4] = 6;
+	mmc3.reg[5] = 7;
+	mmc3.reg[6] = 0;
+	mmc3.reg[7] = 1;
+
+	MMC3_FixPRG();
+	MMC3_FixCHR();
+	MMC3_FixMIR();
+}
+
+DECLFW(MMC3_CMDWrite) {
+	uint8 oldcmd = mmc3.cmd;
+	/*	FCEU_printf("bs %04x %02x\n",A,V); */
 	switch (A & 0xE001) {
 	case 0x8000:
-		if ((V & 0x40) != (MMC3_cmd & 0x40))
-			FixMMC3PRG(V);
-		if ((V & 0x80) != (MMC3_cmd & 0x80))
-			FixMMC3CHR(V);
-		MMC3_cmd = V;
+		mmc3.cmd = V;
+		if ((oldcmd & 0x40) != (mmc3.cmd & 0x40)) {
+			MMC3_FixPRG();
+		}
+		if ((oldcmd & 0x80) != (mmc3.cmd & 0x80)) {
+			MMC3_FixCHR();
+		}
 		break;
-	case 0x8001:
-	{
-		int cbase = (MMC3_cmd & 0x80) << 5;
-		DRegBuf[MMC3_cmd & 0x7] = V;
-		switch (MMC3_cmd & 0x07) {
+	case 0x8001: {
+		int cbase = (mmc3.cmd & 0x80) << 5;
+		mmc3.reg[mmc3.cmd & 0x7] = V;
+		switch (mmc3.cmd & 0x07) {
 		case 0:
-			cwrap((cbase ^ 0x000), V & (~1));
-			cwrap((cbase ^ 0x400), V | 1);
+			MMC3_cwrap((cbase ^ 0x000), V & (~1));
+			MMC3_cwrap((cbase ^ 0x400), V | 1);
 			break;
 		case 1:
-			cwrap((cbase ^ 0x800), V & (~1));
-			cwrap((cbase ^ 0xC00), V | 1);
+			MMC3_cwrap((cbase ^ 0x800), V & (~1));
+			MMC3_cwrap((cbase ^ 0xC00), V | 1);
 			break;
 		case 2:
-			cwrap(cbase ^ 0x1000, V);
+			MMC3_cwrap(cbase ^ 0x1000, V);
 			break;
 		case 3:
-			cwrap(cbase ^ 0x1400, V);
+			MMC3_cwrap(cbase ^ 0x1400, V);
 			break;
 		case 4:
-			cwrap(cbase ^ 0x1800, V);
+			MMC3_cwrap(cbase ^ 0x1800, V);
 			break;
 		case 5:
-			cwrap(cbase ^ 0x1C00, V);
+			MMC3_cwrap(cbase ^ 0x1C00, V);
 			break;
 		case 6:
-			if (MMC3_cmd & 0x40)
-				pwrap(0xC000, V);
-			else
-				pwrap(0x8000, V);
+			if (mmc3.cmd & 0x40) {
+				MMC3_pwrap(0xC000, V);
+			} else {
+				MMC3_pwrap(0x8000, V);
+			}
 			break;
 		case 7:
-			pwrap(0xA000, V);
+			MMC3_pwrap(0xA000, V);
 			break;
 		}
 		break;
 	}
 	case 0xA000:
-		if (mwrap) mwrap(V);
+		mmc3.mirr = V;
+		MMC3_FixMIR();
 		break;
 	case 0xA001:
-		A001B = V;
+		mmc3.wram = V;
 		break;
 	}
 }
 
-void MMC3_IRQWrite(uint32 A, uint8 V) {
+DECLFW(MMC3_IRQWrite) {
+	/*	FCEU_printf("%04x:%04x\n",A,V); */
 	switch (A & 0xE001) {
-	case 0xC000: IRQLatch = V; break;
-	case 0xC001: IRQReload = 1; break;
-	case 0xE000: X6502_IRQEnd(FCEU_IQEXT); IRQa = 0; break;
-	case 0xE001: IRQa = 1; break;
+	case 0xC000:
+		IRQLatch = V;
+		break;
+	case 0xC001:
+		IRQCount = 0;
+		IRQReload = 1;
+		break;
+	case 0xE000:
+		X6502_IRQEnd(FCEU_IQEXT);
+		IRQa = 0;
+		break;
+	case 0xE001:
+		IRQa = 1;
+		break;
 	}
 }
 
-static void ClockMMC3Counter(void) {
+DECLFW(MMC3_Write) {
+	/*	FCEU_printf("bs %04x %02x\n",A,V); */
+	switch (A & 0xE000) {
+	case 0x8000:
+	case 0xA000:
+		MMC3_CMDWrite(A, V);
+		break;
+	case 0xC000:
+	case 0xE000:
+		MMC3_IRQWrite(A, V);
+		break;
+	}
+}
+
+void MMC3_IRQHBHook(void) {
 	int count = IRQCount;
 	if (!count || IRQReload) {
 		IRQCount = IRQLatch;
 		IRQReload = 0;
-	} else
+	} else {
 		IRQCount--;
-	if ((count | isRevB) && !IRQCount) {
-		if (IRQa) {
-			X6502_IRQBegin(FCEU_IQEXT);
-		}
+	}
+	if ((count | isRevB) && !IRQCount && IRQa) {
+		X6502_IRQBegin(FCEU_IQEXT);
 	}
 }
 
 static void MMC3_hb(void) {
-	ClockMMC3Counter();
+	MMC3_IRQHBHook();
 }
 
 static void MMC3_hb_KickMasterHack(void) {
-	if (scanline == 238) ClockMMC3Counter();
-	ClockMMC3Counter();
+	if (scanline == 238) {
+		MMC3_IRQHBHook();
+	}
+	MMC3_IRQHBHook();
 }
 
 static void MMC3_hb_PALStarWarsHack(void) {
-	if (scanline == 240) ClockMMC3Counter();
-	ClockMMC3Counter();
+	if (scanline == 240) {
+		MMC3_IRQHBHook();
+	}
+	MMC3_IRQHBHook();
 }
 
-void GenMMC3Restore(int version) {
-	FixMMC3PRG(MMC3_cmd);
-	FixMMC3CHR(MMC3_cmd);
+static void StateRestore(int version) {
+	MMC3_FixPRG();
+	MMC3_FixCHR();
+	MMC3_FixMIR();
 }
 
-static void GENCWRAP(uint32 A, uint8 V) {
-	setchr1(A, V);			/* Business Wars NEEDS THIS for 8K CHR-RAM */
-}
-
-static void GENPWRAP(uint32 A, uint8 V) {
-   /* [NJ102] Mo Dao Jie (C) has 1024Mb MMC3 BOARD, maybe something other will be broken
-    * also HengGe BBC-2x boards enables this mode as default board mode at boot up
-    */
-   setprg8(A, (V & 0x7F));
-}
-
-static void GENMWRAP(uint8 V) {
-	A000B = V;
-	setmirror((V & 1) ^ 1);
-}
-
-static void GENNOMWRAP(uint8 V) {
-	A000B = V;
-}
-
-static void MBWRAMMMC6(uint32 A, uint8 V) {
-	WRAM[A & 0x3ff] = V;
-}
-
-static uint8 MAWRAMMMC6(uint32 A) {
-	return(WRAM[A & 0x3ff]);
-}
-
-void GenMMC3Power(void) {
-	if (UNIFchrrama) setchr8(0);
+void MMC3_Power(void) {
+	if (UNIFchrrama) {
+		setchr8(0);
+	}
 
 	SetWriteHandler(0x8000, 0xBFFF, MMC3_CMDWrite);
 	SetWriteHandler(0xC000, 0xFFFF, MMC3_IRQWrite);
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 
-	A001B = A000B = 0;
 	setmirror(1);
-	if (mmc3opts & 1) {
-		if (WRAMSIZE == 1024) {
-			FCEU_CheatAddRAM(1, 0x7000, WRAM);
-			SetReadHandler(0x7000, 0x7FFF, MAWRAMMMC6);
-			SetWriteHandler(0x7000, 0x7FFF, MBWRAMMMC6);
-		} else {
-         FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
-			SetWriteHandler(0x6000, 0x6000 + ((WRAMSIZE - 1) & 0x1fff), CartBW);
-			SetReadHandler(0x6000, 0x6000 + ((WRAMSIZE - 1) & 0x1fff), CartBR);
-			setprg8r(0x10, 0x6000, 0);
+	if (mmc3.opts & 1) {
+		FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+		SetWriteHandler(0x6000, 0x6000 + ((WRAMSIZE - 1) & 0x1fff), CartBW);
+		SetReadHandler(0x6000, 0x6000 + ((WRAMSIZE - 1) & 0x1fff), CartBR);
+		setprg8r(0x10, 0x6000, 0);
+		if (!(mmc3.opts & 2)) {
+			FCEU_MemoryRand(WRAM, WRAMSIZE);
 		}
-		if (!(mmc3opts & 2))
-			FCEU_dwmemset(WRAM, 0, WRAMSIZE);
 	}
-	MMC3RegReset();
-	if (CHRRAM)
-		FCEU_dwmemset(CHRRAM, 0, CHRRAMSIZE);
+	MMC3_Reset();
 }
 
-void GenMMC3Close(void) {
-	if (CHRRAM)
-		FCEU_gfree(CHRRAM);
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	CHRRAM = WRAM = NULL;
+void MMC3_Close(void) {
 }
 
-void GenMMC3_Init(CartInfo *info, int prg, int chr, int wram, int battery) {
-	pwrap = GENPWRAP;
-	cwrap = GENCWRAP;
-	mwrap = GENMWRAP;
+void MMC3_Init(CartInfo *info, int wram, int battery) {
+	MMC3_FixPRG = GENFIXPRG;
+	MMC3_FixCHR = GENFIXCHR;
+	MMC3_FixMIR = GENFIXMIR;
+
+	MMC3_pwrap = GENPWRAP;
+	MMC3_cwrap = GENCWRAP;
 
 	WRAMSIZE = wram << 10;
 
-	PRGmask8[0] &= (prg >> 13) - 1;
-	CHRmask1[0] &= (chr >> 10) - 1;
-	CHRmask2[0] &= (chr >> 11) - 1;
-
 	if (wram) {
-		mmc3opts |= 1;
-		WRAM = (uint8*)FCEU_gmalloc(WRAMSIZE);
+		mmc3.opts |= 1;
+		WRAM = (uint8 *)FCEU_gmalloc(WRAMSIZE);
 		SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 		AddExState(WRAM, WRAMSIZE, 0, "WRAM");
 	}
 
 	if (battery) {
-		mmc3opts |= 2;
+		mmc3.opts |= 2;
 		info->SaveGame[0] = WRAM;
 		info->SaveGameLen[0] = WRAMSIZE;
 	}
 
 	AddExState(MMC3_StateRegs, ~0, 0, 0);
 
-	info->Power = GenMMC3Power;
-	info->Reset = MMC3RegReset;
-	info->Close = GenMMC3Close;
+	info->Power = MMC3_Power;
+	info->Reset = MMC3_Reset;
+	info->Close = MMC3_Close;
 
-	if (info->CRC32 == 0x5104833e)		/* Kick Master */
+	if (info->CRC32 == 0x5104833e) { /* Kick Master */
 		GameHBIRQHook = MMC3_hb_KickMasterHack;
-	else if (info->CRC32 == 0x5a6860f1 || info->CRC32 == 0xae280e20) /* Shougi Meikan '92/'93 */
+	} else if (info->CRC32 == 0x5a6860f1 || info->CRC32 == 0xae280e20) { /* Shougi Meikan '92/'93 */
 		GameHBIRQHook = MMC3_hb_KickMasterHack;
-	else if (info->CRC32 == 0xfcd772eb)	/* PAL Star Wars, similar problem as Kick Master. */
+	} else if (info->CRC32 == 0xfcd772eb) { /* PAL Star Wars, similar problem as Kick Master. */
 		GameHBIRQHook = MMC3_hb_PALStarWarsHack;
+<<<<<<< HEAD
 	else
 		GameHBIRQHook = MMC3_hb;
 	GameStateRestore = GenMMC3Restore;
@@ -1107,10 +1137,12 @@ static void UNLMaliSBWrite(uint32 A, uint8 V) {
 	if (A >= 0xC000) {
 		A = (A & 0xFFFE) | ((A >> 2) & 1) | ((A >> 3) & 1);
 		MMC3_IRQWrite(A, V);
+=======
+>>>>>>> 975c80f (Update libretro.c)
 	} else {
-		A = (A & 0xFFFE) | ((A >> 3) & 1);
-		MMC3_CMDWrite(A, V);
+		GameHBIRQHook = MMC3_hb;
 	}
+<<<<<<< HEAD
 }
 
 static void UNLMaliSBPower(void) {
@@ -1611,4 +1643,7 @@ void TQROM_Init(CartInfo *info) {
 
 void HKROM_Init(CartInfo *info) {
 	GenMMC3_Init(info, 512, 512, 1, info->battery);
+=======
+	GameStateRestore = StateRestore;
+>>>>>>> 7b77b01 (Update libretro.c)
 }
