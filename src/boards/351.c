@@ -152,7 +152,7 @@ static void sync () {
 		setmirror(MMC1_reg[0] &3 ^3);
 }
 
-static DECLFW(writeMMC3) {
+static void writeMMC3(uint32 A, uint8 V) {
 	switch(A &0xE001) {
 	case 0x8000: MMC3_index =V;              sync();    break;
 	case 0x8001: MMC3_reg[MMC3_index &7] =V; sync();    break;
@@ -165,7 +165,7 @@ static DECLFW(writeMMC3) {
 	}
 }
 
-static DECLFW(writeMMC1) {
+static void writeMMC1(uint32 A, uint8 V) {
 	if (V &0x80) {
 		MMC1_shift =MMC1_count =0;
 		MMC1_reg[0] |=0x0C;
@@ -183,7 +183,7 @@ static DECLFW(writeMMC1) {
 	MMC1_filter =2;
 }
 
-static DECLFW(writeVRC4) {
+static void writeVRC4(uint32 A, uint8 V) {
 	uint8 index;
 	if (~reg[2] &4) A =A &0xF800 | A >>1 &0x3FF; /* A2,A1 -> A1,A0 if 5002.2=1 */
 	A |=A >>2 &3; /* A3,A2 -> A1,A0 */
@@ -228,7 +228,7 @@ static DECLFW(writeVRC4) {
 	}
 }
 
-static void FP_FASTAPASS(1) cpuCycle(int a) {
+static void cpuCycle(int a) {
 	if ((reg[0] &3) ==3) while (a--) { /* VRC4 mode */
 		if (VRCIRQ_mode &0x02 && (VRCIRQ_mode &0x04 || (VRCIRQ_cycles -=3) <=0)) {
 			if (~VRCIRQ_mode &0x04) VRCIRQ_cycles +=341;
@@ -262,18 +262,16 @@ static void Mapper351_restore (int version) {
 	sync();
 }
 
-static DECLFR(readDIP) {
-	return dip;
-}
+static uint8 readDIP(uint32 A) { return dip; }
 
-static DECLFW(writeReg) {
+static void writeReg(uint32 A, uint8 V) {
 	uint8 previousMode =reg[0] &3;
 	reg[A &3] =V;
 	if ((reg[0] &3) !=previousMode) applyMode();
 	sync();
 }
 
-static DECLFW(writeFDSMirroring) {
+static void writeFDSMirroring(uint32 A, uint8 V) {
 	MMC3_mirroring =V >>3 &1;
 	sync();
 }
