@@ -33,7 +33,10 @@
 #include "palette.h"
 #include "palettes/palettes.h"
 
+static uint8 lastd = 0;
+
 /* These are dynamically filled/generated palettes: */
+<<<<<<< HEAD
 static pal palette_game[512];		/* Custom palette for an individual game. */
 static pal palette_user[512];		/* Custom "global" palette. */
 
@@ -46,6 +49,16 @@ uint8 default_palette_selected = 0;
 
 pal *palo;
 static pal *default_palette[8] =
+=======
+static pal palettei[64];	/* Custom palette for an individual game. */
+static pal palettec[64];	/* Custom "global" palette. */
+
+int ipalette = 0;
+uint8 pale = 0;
+pal *palo;
+
+static pal *palpoint[8] =
+>>>>>>> e053a70 (Backports)
 {
 	palette,
 	rp2c04_0001,
@@ -55,6 +68,7 @@ static pal *default_palette[8] =
 	rp2c03,
 };
 
+<<<<<<< HEAD
 static void ApplyDeemphasisClassic(int entry, uint8 *r, uint8 *g, uint8 *b) {
 	static const float rtmul[] = { 1.239f, 0.794f, 1.019f, 0.905f, 1.023f, 0.741f, 0.75f };
 	static const float gtmul[] = { 0.915f, 1.086f, 0.98f,  1.026f, 0.908f, 0.987f, 0.75f };
@@ -96,6 +110,41 @@ static void ApplyDeemphasisComplete(pal *pal512) {
 void FCEUI_SetPaletteArray(uint8 *pal, int nEntries) {
 	if (!pal || !nEntries)
 		palette_user_available = false;
+=======
+static void ChoosePalette(void) {
+	if (GameInfo->type == GIT_NSF)
+		palo = 0;
+	else if (ipalette)
+		palo = palettei;
+	else
+		palo = palpoint[pale];
+}
+
+/* Forward declaration */
+static void WritePalette(void) {
+	int x;
+
+	for (x = 0; x < 7; x++)
+		FCEUD_SetPalette(x, unvpalette[x].r, unvpalette[x].g, unvpalette[x].b);
+	if (GameInfo->type == GIT_NSF) {
+	} else {
+		for (x = 0; x < 64; x++)
+			FCEUD_SetPalette(128 + x, palo[x].r, palo[x].g, palo[x].b);
+		SetNESDeemph(lastd, 1);
+	}
+}
+
+void FCEU_ResetPalette(void) {
+	if (GameInfo) {
+		ChoosePalette();
+		WritePalette();
+	}
+}
+
+void FCEUI_SetPaletteArray(uint8 *pal) {
+	if (!pal)
+		palpoint[0] = palette;
+>>>>>>> e053a70 (Backports)
 	else {
 		int x;
 		palette_user_available = true;
@@ -111,7 +160,6 @@ void FCEUI_SetPaletteArray(uint8 *pal, int nEntries) {
 	FCEU_ResetPalette();
 }
 
-static uint8 lastd = 0;
 void SetNESDeemph(uint8 d, int force) {
 	static uint16 rtmul[7] = { 32768 * 1.239, 32768 * .794, 32768 * 1.019, 32768 * .905, 32768 * 1.023, 32768 * .741, 32768 * .75 };
 	static uint16 gtmul[7] = { 32768 * .915, 32768 * 1.086, 32768 * .98, 32768 * 1.026, 32768 * .908, 32768 * .987, 32768 * .75 };
@@ -199,6 +247,7 @@ void FCEU_LoadGamePalette(void) {
 	}
 	free(fn);
 }
+<<<<<<< HEAD
 
 void FCEU_ResetPalette(void) {
 	if (GameInfo) {
@@ -235,3 +284,5 @@ void WritePalette(void) {
 		FCEUD_SetPalette(256 + x, palo[x].r, palo[x].g, palo[x].b);
 	}
 }
+=======
+>>>>>>> e053a70 (Backports)
