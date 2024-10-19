@@ -102,6 +102,7 @@ static void M178Sync(void) {
 	setmirror((reg[0] & 1) ^ 1);
 }
 
+<<<<<<< HEAD
 static void M551Sync(void) {
 	uint32 sbank = reg[1] & 0x7;
 	uint32 bbank = reg[2];
@@ -138,6 +139,15 @@ static DECLFW(M178Write) {
 static DECLFW(M178WriteSnd) {
 	if (A == 0x5800)
 	{
+=======
+static void M178Write(uint32 A, uint8 V) {
+	reg[A & 3] = V;
+	Sync();
+}
+
+static void M178WriteSnd(uint32 A, uint8 V) {
+	if (A == 0x5800) {
+>>>>>>> 9e37452 (Update libretro_core_options.h)
 		if (V & 0xF0) {
 			pcm_enable = 1;
 			pcmwrite(0x4011, decode(V & 0xf));
@@ -146,10 +156,11 @@ static DECLFW(M178WriteSnd) {
 	}
 }
 
-static DECLFR(M178ReadSnd) {
+static uint8 M178ReadSnd(uint32 A) {
 	if (A == 0x5800)
 		return (X.DB & 0xBF) | ((pcm_enable ^ 1) << 6);
 	return X.DB;
+<<<<<<< HEAD
 }
 
 static void M551Power(void) {
@@ -163,6 +174,8 @@ static void M551Power(void) {
 	SetWriteHandler(0x6000, 0x7fff, CartBW);
 	SetReadHandler(0x8000, 0xffff, CartBR);
 	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+=======
+>>>>>>> 9e37452 (Update libretro_core_options.h)
 }
 
 static void M178Power(void) {
