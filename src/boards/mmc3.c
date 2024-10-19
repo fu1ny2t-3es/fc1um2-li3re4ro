@@ -118,8 +118,7 @@ void MMC3RegReset(void) {
 	FixMMC3CHR(0);
 }
 
-DECLFW(MMC3_CMDWrite) {
-/*	FCEU_printf("bs %04x %02x\n",A,V); */
+void MMC3_CMDWrite(uint32 A, uint8 V) {
 	switch (A & 0xE001) {
 	case 0x8000:
 		if ((V & 0x40) != (MMC3_cmd & 0x40))
@@ -174,8 +173,7 @@ DECLFW(MMC3_CMDWrite) {
 	}
 }
 
-DECLFW(MMC3_IRQWrite) {
-/*	FCEU_printf("%04x:%04x\n",A,V); */
+void MMC3_IRQWrite(uint32 A, uint8 V) {
 	switch (A & 0xE001) {
 	case 0xC000: IRQLatch = V; break;
 	case 0xC001: IRQReload = 1; break;
@@ -237,11 +235,11 @@ static void GENNOMWRAP(uint8 V) {
 	A000B = V;
 }
 
-static DECLFW(MBWRAMMMC6) {
+static void MBWRAMMMC6(uint32 A, uint8 V) {
 	WRAM[A & 0x3ff] = V;
 }
 
-static DECLFR(MAWRAMMMC6) {
+static uint8 MAWRAMMMC6(uint32 A) {
 	return(WRAM[A & 0x3ff]);
 }
 
@@ -358,12 +356,12 @@ static void M12CW(uint32 A, uint8 V) {
 	setchr1(A, (EXPREGS[(A & 0x1000) >> 12] << 8) + V);
 }
 
-static DECLFW(M12Write) {
+static void M12Write(uint32 A, uint8 V) {
 	EXPREGS[0] = V & 0x01;
 	EXPREGS[1] = (V & 0x10) >> 4;
 }
 
-static DECLFR(M12Read) {
+static uint8 M12Read(uint32 A) {
 	return EXPREGS[2];
 }
 
@@ -409,7 +407,7 @@ static void M37CW(uint32 A, uint8 V) {
 	setchr1(A, NV);
 }
 
-static DECLFW(M37Write) {
+static void M37Write(uint32 A, uint8 V) {
 	EXPREGS[0] = (V & 6) >> 1;
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
@@ -452,7 +450,7 @@ static void M44CW(uint32 A, uint8 V) {
 	setchr1(A, NV);
 }
 
-static DECLFW(M44Write) {
+static void M44Write(uint32 A, uint8 V) {
 	if (A & 1) {
 		EXPREGS[0] = V & 7;
 		FixMMC3PRG(MMC3_cmd);
@@ -487,7 +485,7 @@ static void M45CW(uint32 A, uint8 V) {
 	}
 }
 
-static DECLFR(M45ReadOB) {
+static uint8 M45ReadOB(uint32 A) {
 	return X.DB;
 }
 
@@ -507,7 +505,7 @@ static void M45PW(uint32 A, uint8 V) {
 		SetReadHandler(0x8000, 0xFFFF, CartBR);
 }
 
-static DECLFW(M45Write) {
+static void M45Write(uint32 A, uint8 V) {
 	if (EXPREGS[3] & 0x40) {
 		WRAM[A - 0x6000] = V;
 		return;
@@ -518,12 +516,11 @@ static DECLFW(M45Write) {
 	FixMMC3CHR(MMC3_cmd);
 }
 
-static DECLFR(M45Read) {
+static uint8 M45Read(uint32 A) {
 	uint32 addr = 1 << (EXPREGS[5] + 4);
 	if (A & (addr | (addr - 1)))
 		return X.DB | 1;
-	else
-		return X.DB;
+	return X.DB;
 }
 
 static void M45Reset(void) {
@@ -566,6 +563,7 @@ static void M47CW(uint32 A, uint8 V) {
 	setchr1(A, NV);
 }
 
+<<<<<<< HEAD
 static DECLFW(M47Write) {
 	EXPREGS[0] = V;
 	FixMMC3PRG(MMC3_cmd);
@@ -574,6 +572,10 @@ static DECLFW(M47Write) {
 
 static void M47Reset(void) {
 	EXPREGS[0] = 0;	
+=======
+static void M47Write(uint32 A, uint8 V) {
+	EXPREGS[0] = V & 1;
+>>>>>>> ad188a6 (Update libretro.c)
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
 }
@@ -618,7 +620,7 @@ static void M49CW(uint32 A, uint8 V) {
 	setchr1(A, NV);
 }
 
-static DECLFW(M49Write) {
+static void M49Write(uint32 A, uint8 V) {
 	if (A001B & 0x80) {
 		EXPREGS[0] = V;
 		FixMMC3PRG(MMC3_cmd);
@@ -684,7 +686,7 @@ static void M52S14CW(uint32 A, uint8 V) {
 		setchr1(A, bank | (V & mask));
 }
 
-static DECLFW(M52Write) {
+static void M52Write(uint32 A, uint8 V) {
 	if (EXPREGS[1]) {
 		WRAM[A - 0x6000] = V;
 		return;
@@ -774,7 +776,7 @@ static void M114CWRAP(uint32 A, uint8 V) {
 	setchr1(A, (uint32)V | ((EXPREGS[1] & 1) << 8));
 }
 
-static DECLFW(M114Write) {
+static void M114Write(uint32 A, uint8 V) {
 	switch (A & 0xE001) {
 	case 0x8001: MMC3_CMDWrite(0xA000, V); break;
 	case 0xA000: MMC3_CMDWrite(0x8000, (V & 0xC0) | (m114_perm[V & 7])); cmdin = 1; break;
@@ -786,7 +788,7 @@ static DECLFW(M114Write) {
 	}
 }
 
-static DECLFW(BoogermanWrite) {
+static void BoogermanWrite(uint32 A, uint8 V) {
 	switch (A & 0xE001) {
 	case 0x8001: if (!cmdin) break; MMC3_CMDWrite(0x8001, V); cmdin = 0; break;
 	case 0xA000: MMC3_CMDWrite(0x8000, (V & 0xC0) | (boogerman_perm[V & 7])); cmdin = 1; break;
@@ -798,7 +800,7 @@ static DECLFW(BoogermanWrite) {
 	}
 }
 
-static DECLFW(M114ExWrite) {
+static void M114ExWrite(uint32 A, uint8 V) {
 	if (A <= 0x7FFF) {
 		if (A & 1)
 			EXPREGS[1] = V;
@@ -852,6 +854,7 @@ static void M115PW(uint32 A, uint8 V) {
 }
 
 static void M115CW(uint32 A, uint8 V) {
+<<<<<<< HEAD
 	setchr1(A, V | EXPREGS[1] <<8);
 }
 
@@ -867,6 +870,23 @@ static DECLFW(M115Write) {
 
 static void M115Reset(void) {
 	EXPREGS[2]++;
+=======
+	setchr1(A, (uint32)V | ((EXPREGS[1] & 1) << 8));
+}
+
+static void M115Write(uint32 A, uint8 V) {
+	if (A == 0x5080)
+		EXPREGS[2] = V;	/* Extra prot hardware 2-in-1 mode */
+	else if (A == 0x6000)
+		EXPREGS[0] = V;
+	else if (A == 0x6001)
+		EXPREGS[1] = V;
+	FixMMC3PRG(MMC3_cmd);
+}
+
+static uint8 M115Read(uint32 A) {
+	return EXPREGS[2];
+>>>>>>> ad188a6 (Update libretro.c)
 }
 
 static void M115Power(void) {
@@ -890,7 +910,7 @@ void Mapper115_Init(CartInfo *info) {
 static uint8 PPUCHRBus;
 static uint8 TKSMIR[8];
 
-static void FP_FASTAPASS(1) TKSPPU(uint32 A) {
+static void TKSPPU(uint32 A) {
 	A &= 0x1FFF;
 	A >>= 10;
 	PPUCHRBus = A;
@@ -949,7 +969,7 @@ static void M165CWM(uint32 A, uint8 V) {
 		M165PPUFE();
 }
 
-static void FP_FASTAPASS(1) M165PPU(uint32 A) {
+static void M165PPU(uint32 A) {
 	if ((A & 0x1FF0) == 0x1FD0) {
 		EXPREGS[0] = 0xFD;
 		M165PPUFD();
@@ -1044,7 +1064,7 @@ static void M196PW(uint32 A, uint8 V) {
 		setprg8(A, V);
 }
 
-static DECLFW(Mapper196Write) {
+static void Mapper196Write(uint32 A, uint8 V) {
 	A =A &0xF000 | (!!(A &0xE) ^(A &1));
 	if (A >= 0xC000)
 		MMC3_IRQWrite(A, V);
@@ -1052,7 +1072,7 @@ static DECLFW(Mapper196Write) {
 		MMC3_CMDWrite(A, V);
 }
 
-static DECLFW(Mapper196WriteLo) {
+static void Mapper196WriteLo(uint32 A, uint8 V) {
 	EXPREGS[0] = 1;
 	EXPREGS[1] = (V & 0xf) | (V >> 4);
 	FixMMC3PRG(MMC3_cmd);
@@ -1085,7 +1105,7 @@ static void UNLMaliSBCW(uint32 A, uint8 V) {
 	setchr1(A, (V & 0xDD) | ((V & 0x20) >> 4) | ((V & 2) << 4));
 }
 
-static DECLFW(UNLMaliSBWrite) {
+static void UNLMaliSBWrite(uint32 A, uint8 V) {
 	if (A >= 0xC000) {
 		A = (A & 0xFFFE) | ((A >> 2) & 1) | ((A >> 3) & 1);
 		MMC3_IRQWrite(A, V);
@@ -1149,7 +1169,7 @@ static void M197S3PW(uint32 A, uint8 V) {
 	setprg8(A, V &(EXPREGS[0] &8? 0x0F: 0x1F) | EXPREGS[0] <<4);
 }
 
-static DECLFW(Mapper197S3Write) {
+static void Mapper197S3Write(uint32 A, uint8 V) {
 	if (A001B &0x80) {
 		EXPREGS[0] =V;
 		FixMMC3PRG(MMC3_cmd);
@@ -1220,7 +1240,7 @@ static void M205CW(uint32 A, uint8 V) {
 	setchr1(A, (EXPREGS[0] << 7) | bank);
 }
 
-static DECLFW(M205Write0) {
+static void M205Write0(uint32 A, uint8 V) {
 	if (EXPREGS[1] == 0) {
 		EXPREGS[0] = V & 0x03;
 		EXPREGS[1] = A & 0x80;
@@ -1230,7 +1250,7 @@ static DECLFW(M205Write0) {
 		CartBW(A, V);
 }
 
-static DECLFW(M205Write1) {
+static void M205Write1(uint32 A, uint8 V) {
 	if (EXPREGS[1] == 0) {
 		EXPREGS[0] = V & 0xF0;
 		FixMMC3PRG(MMC3_cmd);
@@ -1273,7 +1293,7 @@ static void GN45CW(uint32 A, uint8 V) {
 	setchr1(A, (V & 0x7F) | (EXPREGS[0] << 3));
 }
 
-static DECLFW(GN45Write0) {
+static void GN45Write0(uint32 A, uint8 V) {
 	if (EXPREGS[2] == 0) {
 		EXPREGS[0] = A & 0x30;
 		EXPREGS[2] = A & 0x80;
@@ -1283,7 +1303,7 @@ static DECLFW(GN45Write0) {
 		CartBW(A, V);
 }
 
-static DECLFW(GN45Write1) {
+static void GN45Write1(uint32 A, uint8 V) {
 	if (EXPREGS[2] == 0) {
 		EXPREGS[0] = V & 0x30;
 		FixMMC3PRG(MMC3_cmd);
@@ -1358,7 +1378,7 @@ static void M249CW(uint32 A, uint8 V) {
 	setchr1(A, V);
 }
 
-static DECLFW(M249Write) {
+static void M249Write(uint32 A, uint8 V) {
 	EXPREGS[0] = V;
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
@@ -1380,11 +1400,11 @@ void Mapper249_Init(CartInfo *info) {
 
 /* ---------------------------- Mapper 250 ------------------------------ */
 
-static DECLFW(M250Write) {
+static void M250Write(uint32 A, uint8 V) {
 	MMC3_CMDWrite((A & 0xE000) | ((A & 0x400) >> 10), A & 0xFF);
 }
 
-static DECLFW(M250IRQWrite) {
+static void M250IRQWrite(uint32 A, uint8 V) {
 	MMC3_IRQWrite((A & 0xE000) | ((A & 0x400) >> 10), A & 0xFF);
 }
 
@@ -1401,14 +1421,13 @@ void Mapper250_Init(CartInfo *info) {
 
 /* ---------------------------- Mapper 254 ------------------------------ */
 
-static DECLFR(MR254WRAM) {
+static uint8 MR254WRAM(uint32 A) {
 	if (EXPREGS[0])
 		return WRAM[A - 0x6000];
-	else
-		return WRAM[A - 0x6000] ^ EXPREGS[1];
+	return WRAM[A - 0x6000] ^ EXPREGS[1];
 }
 
-static DECLFW(M254Write) {
+static void M254Write(uint32 A, uint8 V) {
 	switch (A) {
 	case 0x8000: EXPREGS[0] = 0xff; break;
 	case 0xA001: EXPREGS[1] = V; break;

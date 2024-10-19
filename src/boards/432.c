@@ -38,12 +38,18 @@ static void M432PW(uint32 A, uint8 V) {
 	if ((A < 0xC000) &&  (EXPREGS[1] & 0x40)) setprg8(A | 0x4000, (V & prgAND) | (prgOR & ~prgAND) | (EXPREGS[1] &(submapper ==2? 0x20: 0x80)? 2: 0));
 }
 
+<<<<<<< HEAD
 static DECLFR(M432Read) {
    if (submapper ==1? !!(EXPREGS[1] &0x20): !!(EXPREGS[0] &0x01)) return EXPREGS[2];
+=======
+static uint8 M432Read(uint32 A) {
+   if (EXPREGS[0] & 1 || EXPREGS[1] & 0x20 && ROM_size <64)
+	  return EXPREGS[2];
+>>>>>>> ad188a6 (Update libretro.c)
    return CartBR(A);
 }
 
-static DECLFW(M432Write) {
+static void M432Write(uint32 A, uint8 V) {
 	EXPREGS[A & 1] = V;
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
