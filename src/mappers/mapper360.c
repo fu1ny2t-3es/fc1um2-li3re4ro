@@ -1,7 +1,8 @@
 /* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- * Copyright (C) 2020
+ *  Copyright (C) 2020
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,12 +23,19 @@
 
 #include "mapinc.h"
 
+<<<<<<< HEAD
 static uint8 reg;
 static uint8 submapper;
 
 static SFORMAT StateRegs[] =
 {
 	{ &reg, 1, "DPSW" },
+=======
+static uint8 dipsw;
+
+static SFORMAT StateRegs[] = {
+	{ &dipsw, 1, "DPSW" },
+>>>>>>> b1843a7 (Update libretro.c)
 	{ 0 }
 };
 
@@ -39,6 +47,7 @@ static void Sync(void) {
 		setprg8(0xE000, 0x40);
 	} else
 	/* dip 0 and 1 is the same game SMB) */
+<<<<<<< HEAD
 	if ((reg &0x1F) < 2)
 		setprg32(0x8000, reg >> 1 &0x0F);
 	else {
@@ -56,6 +65,20 @@ static DECLFW(M360WriteReg) {
 
 static void M360Power(void) {
 	reg = 0;
+=======
+	if (dipsw < 2) {
+		setprg32(0x8000, dipsw >> 1);
+	} else {
+		setprg16(0x8000, dipsw);
+		setprg16(0xC000, dipsw);
+	}
+	setchr8(dipsw);
+	setmirror(((dipsw & 0x10) >> 4) ^ 1);
+}
+
+static void M360Power(void) {
+	dipsw = 0;
+>>>>>>> b1843a7 (Update libretro.c)
 	Sync();
 	if (submapper ==1) SetWriteHandler(0x4100, 0x4FFF, M360WriteReg);
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
@@ -63,11 +86,16 @@ static void M360Power(void) {
 }
 
 static void M360Reset(void) {
+<<<<<<< HEAD
 	if (submapper ==0)
 		reg = (reg + 1) & 31;
 	else
 		reg = 0;
+=======
+	dipsw = (dipsw + 1) & 31;
+>>>>>>> b1843a7 (Update libretro.c)
 	Sync();
+	FCEU_printf("dipsw = %d\n", dipsw);
 }
 
 static void StateRestore(int version) {
@@ -79,5 +107,5 @@ void Mapper360_Init(CartInfo *info) {
 	info->Reset = M360Reset;
 	info->Power = M360Power;
 	GameStateRestore = StateRestore;
-	AddExState(&StateRegs, ~0, 0, 0);
+	AddExState(StateRegs, ~0, 0, NULL);
 }
