@@ -6,8 +6,12 @@ typedef struct {
 } pal;
 
 extern pal *palo;
+<<<<<<< HEAD
 extern uint8 palette_game_available;
 void FCEU_ResetPalette(void);
+=======
+extern int ipalette;
+>>>>>>> 58d5196 (Updates)
 
 void FCEU_ResetPalette(void);
 void FCEU_LoadGamePalette(void);
