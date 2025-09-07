@@ -412,24 +412,43 @@ static bool opt_showAdvSystemOptions = true;
 static __attribute__((aligned(16))) uint16 retro_palette[1024];
 #else
 <<<<<<< HEAD
+<<<<<<< HEAD
 static uint32_t retro_palette[1024];
 =======
+=======
+>>>>>>> 92848e3 (Update libretro.c)
 <<<<<<< HEAD
 static uint16_t retro_palette[1024];
 =======
 static Bpp_t retro_palette[1024];
 >>>>>>> 63229ff (Update libretro.c)
+<<<<<<< HEAD
 >>>>>>> 8ed7752 (Update libretro.c)
+=======
+=======
+static Bpp_t retro_palette[1024];
+=======
+static uint32_t retro_palette[256];
+>>>>>>> 8639455 (Update libretro.c)
+>>>>>>> c23af2c (Update libretro.c)
+>>>>>>> 92848e3 (Update libretro.c)
 #endif
 #if defined(PSP) || defined(PS2)
 /* not used because of hw buffers? */
 /* static uint8* fceu_video_out; */
 #else
 <<<<<<< HEAD
+<<<<<<< HEAD
 static bpp_t* fceu_video_out;
 =======
 static Bpp_t *fceu_video_out;
 >>>>>>> 8ed7752 (Update libretro.c)
+=======
+static Bpp_t *fceu_video_out;
+=======
+static uint32_t* fceu_video_out;
+>>>>>>> 8639455 (Update libretro.c)
+>>>>>>> 92848e3 (Update libretro.c)
 #endif
 
 /* Some timing-related variables. */
@@ -480,6 +499,7 @@ const char *GetKeyboard(void) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define BUILD_PIXEL_RGB565(R,G,B) (((int) ((R)&0x1f) << RED_SHIFT) | ((int) ((G)&0x3f) << GREEN_SHIFT) | ((int) ((B)&0x1f) << BLUE_SHIFT))
 
 void FCEUD_SetPalette(uint16_t index, uint8_t r, uint8_t g, uint8_t b)
@@ -517,6 +537,8 @@ void FCEUD_SetPalette(uint16_t index, uint8_t r, uint8_t g, uint8_t b)
    retro_palette[index_to_write] =
       ((r >> RED_EXPAND) << RED_SHIFT) | ((g >> GREEN_EXPAND) << GREEN_SHIFT) | ((b >> BLUE_EXPAND) << BLUE_SHIFT);
 =======
+=======
+>>>>>>> c23af2c (Update libretro.c)
 void FCEUD_SetPalette(int index, uint8 r, uint8 g, uint8 b) {
 	unsigned index_to_write = index;
 #if defined(PS2)
@@ -527,7 +549,68 @@ void FCEUD_SetPalette(int index, uint8 r, uint8 g, uint8 b) {
 	} else if ((modi >= 16 && modi < 24) || (modi >= 48 && modi < 56)) {
 		index_to_write -= 8;
 	}
+<<<<<<< HEAD
 >>>>>>> 63229ff (Update libretro.c)
+=======
+=======
+#define BUILD_PIXEL_RGB565(R,G,B) (((int) ((R)&0x1f) << RED_SHIFT) | ((int) ((G)&0x3f) << GREEN_SHIFT) | ((int) ((B)&0x1f) << BLUE_SHIFT))
+
+#if defined (PSP)
+#define RED_SHIFT 0
+#define GREEN_SHIFT 5
+#define BLUE_SHIFT 11
+#define RED_EXPAND 3
+#define GREEN_EXPAND 2
+#define BLUE_EXPAND 3
+#elif defined (FRONTEND_SUPPORTS_ABGR1555)
+#define RED_SHIFT 0
+#define GREEN_SHIFT 5
+#define BLUE_SHIFT 10
+#define RED_EXPAND 3
+#define GREEN_EXPAND 3
+#define BLUE_EXPAND 3
+#define RED_MASK 0x1F
+#define GREEN_MASK 0x3E0
+#define BLUE_MASK 0x7C00
+#elif defined (FRONTEND_SUPPORTS_RGB565)
+#define RED_SHIFT 11
+#define GREEN_SHIFT 5
+#define BLUE_SHIFT 0
+#define RED_EXPAND 3
+#define GREEN_EXPAND 2
+#define BLUE_EXPAND 3
+#define RED_MASK 0xF800
+#define GREEN_MASK 0x7e0
+#define BLUE_MASK 0x1f
+#else
+#define RED_SHIFT 10
+#define GREEN_SHIFT 5
+#define BLUE_SHIFT 0
+#define RED_EXPAND 3
+#define GREEN_EXPAND 3
+#define BLUE_EXPAND 3
+#endif
+
+void FCEUD_SetPalette(uint8_t index, uint8_t r, uint8_t g, uint8_t b)
+{
+   unsigned char index_to_write = index;
+#if defined(RENDER_GSKIT_PS2)
+   /* Index correction for PS2 GS */
+   int modi = index & 63;
+   if ((modi >= 8 && modi < 16) || (modi >= 40 && modi < 48)) {
+      index_to_write += 8;
+   } else if ((modi >= 16 && modi < 24) || (modi >= 48 && modi < 56)) {
+         index_to_write -= 8;
+   }
+#endif
+
+#ifdef FRONTEND_SUPPORTS_RGB888
+   retro_palette[index_to_write] = (r << 16) | (g << 8) | (b << 0);
+#else
+   retro_palette[index_to_write] =
+      ((r >> RED_EXPAND) << RED_SHIFT) | ((g >> GREEN_EXPAND) << GREEN_SHIFT) | ((b >> BLUE_EXPAND) << BLUE_SHIFT);
+>>>>>>> 8639455 (Update libretro.c)
+>>>>>>> c23af2c (Update libretro.c)
 #endif
     retro_palette[index_to_write] = BUILD_PIXEL(r >> RED_EXPAND, g >> GREEN_EXPAND, b >> BLUE_EXPAND);
 }
@@ -3386,7 +3469,122 @@ static void retro_run_blit_psp(uint8 *gfx) {
 
 	sceGuFinish();
 
+<<<<<<< HEAD
 	video_cb(texture_vram_p, width, height, 256);
+=======
+      if (mouse_Lbutton)
+         mousedata[2] |= 0x1;
+      if (mouse_Rbutton)
+         mousedata[2] |= 0x2;
+   }
+<<<<<<< HEAD
+   else if (variant != RETRO_DEVICE_ARKANOID && zappermode == RetroPointer) {
+=======
+   else if (zappermode == RetroPointer) {
+>>>>>>> 56b5f47 (Update Makefile.libretro)
+      int offset_x = (crop_overscan_h_left * 0x120) - 1;
+      int offset_y = (crop_overscan_v_top * 0x133) + 1;
+
+      int _x = input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_X);
+      int _y = input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_Y);
+
+      if (_x == 0 && _y == 0)
+      {
+         mousedata[0] = 0;
+      }
+      else
+      {
+         mousedata[0] = (_x + (0x7FFF + offset_x)) * max_width  / ((0x7FFF + offset_x) * 2);
+         mousedata[1] = (_y + (0x7FFF + offset_y)) * max_height  / ((0x7FFF + offset_y) * 2);
+      }
+
+      if (input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED))
+         mousedata[2] |= 0x1;
+   }
+   else if (variant == RETRO_DEVICE_ARKANOID && (arkanoidmode == RetroArkanoidAbsMouse || arkanoidmode == RetroArkanoidPointer)) {
+      int offset_x = (crop_overscan_h_left * 0x120) - 1;
+
+      int _x = input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_X);
+      int _y = input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_Y);
+
+      if (_x != 0 || _y != 0)
+      {
+         int32 raw = (_x + (0x7FFF + offset_x)) * max_width  / ((0x7FFF + offset_x) * 2);
+         if (arkanoidmode == RetroArkanoidAbsMouse) {
+             /* remap so full screen movement ends up within the encoder range 0-240
+                game board: 176 wide
+                paddle: 32
+                range of movement: 176-32 = 144
+                left edge: 16
+                right edge: 64
+             
+                increase movement by 10 to allow edges to be reached in case of problems
+	     */
+             raw = (raw - 128) * 140 / 128 + 128;
+             if (raw < 0)
+                 raw = 0;
+             else if (raw > 255)
+                 raw = 255;
+              
+             mousedata[0] = raw * 240 / 255;
+         }
+         else {
+             /* remap so full board movement ends up within the encoder range 0-240 */
+             if (mousedata[0] < 16+(32/2))
+                 mousedata[0] = 0;
+             else
+                 mousedata[0] -= 16+(32/2);
+             if (mousedata[0] > 144)
+                 mousedata[0] = 144;
+             mousedata[0] = raw * 240 / 144;
+         }
+      }
+      
+
+      if (input_cb(port, RETRO_DEVICE_POINTER, 0, RETRO_DEVICE_ID_POINTER_PRESSED))
+         mousedata[2] |= 0x1;
+   }
+   else if (variant == RETRO_DEVICE_ARKANOID && arkanoidmode == RetroArkanoidStelladaptor) {
+      int x = input_cb(port, RETRO_DEVICE_ANALOG, 0, RETRO_DEVICE_ID_ANALOG_X);
+      mousedata[0] = (x+32768)*240/65535;
+      if (input_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_A) || input_cb(port, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_B))
+         mousedata[2] |= 0x1;
+   }
+   else  if (zappermode == RetroCLightgun) /* Crosshair lightgun device */
+   {
+      int offset_x = (crop_overscan_h_left * 0x120) - 1;
+      int offset_y = (crop_overscan_v_top * 0x133) + 1;
+      int offscreen;
+      int offscreen_shot;
+      int trigger;
+
+      offscreen = input_cb( port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_IS_OFFSCREEN );
+      offscreen_shot = input_cb( port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_RELOAD );
+      trigger = input_cb( port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_TRIGGER );
+
+      if ( offscreen || offscreen_shot )
+      {
+         mousedata[0] = 0;
+         mousedata[1] = 0;
+      }
+      else
+      {
+         int _x = input_cb( port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_X );
+         int _y = input_cb( port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_SCREEN_Y );
+
+         mousedata[0] = (_x + (0x7FFF + offset_x)) * max_width  / ((0x7FFF + offset_x) * 2);
+         mousedata[1] = (_y + (0x7FFF + offset_y)) * max_height  / ((0x7FFF + offset_y) * 2);
+      }
+
+      if ( trigger || offscreen_shot )
+         mousedata[2] |= 0x1;
+   }
+   else /* Sequential targets lightgun device integration */
+   {
+      mousedata[2] = input_cb( port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_TRIGGER );
+      mousedata[3] = input_cb( port, RETRO_DEVICE_LIGHTGUN, 0, RETRO_DEVICE_ID_LIGHTGUN_AUX_A );
+   }
+>>>>>>> 8639455 (Update libretro.c)
 }
 #elif defined(PS2)
 
@@ -3670,6 +3868,10 @@ static void retro_run_blit_ps2(uint8 *gfx) {
 >>>>>>> 578b1ae (Update libretro.c)
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 92848e3 (Update libretro.c)
 
 <<<<<<< HEAD
 static void FCEUD_Update(uint8_t *XBuf, int32_t *Buffer, int Count)
@@ -3687,7 +3889,11 @@ static void retro_run_blit(uint8_t *gfx)
 #endif
    unsigned width  = 256;
    unsigned height = 240;
+<<<<<<< HEAD
    unsigned pitch  = width * sizeof(bpp_t);
+=======
+   unsigned pitch  = width * sizeof(uint32_t);
+>>>>>>> 92848e3 (Update libretro.c)
 
 #ifdef HAVE_HDPACK
    if (hdnes_active)
@@ -3771,8 +3977,12 @@ static void retro_run_blit(uint8_t *gfx)
    ps2->coreTexture->Mem = (u32*)gfx;
 
    video_cb(buf, width, height, pitch);
+<<<<<<< HEAD
 =======
 >>>>>>> 8ed7752 (Update libretro.c)
+=======
+>>>>>>> 8639455 (Update libretro.c)
+>>>>>>> 92848e3 (Update libretro.c)
 #else
 #if defined(HAVE_NTSC_FILTER)
 static void retro_run_blit_ntsc(uint8 *gfx, uint8 *emp) {
@@ -3827,7 +4037,23 @@ static void retro_run_blit_ntsc(uint8 *gfx, uint8 *emp) {
 		NTSC_WIDTH * sizeof(Bpp_t));
 }
 #endif /* HAVE_NTSC_FILTER */
+<<<<<<< HEAD
 >>>>>>> 8ed7752 (Update libretro.c)
+=======
+<<<<<<< HEAD
+=======
+   {
+      incr   += (crop_overscan_h_left + crop_overscan_h_right);
+      width  -= (crop_overscan_h_left + crop_overscan_h_right);
+      height -= (crop_overscan_v_top + crop_overscan_v_bottom);
+<<<<<<< HEAD
+      pitch  -= (crop_overscan_h_left + crop_overscan_h_right) * sizeof(uint16_t);
+=======
+      pitch  -= (crop_overscan_h_left + crop_overscan_h_right) * sizeof(uint32_t);
+>>>>>>> 56b5f47 (Update Makefile.libretro)
+      gfx    += (crop_overscan_v_top * 256) + crop_overscan_h_left;
+>>>>>>> 8639455 (Update libretro.c)
+>>>>>>> 92848e3 (Update libretro.c)
 
 <<<<<<< HEAD
       {
@@ -3946,6 +4172,10 @@ static void retro_run_blit(uint8 *gfx, uint8 *emp) {
 >>>>>>> d72931df (Update libretro.c)
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 92848e3 (Update libretro.c)
 
 size_t retro_serialize_size(void)
 {
@@ -4361,7 +4591,11 @@ bool retro_load_game(const struct retro_game_info *info)
    const char *system_dir = NULL;
    size_t fourscore_len = sizeof(fourscore_db_list)   / sizeof(fourscore_db_list[0]);
    size_t famicom_4p_len = sizeof(famicom_4p_db_list) / sizeof(famicom_4p_db_list[0]);
+<<<<<<< HEAD
    enum retro_pixel_format pixformat;
+=======
+   enum retro_pixel_format rgb565;
+>>>>>>> 92848e3 (Update libretro.c)
 
    struct retro_input_descriptor desc[] = {
       { 0, RETRO_DEVICE_JOYPAD, 0, RETRO_DEVICE_ID_JOYPAD_LEFT,   "D-Pad Left" },
@@ -4565,6 +4799,7 @@ bool retro_load_game(const struct retro_game_info *info)
 #endif
    {
 #ifdef FRONTEND_SUPPORTS_RGB888
+<<<<<<< HEAD
    pixformat = RETRO_PIXEL_FORMAT_XRGB8888;
    if(environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &pixformat))
    {
@@ -4582,6 +4817,12 @@ bool retro_load_game(const struct retro_game_info *info)
    #endif
 =======
 >>>>>>> 8ed7752 (Update libretro.c)
+=======
+   rgb565 = RETRO_PIXEL_FORMAT_XRGB8888;
+   if(environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &rgb565))
+      log_cb.log(RETRO_LOG_INFO, "Frontend supports RGB888 - will use that instead of XRGB1555.\n");
+>>>>>>> 8639455 (Update libretro.c)
+>>>>>>> 92848e3 (Update libretro.c)
 #endif
    }
 
@@ -4907,6 +5148,7 @@ static void init_blit_buffer(void) {
 #define FB_HEIGHT NES_HEIGHT
 #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #if defined(PS2)
    fceu_video_out = (uint8_t*)malloc(FB_WIDTH * FB_HEIGHT * sizeof(uint8_t));
@@ -4916,6 +5158,8 @@ static void init_blit_buffer(void) {
 =======
    fceu_video_out = (uint16_t*)malloc(FB_WIDTH * FB_HEIGHT * sizeof(uint16_t));
 =======
+=======
+>>>>>>> ad5b70b (Update libretro.c)
 	fceu_video_out = (Bpp_t *)FCEU_amalloc(FB_WIDTH * FB_HEIGHT * sizeof(Bpp_t));
 #endif /* !PS2 */
 }
@@ -5022,9 +5266,15 @@ bool retro_load_game(const struct retro_game_info *info) {
 	rgb565 = RETRO_PIXEL_FORMAT_XRGB8888;
 	if (environ_cb(RETRO_ENVIRONMENT_SET_PIXEL_FORMAT, &rgb565))
 		log_cb.log(RETRO_LOG_INFO, " Frontend supports xRGB888 - will use that instead of XRGB1555.\n");
+<<<<<<< HEAD
 >>>>>>> d4a45f9 (Update libretro.c)
 >>>>>>> 8ed7752 (Update libretro.c)
 #endif
+=======
+=======
+   fceu_video_out = (uint32_t*)malloc(FB_WIDTH * FB_HEIGHT * sizeof(uint32_t));
+>>>>>>> 8639455 (Update libretro.c)
+>>>>>>> ad5b70b (Update libretro.c)
 #endif
 
 	if (environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system_dir) && system_dir) {
