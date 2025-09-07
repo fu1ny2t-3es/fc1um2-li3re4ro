@@ -15,6 +15,7 @@ ifneq (,$(findstring msvc2003,$(platform)))
 	INCFLAGS += -I$(LIBRETRO_COMM_DIR)/include/compat/msvc
 endif
 
+<<<<<<< HEAD
 COREDEFINES = \
 	-D__LIBRETRO__ \
 	-DPATH_MAX=1024 \
@@ -33,6 +34,9 @@ endif
 =======
 	-DFRONTEND_SUPPORTS_RGB565
 >>>>>>> c8aa4ae (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+COREDEFINES = -D__LIBRETRO__ -DPATH_MAX=1024
+>>>>>>> 14fedda (Take out hardcoded FRONTEND_SUPPORTS_RGB565 for all platforms)
 
 FCEU_SRC_DIRS := \
 	$(SOURCE_DIR)/mappers \
