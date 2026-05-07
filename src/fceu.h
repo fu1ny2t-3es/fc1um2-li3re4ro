@@ -137,9 +137,13 @@ extern FCEUS FSettings;
 void FCEU_PrintError(const char *format, ...);
 void FCEU_printf(const char *format, ...);
 
+<<<<<<< HEAD
 void SetNESDeemph(uint8_t d, int force);
 void DrawTextTrans(uint8_t *dest, uint32_t width, uint8_t *textmsg, uint8_t fgcolor);
 void FCEU_PutImage(void);
+=======
+void SetNESDeemph(uint8 d, int force);
+>>>>>>> ea32266a (Refactors)
 
 <<<<<<< HEAD
 extern uint8_t Exit;
