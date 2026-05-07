@@ -29,6 +29,7 @@
 #include "fceu-types.h"
 #include "fceu-endian.h"
 
+<<<<<<< HEAD
 uint32_t FCEU_de32lsb(const uint8_t *morp)
 {
 <<<<<<< HEAD
@@ -53,6 +54,8 @@ uint32_t FCEU_de32lsb(const uint8_t *morp)
    }
 }
 
+=======
+>>>>>>> 13f7501c (Refactors)
 int write32le_mem(uint32 b, memstream_t *mem)
 {
    uint8 s[4];

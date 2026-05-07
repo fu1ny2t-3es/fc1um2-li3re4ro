@@ -20,6 +20,7 @@ static uint32_t mrindex;
 static uint32_t mrratio;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 int64_t sexyfilter_acc1 = 0, sexyfilter_acc2 = 0;
 
 /* SexyFilter2's separate accumulator. Like sexyfilter_acc1/_acc2 it
@@ -38,6 +39,10 @@ void SexyFilter_Reset(void)
     * every cart load, so it doesn't need to be reset here. */
 }
 =======
+=======
+int64 sexyfilter_acc1 = 0, sexyfilter_acc2 = 0;
+
+>>>>>>> 13f7501c (Refactors)
 void SexyFilter2(int32 *in, int32 count) {
 	static int64 acc = 0;
 >>>>>>> 74114ad0 (Update libretro.c)
@@ -76,6 +81,7 @@ void SexyFilter2(int32_t *in, int32_t count) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void SexyFilter(int32_t *in, int32_t *out, int32_t count) {
 	int32_t mul1, mul2, vmul;
 
@@ -85,6 +91,8 @@ void SexyFilter(int32_t *in, int32_t *out, int32_t count) {
 =======
 int64 sexyfilter_acc1 = 0, sexyfilter_acc2 = 0;
 
+=======
+>>>>>>> 13f7501c (Refactors)
 void SexyFilter(int32 *in, int32 *out, int32 count) {
 	int32 mul1 = (94 << 16) / FSettings.SndRate;
 	int32 mul2 = (24 << 16) / FSettings.SndRate;
