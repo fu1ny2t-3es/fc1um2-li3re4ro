@@ -61,6 +61,7 @@ void (*MapIRQHook)(int a);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static INLINE uint8_t RdMemNorm(uint32_t A) {
 	return(_DB = ARead[A](A));
 =======
@@ -70,10 +71,14 @@ static INLINE uint8 RdMemNorm(uint32 A) {
 	return(CPU_DB);
 >>>>>>> 8a159afe (Update libretro_core_options.h)
 =======
+=======
+static INLINE uint8 RdMem(uint32 A) {
+>>>>>>> d3655823 ((X6502) Further cleanups)
 	return ((cpu.openbus = ARead[A](A)));
 >>>>>>> 0105d2d1 (Update libretro_core_options.h)
 }
 
+<<<<<<< HEAD
 static INLINE void WrMemNorm(uint32_t A, uint8_t V) {
 	BWrite[A](A, V);
 }
@@ -91,14 +96,25 @@ static INLINE uint8 RdRAMFast(uint32 A) {
 	return(CPU_DB);
 >>>>>>> 8a159afe (Update libretro_core_options.h)
 =======
+=======
+static INLINE void WrMem(uint32 A, uint8 V) {
+	BWrite[A](A, V);
+}
+
+static INLINE uint8 RdRAM(uint32 A) {
+>>>>>>> d3655823 ((X6502) Further cleanups)
 	return ((cpu.openbus = RAM[A]));
 >>>>>>> 0105d2d1 (Update libretro_core_options.h)
 }
 
+<<<<<<< HEAD
 static INLINE void WrRAMFast(uint32_t A, uint8_t V) {
 	RAM[A] = V;
 	cpu.openbus = V;
 }
+=======
+static INLINE void WrRAM(uint32 A, uint8 V) { RAM[A] = V; }
+>>>>>>> d3655823 ((X6502) Further cleanups)
 
 <<<<<<< HEAD
 uint8_t FASTAPASS(1) X6502_DMR(uint32_t A) {
@@ -676,6 +692,7 @@ static void X6502_RunNormal(int32 cycles)
 void X6502_Run(int32 cycles)
 >>>>>>> d5085b8d (Update libretro_core_options.h)
 {
+<<<<<<< HEAD
 	#define RdRAM RdMemNorm
 	#define WrRAM WrMemNorm
 	#define RdMem RdMemNorm
@@ -704,6 +721,8 @@ void X6502_Run(int32 cycles)
 
 =======
 >>>>>>> 0105d2d1 (Update libretro_core_options.h)
+=======
+>>>>>>> d3655823 ((X6502) Further cleanups)
 	if (PAL)
 		cycles *= 15;	/* 15*4=60 */
 	else
@@ -816,7 +835,4 @@ void X6502_Run(int32 cycles)
 			#include "x6502ops.inc"
 		}
 	}
-
-	#undef RdRAM
-	#undef WrRAM
 }
