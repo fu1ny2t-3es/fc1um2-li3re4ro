@@ -31,6 +31,7 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static uint8_t reset_flag = 0;
 static uint8_t isK3088;
 
@@ -42,11 +43,34 @@ static void BMC411120CCW(uint32_t A, uint8_t V) {
 static void BMC411120CPW(uint32_t A, uint8_t V) {
 	uint32_t mask = isK3088 ? 0x07 : 0x03;
 	if (EXPREGS[0] & (isK3088 ? 8 : (8 | reset_flag))) { 	/* 32K Mode */
+=======
+static uint8 reset_flag = 0;
+
+static void BMCK3088CCW(uint32 A, uint8 V) {
+	setchr1(A, V | ((EXPREGS[0] & 0x07) << 7));
+}
+
+static void BMCK3088CPW(uint32 A, uint8 V) {
+	if (EXPREGS[0] & 8) { 	/* 32K Mode */
 		if (A == 0x8000)
 			/* bit 0-1 of register should be used as outer bank regardless of banking modes */
-			setprg32(A, ((EXPREGS[0] >> 4) & 3) | ((EXPREGS[0] & mask) << 2));
+			setprg32(A, ((EXPREGS[0] >> 4) & 3) | ((EXPREGS[0] & 0x07) << 2));
 	} else													/* MMC3 Mode */
-		setprg8(A, (V & 0x0F) | ((EXPREGS[0] & mask) << 4));
+		setprg8(A, (V & 0x0F) | ((EXPREGS[0] & 0x07) << 4));
+}
+
+static void BMC411120CCW(uint32 A, uint8 V) {
+	setchr1(A, V | ((EXPREGS[0] & 0x03) << 7));
+}
+
+static void BMC411120CPW(uint32 A, uint8 V) {
+	if (EXPREGS[0] & (8 | reset_flag)) { 	/* 32K Mode */
+>>>>>>> 37752138 (Get rid of conditional in mapper287.c)
+		if (A == 0x8000)
+			/* bit 0-1 of register should be used as outer bank regardless of banking modes */
+			setprg32(A, ((EXPREGS[0] >> 4) & 3) | ((EXPREGS[0] & 0x03) << 2));
+	} else													/* MMC3 Mode */
+		setprg8(A, (V & 0x0F) | ((EXPREGS[0] & 0x03) << 4));
 }
 
 static void BMC411120CLoWrite(uint32 A, uint8 V) {
@@ -68,20 +92,18 @@ static void BMC411120CPower(void) {
 }
 
 void BMC411120C_Init(CartInfo *info) {
-	isK3088 = 0;
 	GenMMC3_Init(info, 128, 128, 8, 0);
-	pwrap = BMC411120CPW;
-	cwrap = BMC411120CCW;
+	pwrap       = BMC411120CPW;
+	cwrap       = BMC411120CCW;
 	info->Power = BMC411120CPower;
 	info->Reset = BMC411120CReset;
 	AddExState(EXPREGS, 1, 0, "EXPR");
 }
 
 void BMCK3088_Init(CartInfo *info) {
-	isK3088 = 1;
 	GenMMC3_Init(info, 128, 128, 8, 0);
-	pwrap = BMC411120CPW;
-	cwrap = BMC411120CCW;
+	pwrap       = BMCK3088CPW;
+	cwrap       = BMCK3088CCW;
 	info->Power = BMC411120CPower;
 	info->Reset = BMC411120CReset;
 	AddExState(EXPREGS, 1, 0, "EXPR");
