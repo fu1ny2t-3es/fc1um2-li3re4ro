@@ -143,10 +143,18 @@ void FP_FASTAPASS(1) (*PPU_hook)(uint32_t A);
 void (*PPU_hook)(uint32 A);
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 
+<<<<<<< HEAD
 uint8_t vtoggle = 0;
 uint8_t XOffset = 0;
 
 uint32_t TempAddr = 0, RefreshAddr = 0;
+=======
+static uint8 vtoggle = 0;
+static uint8 XOffset = 0;
+
+static uint32 TempAddr = 0;
+uint32 RefreshAddr = 0;
+>>>>>>> 67da0d9e ((PPU) Turn some variables static)
 
 static int maxsprites = 8;
 
