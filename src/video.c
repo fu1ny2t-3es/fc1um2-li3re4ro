@@ -70,6 +70,7 @@ int FCEU_InitVirtualVideo(void)
    return 1;
 }
 
+<<<<<<< HEAD
 #include "drawing.h"
 
 void FCEU_PutImage(void)
@@ -89,6 +90,8 @@ static void FCEU_PutImageDummy(void)
 {
 }
 
+=======
+>>>>>>> 13f7501c (Refactors)
 void FCEU_DispMessage(enum retro_log_level level, unsigned duration, const char *format, ...)
 {
    static char msg[512] = {0};
