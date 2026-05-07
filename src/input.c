@@ -215,9 +215,7 @@ static void UpdateGP(int w, void *data, int arg) {
 	}
 }
 
-static void StrobeGP(int w) {
-	joy_readbit[w] = 0;
-}
+static void StrobeGP(int w) { joy_readbit[w] = 0; }
 
 static INPUTC GPC = { ReadGP, 0, StrobeGP, UpdateGP, 0, 0 };
 static INPUTC GPCVS = { ReadGPVS, 0, StrobeGP, UpdateGP, 0, 0 };
@@ -239,10 +237,10 @@ void FCEU_UpdateInput(void)
       FCExp->Update(InputDataPtrFC, JPAttribFC);
 
    if (GameInfo && GameInfo->type == GIT_VSUNI)
+   {
       if (coinon) coinon--;
-
-   if (GameInfo->type == GIT_VSUNI)
       FCEU_VSUniSwap(&joy[0], &joy[1]);
+   }
 }
 
 static uint8 VSUNIRead0(uint32 A)
@@ -414,9 +412,7 @@ void FCEUI_SetInputFC(int type, void *ptr, int attrib)
 	SetInputStuffFC();
 }
 
-void FCEUI_DisableFourScore(int s) {
-	FSDisable = s;
-}
+void FCEUI_DisableFourScore(int s) { FSDisable = s; }
 
 SFORMAT FCEUCTRL_STATEINFO[] = {
 	{ joy_readbit, 2, "JYRB" },
@@ -459,6 +455,7 @@ void FCEU_DoSimpleCommand(int cmd)
          break;
    }
 }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 static void FCEU_QSimpleCommand(int cmd)
@@ -489,3 +486,5 @@ void FCEUI_VSUniToggleDIP(int w)
 {
 	FCEU_DoSimpleCommand(FCEUNPCMD_VSUNIDIP0 + w);
 }
+=======
+>>>>>>> 57b90d3b (Random cleanups)
