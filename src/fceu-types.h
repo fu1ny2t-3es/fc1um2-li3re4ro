@@ -57,6 +57,7 @@ typedef uint64_t uint64;
 =======
 >>>>>>> ae14339e (Update Makefile.libretro)
 
+<<<<<<< HEAD
 #ifdef __GNUC__
 typedef unsigned long long uint64;
 typedef long long int64;
@@ -95,6 +96,10 @@ typedef uint8 (*readfunc)(uint32 A);
 =======
 #define FCEU_UNUSED(x)    (void)(x)
 #define FCEU_MAYBE_UNUSED __attribute__((unused))
+=======
+typedef uint64_t uint64;
+typedef int64_t int64;
+>>>>>>> d7dac29c (Buildfixes for MSVC/C89)
 
 #if !defined(FALSE)
 #define FALSE 0
