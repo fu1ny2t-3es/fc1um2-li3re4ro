@@ -119,8 +119,8 @@ int ReadResp(uint8_t *resp, int size) {
 	return sum;
 }
 #else
-
 /* code is not portable, so make stubs for now */
+<<<<<<< HEAD
 
 BOOL SerialOpen(int port, int baud) {
 	return FALSE;
@@ -148,4 +148,13 @@ int ReadResp(uint8_t *resp, int size) {
 	return 0;
 }
 
+=======
+BOOL SerialOpen(int port, int baud) { return FALSE; }
+void SerialClose(void) { }
+BOOL SerialSendChar(int c) { return FALSE; }
+int SerialIsOpen(void) { return 0; }
+int SerialGetChar(void) { return EOF; }
+void SendCmd(uint8 *cmd, int size) { }
+int ReadResp(uint8 *resp, int size) { return 0; }
+>>>>>>> 66d362dd (Remove unneeded __dummy_mapper.c)
 #endif
