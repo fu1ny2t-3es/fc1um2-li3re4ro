@@ -470,11 +470,14 @@ void FCEUD_DispMessage(enum retro_log_level level, unsigned duration, const char
    }
 }
 
+<<<<<<< HEAD
 static void FCEUD_SoundToggle (void)
 {
    FSettings.SoundVolume = sndvolume;
 }
 
+=======
+>>>>>>> d1b1dc06 (Remove FCEUD_SoundToggle)
 /*palette for FCEU*/
 #define PAL_INTERNAL sizeof(palettes) / sizeof(palettes[0]) /* Number of palettes in palettes[] */
 #define PAL_DEFAULT  (PAL_INTERNAL + 1)
@@ -2668,7 +2671,7 @@ static void check_variables(bool startup)
    {
       int val = (int)(atof(var.value) * 25.6);
       sndvolume = val;
-      FCEUD_SoundToggle();
+      FSettings.SoundVolume = sndvolume;
    }
 
    if (audio_video_updated && !startup)
@@ -4249,7 +4252,7 @@ bool retro_load_game(const struct retro_game_info *info)
    current_palette = 0;
 
    ResetPalette();
-   FCEUD_SoundToggle();
+   FSettings.SoundVolume = sndvolume;
    check_variables(true);
    stereo_filter_init();
    PowerNES();
