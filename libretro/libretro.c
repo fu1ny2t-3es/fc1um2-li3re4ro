@@ -3054,6 +3054,8 @@ static void FCEUD_UpdateInput(void)
       nes_input.JSReturn |= (input_buf & 0xff) << (player << 3);
    }
 
+   nes_input.PowerPadData = 0;
+
    /* other inputs*/
    for (port = 0; port < MAX_PORTS; port++)
    {
@@ -3062,16 +3064,8 @@ static void FCEUD_UpdateInput(void)
          case RETRO_DEVICE_ARKANOID:
          case RETRO_DEVICE_FC_ARKANOID:
          case RETRO_DEVICE_ZAPPER:
-               get_mouse_input(port, nes_input.type[port], nes_input.MouseData[port]);
+            get_mouse_input(port, nes_input.type[port], nes_input.MouseData[port]);
             break;
-      }
-   }
-
-   nes_input.PowerPadData = 0;
-   for (port = 0; port < MAX_PORTS; port++)
-   {
-      switch (nes_input.type[port])
-      {
          case RETRO_DEVICE_POWERPADB:
          case RETRO_DEVICE_POWERPADA:
             add_powerpad_input(port, nes_input.type[port], &nes_input.PowerPadData);
@@ -3182,10 +3176,13 @@ static void FCEUD_UpdateInput(void)
       palette_switch_counter = 0;
 }
 
+<<<<<<< HEAD
 static void FCEUD_Update(uint8_t *XBuf, int32_t *Buffer, int Count)
 {
 }
 
+=======
+>>>>>>> 10297e58 (Small cleanups)
 static void retro_run_blit(uint8_t *gfx)
 {
    unsigned x, y;
@@ -4386,8 +4383,6 @@ unsigned retro_get_region(void)
 
 void *retro_get_memory_data(unsigned type)
 {
-   uint8_t* data;
-
    switch(type)
    {
       case RETRO_MEMORY_SAVE_RAM:
@@ -4397,43 +4392,41 @@ void *retro_get_memory_data(unsigned type)
             return UNIFCart.SaveGame[0];
          else if (GameInfo && GameInfo->type == GIT_FDS)
             return FDSROM_ptr();
-         else
-            data = NULL;
          break;
       case RETRO_MEMORY_SYSTEM_RAM:
-         data = RAM;
-         break;
+         return (uint8_t*)RAM;
       default:
-         data = NULL;
          break;
    }
 
-   return data;
+   return NULL;
 }
 
 size_t retro_get_memory_size(unsigned type)
 {
-   unsigned size;
-
    switch(type)
    {
       case RETRO_MEMORY_SAVE_RAM:
          if (iNESCart.battery && iNESCart.SaveGame[0] && iNESCart.SaveGameLen[0])
-            size = iNESCart.SaveGameLen[0];
+            return iNESCart.SaveGameLen[0];
          else if (UNIFCart.battery && UNIFCart.SaveGame[0] && UNIFCart.SaveGameLen[0])
+<<<<<<< HEAD
             size = UNIFCart.SaveGameLen[0];
          else if (GameInfo && GameInfo->type == GIT_FDS)
             size = FDSROM_size();
          else
             size = 0;
+=======
+            return UNIFCart.SaveGameLen[0];
+         else if (GameInfo->type == GIT_FDS)
+            return FDSROM_size();
+>>>>>>> 10297e58 (Small cleanups)
          break;
       case RETRO_MEMORY_SYSTEM_RAM:
-         size = 0x800;
-         break;
+         return 0x800;
       default:
-         size = 0;
          break;
    }
 
-   return size;
+   return 0;
 }
