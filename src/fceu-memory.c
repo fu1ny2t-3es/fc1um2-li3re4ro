@@ -26,6 +26,7 @@
 #include "fceu-memory.h"
 #include "general.h"
 
+<<<<<<< HEAD
 void *FCEU_gmalloc(uint32_t size)
 {
    void *ret = malloc(size);
@@ -44,24 +45,20 @@ void *FCEU_gmalloc(uint32_t size)
 }
 
 void *FCEU_malloc(uint32_t size)
+=======
+void *FCEU_malloc(uint32 size)
+>>>>>>> a9752267 (Refactors)
 {
    void *ret = (void*)malloc(size);
-
    if (!ret)
+<<<<<<< HEAD
    {
       FCEU_PrintError("Error allocating memory!");
       return NULL;
    }
+=======
+      ret = 0;
+>>>>>>> a9752267 (Refactors)
    memset(ret, 0, size);
    return ret;
-}
-
-void FCEU_free(void *ptr)
-{
-	free(ptr);
-}
-
-void FCEU_gfree(void *ptr)
-{
-	free(ptr);
 }
