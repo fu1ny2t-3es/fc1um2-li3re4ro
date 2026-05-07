@@ -66,7 +66,11 @@ int FCEU_InitVirtualVideo(void)
    }
 
    memset(XBuf, 128, 256 * (256 + extrascanlines + 8));
+<<<<<<< HEAD
    memset(XDBuf, 0, 256 * (256 + extrascanlines + 8));
+=======
+   memset(XDBuf, 0,  256 * (256 + extrascanlines + 8));
+>>>>>>> cff6c9b (More backports for PPU and video)
    return 1;
 }
 
