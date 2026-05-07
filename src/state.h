@@ -40,6 +40,8 @@ size_t FCEUSS_Save_Mem(void *buf, size_t size);
 
 #define FCEU_VERSION_NUMERIC ((FCEU_VERSION_MAJOR * 10000) + (FCEU_VERSION_MINOR * 100) + (FCEU_VERSION_PATCH))
 
+#define FCEUSTATE_RLSB      0x80000000
+
 void FCEUSS_Load_Mem(void);
 void FCEUSS_Save_Mem(void);
 >>>>>>> f0fb4b1b (Update ppu.c)
@@ -53,6 +55,7 @@ typedef struct {
 void ResetExState(void (*PreSave)(void), void (*PostSave)(void));
 void AddExState(void *v, uint32_t s, int type, char *desc);
 
+<<<<<<< HEAD
 /* SFORMAT 's' field encoding:
  *   bit 31     (0x80000000): FCEUSTATE_RLSB - byte-swap on save/load when
  *                            the host endianness differs from on-disk LE.
@@ -84,4 +87,6 @@ void AddExState(void *v, uint32_t s, int type, char *desc);
 
 void FCEU_DrawSaveStates(uint8_t *XBuf);
 
+=======
+>>>>>>> a9356a9b (Remove FCEU_DrawSaveStates)
 #endif
