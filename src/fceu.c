@@ -563,6 +563,7 @@ void ResetNES(void) {
 static int ram_init_seed = 0;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* Deterministic PRNG state for FCEU_MemoryRand. We use a local xorshift32
  * seeded from a ROM-identity-derived constant rather than libc rand() so
  * that the same ROM produces the same initial RAM/CHRRAM contents across
@@ -603,6 +604,8 @@ void FCEU_MemoryRand(uint8_t *ptr, uint32_t size)
 		case 2: v = (uint8_t)fceu_memrand_step(); break;
 =======
 FCEU_MAYBE_UNUSED
+=======
+>>>>>>> 40b66b56 (Buildfixes for MSVC/C89)
 static uint64 splitmix64(uint32 input) {
 	uint64 z = (input + 0x9e3779b97f4a7c15);
 	z        = (z ^ (z >> 30)) * 0xbf58476d1ce4e5b9;
