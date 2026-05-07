@@ -65,6 +65,9 @@ static uint32_t ppulut1[256];
 static uint32_t ppulut2[256];
 static uint32_t ppulut3[128];
 
+#define RENDIS_SHOW_SPRITES    (rendis & 1)
+#define RENDIS_SHOW_BACKGROUND (rendis & 2)
+
 static void makeppulut(void) {
 	int x;
 	int y;
@@ -769,11 +772,15 @@ static void DoLine(void)
 	X6502_Run(256);
 	EndRL();
 
+<<<<<<< HEAD
 	if (rendis & 2) {/* User asked to not display background data. */
 <<<<<<< HEAD
 		uint32_t tem;
 		tem = Pal[0] | (Pal[0] << 8) | (Pal[0] << 16) | (Pal[0] << 24);
 =======
+=======
+	if (RENDIS_SHOW_BACKGROUND) {/* User asked to not display background data. */
+>>>>>>> c3ccd4cf (Update libretro_core_options.h)
 		uint32 tem;
 		tem = PALRAM[0] | (PALRAM[0] << 8) | (PALRAM[0] << 16) | (PALRAM[0] << 24);
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
@@ -1182,7 +1189,7 @@ static void CopySprites(uint8_t *target) {
 	if (!spork) return;
 	spork = 0;
 
-	if (rendis & 1) return;	/* User asked to not display sprites. */
+	if (RENDIS_SHOW_SPRITES) return;	/* User asked to not display sprites. */
 
    do
 	{
@@ -1265,10 +1272,19 @@ void FCEUPPU_Reset(void) {
 void FCEUPPU_Power(void) {
 	int x;
 
-	memset(NTARAM, 0x00, 0x800);
-	memset(PALRAM, 0x00, 0x20);
-	memset(UPALRAM, 0x00, 0x03);
-	memset(SPRAM, 0x00, 0x100);
+	/* initialize PPU memory regions according to settings */
+	FCEU_MemoryRand(NTARAM, 0x800);
+	FCEU_MemoryRand(PALRAM, 0x20);
+	FCEU_MemoryRand(SPRAM, 0x100);
+
+	/* palettes can only store values up to $3F, and PALRAM X4/X8/XC are mirrors of X0 for rendering purposes (UPALRAM is used for $2007 readback)*/
+	for (x = 0; x < 0x20; ++x) PALRAM[x] &= 0x3F;
+	UPALRAM[0] = PALRAM[0x04];
+	UPALRAM[1] = PALRAM[0x08];
+	UPALRAM[2] = PALRAM[0x0C];
+	PALRAM[0x0C] = PALRAM[0x08] = PALRAM[0x04] = PALRAM[0x00];
+	PALRAM[0x1C] = PALRAM[0x18] = PALRAM[0x14] = PALRAM[0x10];
+
 	FCEUPPU_Reset();
 	for (x = 0x2000; x < 0x4000; x += 8) {
 		ARead[x] = A200x;
