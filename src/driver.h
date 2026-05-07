@@ -174,9 +174,13 @@ void FCEUI_NSFSetVis(int mode);
 int FCEUI_NSFChange(int amount);
 int FCEUI_NSFGetInfo(uint8_t *name, uint8_t *artist, uint8_t *copyright, int maxlen);
 
+<<<<<<< HEAD
 void FCEUI_VSUniToggleDIPView(void);
 void FCEUI_VSUniToggleDIP(int w);
 uint8_t FCEUI_VSUniGetDIPs(void);
+=======
+uint8 FCEUI_VSUniGetDIPs(void);
+>>>>>>> b10a48d5 (Random cleanups)
 void FCEUI_VSUniSetDIP(int w, int state);
 
 <<<<<<< HEAD
