@@ -41,6 +41,7 @@
 		It's also (ab)used by the NSF code.
 */
 
+<<<<<<< HEAD
 uint8_t *Page[32], *VPage[8];
 uint8_t **VPageR = VPage;
 uint8_t *VPageG[8];
@@ -48,6 +49,16 @@ uint8_t *MMC5SPRVPage[8];
 uint8_t *MMC5BGVPage[8];
 
 static uint8_t PRGIsRAM[32];	/* This page is/is not PRG RAM. */
+=======
+uint8 *Page[32], *VPage[8];
+uint8 *MMC5SPRVPage[8];
+uint8 *MMC5BGVPage[8];
+
+static uint8 **VPageR = VPage;
+static uint8 *VPageG[8];
+
+static uint8 PRGIsRAM[32];	/* This page is/is not PRG RAM. */
+>>>>>>> 96f7ebd3 (Update)
 
 /* 16 are (sort of) reserved for UNIF/iNES and 16 to map other stuff. */
 static int CHRram[32];
