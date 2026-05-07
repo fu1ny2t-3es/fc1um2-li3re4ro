@@ -639,8 +639,11 @@ void AddExState(void *v, uint32_t s, int type, char *desc)
    SFEXINDEX++;
    SFMDATA[SFEXINDEX].v = 0;   /* End marker. */
 }
+<<<<<<< HEAD
 
 void FCEU_DrawSaveStates(uint8_t *XBuf)
 {
 }
 
+=======
+>>>>>>> eaa5e82a (Remove FCEU_DrawSaveStates)
