@@ -22,10 +22,17 @@
 
 #include "mapinc.h"
 
+<<<<<<< HEAD:src/mappers/mmc2and4.c
 static uint8_t is10, isPC10;
 static uint8_t creg[4], latch0, latch1, preg, mirr;
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 isPC10;
+static uint8 creg[4], latch0, latch1, preg, mirr;
+static uint8 *WRAM = NULL;
+static uint32 WRAMSIZE;
+>>>>>>> 362d7e20 (Turn mmc2and4.c into mapper009.c and mapper010.c and remove isPC10):src/mappers/mapper009.c
 
 static SFORMAT StateRegs[] =
 {
@@ -38,16 +45,11 @@ static SFORMAT StateRegs[] =
 };
 
 static void Sync(void) {
-	if (is10) {
-		setprg16(0x8000, preg);
-		setprg16(0xC000, ~0);
-	} else {
-		setprg8(0x8000, preg);
-		setprg8(0xA000, ~2);
-		setprg8(0xC000, ~1);
-		setprg8(0xE000, ~0);
-	}
-	if (is10 || isPC10)
+	setprg8(0x8000, preg);
+	setprg8(0xA000, ~2);
+	setprg8(0xC000, ~1);
+	setprg8(0xE000, ~0);
+	if (isPC10)
 		setprg8r(0x10, 0x6000, 0);
 	setchr4(0x0000, creg[latch0]);
 	setchr4(0x1000, creg[latch1 + 2]);
@@ -102,7 +104,7 @@ static void MMC2and4Power(void) {
 	preg = 0;
 	latch0 = latch1 = 1;
 	Sync();
-	if (is10 || isPC10) {
+	if (isPC10) {
 		SetReadHandler(0x6000, 0x7FFF, CartBR);
 		SetWriteHandler(0x6000, 0x7FFF, CartBW);
 		FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
@@ -127,7 +129,6 @@ static void MMC2and4Close(void) {
 }
 
 void Mapper9_Init(CartInfo *info) {
-	is10 = 0;
 	isPC10 = 0;
 	info->Power = MMC2and4Power;
 	info->Close = MMC2and4Close;
@@ -146,6 +147,7 @@ void Mapper9_Init(CartInfo *info) {
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
 }
+<<<<<<< HEAD:src/mappers/mmc2and4.c
 
 void Mapper10_Init(CartInfo *info) {
 	is10 = 1;
@@ -164,3 +166,5 @@ void Mapper10_Init(CartInfo *info) {
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
 }
+=======
+>>>>>>> 362d7e20 (Turn mmc2and4.c into mapper009.c and mapper010.c and remove isPC10):src/mappers/mapper009.c
