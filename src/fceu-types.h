@@ -23,6 +23,7 @@
 #define __FCEU_TYPES_H
 
 #include <stdint.h>
+<<<<<<< HEAD
 
 /* The custom int8/int16/int32/int64/uint8/uint16/uint32/uint64 typedefs
  * that lived here have been replaced throughout the codebase with the
@@ -37,6 +38,17 @@
 						 * and global in MSVC.  Bummer.
 						 */
 #endif
+=======
+typedef int8_t int8;
+typedef int16_t int16;
+typedef int32_t int32;
+typedef int64_t int64;
+
+typedef uint8_t uint8;
+typedef uint16_t uint16;
+typedef uint32_t uint32;
+typedef uint64_t uint64;
+>>>>>>> 1071fa48 (Add new FCEU_gmalloc and cleanup fceu-types.h)
 
 #ifndef INLINE
 
