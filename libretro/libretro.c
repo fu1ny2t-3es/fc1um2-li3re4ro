@@ -252,11 +252,16 @@ static struct retro_log_callback log_cb          = { 0 };
 static bool crop_overscan;
 #endif
 
+<<<<<<< HEAD
 static unsigned overscan_left    = 0;
 static unsigned overscan_right   = 0;
 static unsigned overscan_top     = 0;
 static unsigned overscan_bottom  = 0;
 static unsigned aspect_ratio_par = 0;
+=======
+static bool use_raw_palette;
+static int aspect_ratio_par, aspect_ratio_ntsc;
+>>>>>>> 96b8ec5 (Update libretro.c)
 
 <<<<<<< HEAD
 /* Pixel format negotiated with the frontend at retro_load_game. Cached
@@ -2085,9 +2090,23 @@ static double get_aspect_ratio(void) {
 static void set_user_palette(void) {
 	unsigned i;
 
+<<<<<<< HEAD
 	palette_game_available = false;
 	palette_user_available = false;
 	use_raw_palette        = false;
+=======
+static float get_aspect_ratio(unsigned width, unsigned height)
+{
+  if (aspect_ratio_par == 2)
+    return NES_4_3;
+  else if (aspect_ratio_par == 3)
+    return NES_PP;
+  else if (aspect_ratio_par == 4)
+    return width * ((7.0 + aspect_ratio_custom / 100.0) / 7.0) / height;
+  else
+    return NES_8_7_PAR;
+}
+>>>>>>> 96b8ec5 (Update libretro.c)
 
 <<<<<<< HEAD
 void retro_get_system_av_info(struct retro_system_av_info *info)
@@ -2849,6 +2868,7 @@ static void check_variables(bool startup)
 	var.key = "fceumm_aspect";
 
 <<<<<<< HEAD
+<<<<<<< HEAD
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    {
       int oldval = aspect_ratio_par;
@@ -2863,6 +2883,8 @@ static void check_variables(bool startup)
        audio_video_updated = 1;
    }
 =======
+=======
+>>>>>>> 18ef2e4b (Update libretro_core_options.h)
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) {
 		unsigned oldval = aspect_ratio_par;
 		if (!strcmp(var.value, "8:7 PAR")) {
@@ -2879,6 +2901,36 @@ static void check_variables(bool startup)
 >>>>>>> f6dccad9 (Update libretro_core_options.h)
 
 	var.key = "fceumm_turbo_enable";
+=======
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+   {
+      unsigned oldval = aspect_ratio_par;
+      if (!strcmp(var.value, "8:7 PAR")) {
+        aspect_ratio_par = 1;
+      } else if (!strcmp(var.value, "4:3")) {
+        aspect_ratio_par = 2;
+      } else if (!strcmp(var.value, "PP")) {
+        aspect_ratio_par = 3;
+      } else if (!strcmp(var.value, "Custom")) {
+        aspect_ratio_par = 4;
+      }
+     if (aspect_ratio_par != oldval)
+       audio_video_updated = 1;
+   }
+
+   var.key = "fceumm_aspect_ntsc";
+
+   if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
+   {
+      unsigned oldval = aspect_ratio_ntsc;
+	  aspect_ratio_ntsc = atoi(var.value);
+
+     if (aspect_ratio_ntsc != oldval)
+       audio_video_updated = 1;
+   }
+
+   var.key = "fceumm_turbo_enable";
+>>>>>>> 96b8ec5 (Update libretro.c)
 
 	if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value) {
 		if (!strcmp(var.value, "Player 1")) {
