@@ -187,8 +187,11 @@ int FCEUI_FDSInsert(int oride);
 int FCEUI_FDSEject(void);
 void FCEUI_FDSSelect(void);
 
+<<<<<<< HEAD
 int FCEUI_DatachSet(uint8_t *rcode);
 
+=======
+>>>>>>> 7c500cfe (Split up more mappers)
 #ifdef  __cplusplus
 }
 #endif
