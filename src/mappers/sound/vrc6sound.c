@@ -23,6 +23,7 @@
 
 #include "mapinc.h"
 
+<<<<<<< HEAD
 static uint8_t is26;
 static uint8_t prg[2], chr[8], mirr;
 static uint8_t IRQLatch, IRQa, IRQd;
@@ -43,6 +44,8 @@ static SFORMAT StateRegs[] =
 	{ 0 }
 };
 
+=======
+>>>>>>> bcbb152d (Split up more mappers)
 static void(*sfun[3]) (void);
 
 static uint8_t vpsg1[8];
@@ -79,6 +82,7 @@ static SFORMAT SStateRegs[] =
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void Sync(void) {
 	uint8_t i;
 =======
@@ -100,6 +104,8 @@ static void VRC6Sync(void) {
 	}
 }
 
+=======
+>>>>>>> bcbb152d (Split up more mappers)
 static void VRC6SW(uint32 A, uint8 V) {
 	A &= 0xF003;
 	if (A >= 0x9000 && A <= 0x9002) {
@@ -114,72 +120,6 @@ static void VRC6SW(uint32 A, uint8 V) {
 	}
 }
 
-static void VRC6Write(uint32 A, uint8 V) {
-	if (is26)
-		A = (A & 0xFFFC) | ((A >> 1) & 1) | ((A << 1) & 2);
-	if (A >= 0x9000 && A <= 0xB002) {
-		VRC6SW(A, V);
-		return;
-	}
-	switch (A & 0xF003) {
-	case 0x8000: prg[0] = V; VRC6Sync(); break;
-	case 0xB003: mirr = (V >> 2) & 3; VRC6Sync(); break;
-	case 0xC000: prg[1] = V; VRC6Sync(); break;
-	case 0xD000: chr[0] = V; VRC6Sync(); break;
-	case 0xD001: chr[1] = V; VRC6Sync(); break;
-	case 0xD002: chr[2] = V; VRC6Sync(); break;
-	case 0xD003: chr[3] = V; VRC6Sync(); break;
-	case 0xE000: chr[4] = V; VRC6Sync(); break;
-	case 0xE001: chr[5] = V; VRC6Sync(); break;
-	case 0xE002: chr[6] = V; VRC6Sync(); break;
-	case 0xE003: chr[7] = V; VRC6Sync(); break;
-	case 0xF000: IRQLatch = V; X6502_IRQEnd(FCEU_IQEXT); break;
-	case 0xF001:
-		IRQa = V & 2;
-		IRQd = V & 1;
-		if (V & 2)
-			IRQCount = IRQLatch;
-		CycleCount = 0;
-		X6502_IRQEnd(FCEU_IQEXT);
-		break;
-	case 0xF002:
-		IRQa = IRQd;
-		X6502_IRQEnd(FCEU_IQEXT);
-	}
-}
-
-static void VRC6Power(void) {
-	VRC6Sync();
-	SetReadHandler(0x6000, 0xFFFF, CartBR);
-	SetWriteHandler(0x6000, 0x7FFF, CartBW);
-	SetWriteHandler(0x8000, 0xFFFF, VRC6Write);
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
-}
-
-static void VRC6IRQHook(int a) {
-	if (IRQa) {
-		CycleCount += a * 3;
-		while (CycleCount >= 341) {
-			CycleCount -= 341;
-			IRQCount++;
-			if (IRQCount == 0x100) {
-				IRQCount = IRQLatch;
-				X6502_IRQBegin(FCEU_IQEXT);
-			}
-		}
-	}
-}
-
-static void VRC6Close(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
-}
-
-static void VRC6StateRestore(int version) {
-	VRC6Sync();
-}
-
 /* VRC6 Sound */
 
 static void DoSQV1(void);
@@ -187,6 +127,7 @@ static void DoSQV2(void);
 static void DoSawV(void);
 
 static INLINE void DoSQV(int x) {
+<<<<<<< HEAD
 	int32_t V;
 	int32_t amp = GetExpOutput(SND_VRC6,
 		(((vpsg1[x << 2] & 15) << 8) * 6 / 8) >> 4);
@@ -194,6 +135,12 @@ static INLINE void DoSQV(int x) {
 
 	start = cvbc[x];
 	end = (SOUNDTS << 16) / soundtsinc;
+=======
+	int32 V;
+	int32 amp = (((vpsg1[x << 2] & 15) << 8) * 6 / 8) >> 4;
+	int32 start = cvbc[x];
+	int32 end = (SOUNDTS << 16) / soundtsinc;
+>>>>>>> bcbb152d (Split up more mappers)
 	if (end <= start) return;
 	cvbc[x] = end;
 
@@ -232,10 +179,15 @@ static void DoSQV2(void) {
 
 static void DoSawV(void) {
 	int V;
+<<<<<<< HEAD
 	int32_t start, end;
 
 	start = cvbc[2];
 	end = (SOUNDTS << 16) / soundtsinc;
+=======
+	int32 start = cvbc[2];
+	int32 end = (SOUNDTS << 16) / soundtsinc;
+>>>>>>> bcbb152d (Split up more mappers)
 	if (end <= start) return;
 	cvbc[2] = end;
 
@@ -376,6 +328,7 @@ static void VRC6_ESI(void) {
 
 /* VRC6 Sound */
 
+<<<<<<< HEAD
 void Mapper24_Init(CartInfo *info) {
 	is26 = 0;
 	info->Power = VRC6Power;
@@ -406,6 +359,8 @@ void Mapper26_Init(CartInfo *info) {
 	AddExState(&SStateRegs, ~0, 0, 0);
 }
 
+=======
+>>>>>>> bcbb152d (Split up more mappers)
 void NSFVRC6_Init(void) {
 	VRC6_ESI();
 	SetWriteHandler(0x8000, 0xbfff, VRC6SW);
