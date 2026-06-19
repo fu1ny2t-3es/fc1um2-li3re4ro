@@ -416,7 +416,12 @@ static uint32_t BarcodeOut;
 
 /* #define INTERL2OF5 */
 
+<<<<<<< HEAD
 int FCEUI_DatachSet(uint8_t *rcode) {
+=======
+#if 0
+static int FCEUI_DatachSet(uint8 *rcode) {
+>>>>>>> bcbb152d (Split up more mappers)
 	int prefix_parity_type[10][6] = {
 		{ 0, 0, 0, 0, 0, 0 }, { 0, 0, 1, 0, 1, 1 }, { 0, 0, 1, 1, 0, 1 }, { 0, 0, 1, 1, 1, 0 },
 		{ 0, 1, 0, 0, 1, 1 }, { 0, 1, 1, 0, 0, 1 }, { 0, 1, 1, 1, 0, 0 }, { 0, 1, 0, 1, 0, 1 },
@@ -565,6 +570,7 @@ int FCEUI_DatachSet(uint8_t *rcode) {
 	BarcodeCycleCount = 0;
 	return(1);
 }
+#endif
 
 static void BarcodeSync(void) {
 	setchr8(0);
