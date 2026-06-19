@@ -99,7 +99,12 @@ typedef struct {
 	uint8_t mod_overflow_shift;
 } FDSSOUND;
 
+<<<<<<< HEAD
 static const int32_t mod_bias_tab[8] = { 0, 1, 2, 4, 0, -4, -2, -1 };
+=======
+static FDSSOUND fdso;
+static int32 FBC = 0;
+>>>>>>> 2b5ee164 (Update ppu.c)
 
 static FDSSOUND fdso;
 static int32_t  FBC;
@@ -433,6 +438,7 @@ static void FDSClockUnits(void) {
 	}
 }
 
+<<<<<<< HEAD
 static void FDSDoSound(void) {
 	uint32_t prev_cwave_pos = fdso.cwave_pos;
 
@@ -471,7 +477,13 @@ static void FDSDoSound(void) {
 		fdso.sample_out_cache = GetExpOutput(SND_FDS, sample);
 	}
 }
+=======
+<<<<<<< HEAD
+static int32_t FBC = 0;
+>>>>>>> 2b5ee164 (Update ppu.c)
 
+=======
+>>>>>>> 2f256299 (Split up more mappers)
 static void RenderSound(void) {
 <<<<<<< HEAD
 	int32_t end = (SOUNDTS << 16) / soundtsinc;
