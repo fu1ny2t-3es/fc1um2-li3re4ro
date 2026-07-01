@@ -693,6 +693,7 @@ void X6502_Run(int32 cycles)
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	#define RdRAM RdMemNorm
 	#define WrRAM WrMemNorm
 	#define RdMem RdMemNorm
@@ -724,6 +725,9 @@ void X6502_Run(int32 cycles)
 =======
 >>>>>>> f23ff718 ((X6502) Further cleanups)
 	if (PAL)
+=======
+	if (isPAL)
+>>>>>>> c7dde5ce (Update libretro_core_options.h)
 		cycles *= 15;	/* 15*4=60 */
 	else
 		cycles *= 16;	/* 16*4=64 */
