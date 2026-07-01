@@ -70,7 +70,11 @@ extern int32_t nesincsize;
 
 void SetSoundVariables(void);
 
+<<<<<<< HEAD
 int GetSoundBuffer(int32_t **W);
+=======
+int GetSoundBuffer(void);
+>>>>>>> 0f4fda22 (Update libretro.c)
 int FlushEmulateSound(void);
 extern int32_t Wave[2048 + 512];
 extern int32_t WaveFinal[2048 + 512];
