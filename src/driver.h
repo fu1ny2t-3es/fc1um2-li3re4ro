@@ -128,6 +128,7 @@ void FCEUI_SetBaseDirectory(const char *dir);
 */
 void FCEUI_SetPaletteArray(uint8_t *data, int nEntries);
 
+<<<<<<< HEAD
 /* Sets up sound code to render sound at the specified rate, in samples
    per second.  Only sample rates of 44100, 48000, and 96000 are currently
    supported.
@@ -159,15 +160,20 @@ int FCEUI_SetCheat(uint32_t which, const char *name, int32_t a, int32_t v, int c
 void FCEUI_CheatSearchShowExcluded(void);
 void FCEUI_CheatSearchSetCurrentAsOriginal(void);
 =======
+=======
+>>>>>>> c7dde5ce (Update libretro_core_options.h)
 int FCEUI_DecodePAR(const char *code, uint16 *a, uint8 *v, int *c, int *type);
 int FCEUI_DecodeGG(const char *str, uint16 *a, uint8 *v, int *c);
 int FCEUI_AddCheat(const char *name, uint32 addr, uint8 val, int compare, int type);
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 
+<<<<<<< HEAD
 void FCEUI_SetLowPass(int q);
 void FCEUI_RemoveTriangleNoise(int d);
 void FCEUI_ReduceDmcPopping(int d);
 
+=======
+>>>>>>> 6a15e475 (Update libretro_core_options.h)
 void FCEUI_NSFSetVis(int mode);
 int FCEUI_NSFChange(int amount);
 int FCEUI_NSFGetInfo(uint8_t *name, uint8_t *artist, uint8_t *copyright, int maxlen);
