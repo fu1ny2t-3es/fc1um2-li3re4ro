@@ -70,7 +70,11 @@ static void ZapperFrapper(uint8 * bg, uint8 * spr, uint32 linets, int final) {
 
 				sum = palo[a1].r + palo[a1].g + palo[a1].b;
 				if (sum >= 100 * 3) {
+<<<<<<< HEAD
 					ZD.zaphit = ((uint64_t)linets + (uint64_t)(xs + 16) * (PAL ? 15 : 16)) / 48 + timestampbase;
+=======
+					ZD.zaphit = ((uint64)linets + (uint64)(xs + 16) * (isPAL ? 15 : 16)) / 48 + timestampbase;
+>>>>>>> f31fc48c (Update libretro_core_options.h)
 					goto endo;
 				}
 			}
