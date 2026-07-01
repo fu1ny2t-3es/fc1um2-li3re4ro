@@ -471,7 +471,7 @@ void FCEUD_DispMessage(enum retro_log_level level, unsigned duration, const char
 
 static void FCEUD_SoundToggle (void)
 {
-   FCEUI_SetSoundVolume(sndvolume);
+   FSettings.SoundVolume = sndvolume;
 }
 
 /*palette for FCEU*/
@@ -2050,7 +2050,8 @@ static void FCEUD_RegionOverride(unsigned region)
 void retro_deinit (void)
 {
    FCEUI_CloseGame();
-   FCEUI_Sound(0);
+   FSettings.SndRate     = 0;
+   SetSoundVariables();
    FCEUI_Kill();
 #if defined(_3DS)
    if (fceu_video_out)
@@ -2591,7 +2592,10 @@ static void check_variables(bool startup)
       else if (!strcmp(var.value, "Very High"))
          sndquality = 2;
       if (sndquality != oldval)
-         FCEUI_SetSoundQuality(sndquality);
+      {
+	      FSettings.soundq = sndquality;
+	      SetSoundVariables();
+      }
    }
 
    var.key = "fceumm_sndlowpass";
@@ -2599,7 +2603,7 @@ static void check_variables(bool startup)
    if (environ_cb(RETRO_ENVIRONMENT_GET_VARIABLE, &var) && var.value)
    {
       int lowpass = (!strcmp(var.value, "enabled")) ? 1 : 0;
-      FCEUI_SetLowPass(lowpass);
+      FSettings.lowpass = lowpass;
    }
 
    var.key = "fceumm_removetrianglenoise";
@@ -4101,8 +4105,9 @@ bool retro_load_game(const struct retro_game_info *info)
 
    FCEUI_Initialize();
 
-   FCEUI_SetSoundVolume(sndvolume);
-   FCEUI_Sound(sndsamplerate);
+   FSettings.SoundVolume = sndvolume;
+   FSettings.SndRate     = sndsamplerate;
+   SetSoundVariables();
 
 #ifdef HAVE_HDPACK
    /* Apply the pack's <patch> IPS (SHA-1 verified) to an in-memory
