@@ -184,7 +184,11 @@ void SetWriteHandler(int32 start, int32 end, writefunc func)
 
 uint8_t RAM[0x800];
 
+<<<<<<< HEAD
 uint8_t PAL = 0;
+=======
+uint8 isPAL = 0;
+>>>>>>> 29d840dc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 static void BRAML(uint32 A, uint8 V) { RAM[A] = V; }
 static uint8 ARAML(uint32 A) { return RAM[A]; }
@@ -224,8 +228,13 @@ static void ResetGameLoaded(void)
 	MapIRQHook = NULL;
 	MMC5Hack = 0;
 	PEC586Hack = 0;
+<<<<<<< HEAD
 	PAL &= 1;
 	default_palette_selected = 0;
+=======
+	isPAL &= 1;
+	pale = 0;
+>>>>>>> 81ca407 (Updates)
 }
 
 int UNIFLoad(const char *name, FCEUFILE *fp);
@@ -247,9 +256,9 @@ static void FCEU_ResetVidSys(void)
 	else
 		w = FSettings.PAL;
 
-	PAL = w ? 1 : 0;
+	isPAL = w ? 1 : 0;
 
-   if (PAL)
+   if (isPAL)
       isDendy = 0;
 
    normal_scanlines = isDendy ? 290 : 240;
