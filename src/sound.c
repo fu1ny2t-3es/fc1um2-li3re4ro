@@ -188,8 +188,13 @@ static void (*DoSQ2)(void) = Dummyfunc;
 
 static uint32_t ChannelBC[5];
 
+<<<<<<< HEAD
 static void LoadDMCPeriod(uint8_t V) {
 	if (PAL)
+=======
+static void LoadDMCPeriod(uint8 V) {
+	if (isPAL)
+>>>>>>> 29d840dc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 		DMCPeriod = PALDMCTable[V];
 	else
 		DMCPeriod = NTSCDMCTable[V];
@@ -506,7 +511,6 @@ static void FrameSoundUpdate(void) {
 }
 
 static INLINE void tester(void) {
-	if (DMCBitCount == 0) {
 		if (!DMCHaveDMA)
 			DMCHaveSample = 0;
 		else {
@@ -514,7 +518,6 @@ static INLINE void tester(void) {
 			DMCShift = DMCDMABuf;
 			DMCHaveDMA = 0;
 		}
-	}
 }
 
 static INLINE void DMCDMA(void) {
@@ -567,7 +570,8 @@ void FCEU_SoundCPUHook(int cycles) {
 		DMCacc += DMCPeriod;
 		DMCBitCount = (DMCBitCount + 1) & 7;
 		DMCShift >>= 1;
-		tester();
+		if (DMCBitCount == 0)
+			tester();
 	}
 }
 
@@ -612,9 +616,8 @@ static INLINE void RDoSQ(int x) {
 	!CheckFreq(curfreq[x], PSG[(x << 2) | 0x1]) ||
 	!lengthcount[x]) {
 		rc -= V;
-		if (rc <= 0) {
+		if (rc <= 0)
 			rc = cf - (-rc % cf);
-		}
 	} else {
 		int dutyCycle;
 
@@ -932,7 +935,7 @@ static void RDoTriangleNoisePCMLQ(void) {
 				/* used to added <<(16+2) when the noise table
 				 * values were half.
 				 */
-				if (PAL)
+				if (isPAL)
 					lq_noiseacc += PALNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
 				else
 					lq_noiseacc += NTSCNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
@@ -972,7 +975,7 @@ static void RDoTriangleNoisePCMLQ(void) {
 				/* used to be added <<(16+2) when the noise table
 				 * values were half.
 				 */
-				if (PAL)
+				if (isPAL)
 					lq_noiseacc += PALNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
 				else
 					lq_noiseacc += NTSCNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
@@ -1014,17 +1017,21 @@ static void RDoNoise(void) {
 
 	outo = amptab[(nreg >> 0xe) & 1];
 
-	if (!lengthcount[3]) {
+	if (!lengthcount[3])
 		outo = amptab[0] = 0;
-	}
 
 	if (PSG[0xE] & 0x80) {/* "short" noise */
 		for (V = ChannelBC[3]; V < SOUNDTS; V++) {
 			WaveHi[V] += outo;
 			wlcount[3]--;
 			if (!wlcount[3]) {
+<<<<<<< HEAD
 				uint8_t feedback;
 				if (PAL)
+=======
+				uint8 feedback;
+				if (isPAL)
+>>>>>>> 29d840dc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 					wlcount[3] = PALNoiseFreqTable[PSG[0xE] & 0xF];
 				else
 					wlcount[3] = NTSCNoiseFreqTable[PSG[0xE] & 0xF];
@@ -1039,8 +1046,13 @@ static void RDoNoise(void) {
 			WaveHi[V] += outo;
 			wlcount[3]--;
 			if (!wlcount[3]) {
+<<<<<<< HEAD
 				uint8_t feedback;
 				if (PAL)
+=======
+				uint8 feedback;
+				if (isPAL)
+>>>>>>> 29d840dc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 					wlcount[3] = PALNoiseFreqTable[PSG[0xE] & 0xF];
 				else
 					wlcount[3] = NTSCNoiseFreqTable[PSG[0xE] & 0xF];
@@ -1163,10 +1175,14 @@ int FlushEmulateSound(void) {
 	return end;
 }
 
+<<<<<<< HEAD
 int GetSoundBuffer(int32_t **W) {
 	*W = WaveFinal;
 	return(inbuf);
 }
+=======
+int GetSoundBuffer(void) { return(inbuf); }
+>>>>>>> 29d840dc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 /* FIXME:  Find out what sound registers get reset on reset.  I know $4001/$4005 don't,
 due to that whole MegaMan 2 Game Genie thing.
@@ -1263,7 +1279,7 @@ void FCEUSND_Power(void) {
 void SetSoundVariables(void) {
 	int x;
 
-	fhinc = PAL ? 16626 : 14915;	/* *2 CPU clock rate */
+	fhinc  = isPAL ? 16626 : 14915;	/* *2 CPU clock rate */
 	fhinc *= 24;
 
 	if (FSettings.SndRate) {
@@ -1325,6 +1341,7 @@ void SetSoundVariables(void) {
 	if (GameExpSound.RChange)
 		GameExpSound.RChange();
 
+<<<<<<< HEAD
 	/* nesincsize / soundtsinc are derived from the CPU clock (x6502.h) and
 	 * the output rate. The CPU clock is exactly NTSC=19687500/11,
 	 * PAL=13300857/8 (1662607.125), dendy=1773447467/1000 (1773447.467), so
@@ -1349,10 +1366,29 @@ void SetSoundVariables(void) {
 				(FSettings.SndRate * 16));
 	}
 
+=======
+<<<<<<< HEAD
+	nesincsize = (int64_t)(((int64_t)1 << 17) * (double)(PAL ? PAL_CPU : NTSC_CPU) / (FSettings.SndRate * 16));
+=======
+	nesincsize = (int64)(((int64)1 << 17) * (double)(isPAL ? PAL_CPU : NTSC_CPU) / (FSettings.SndRate * 16));
+>>>>>>> 29d840dc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> 7a8bc569 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	memset(sqacc, 0, sizeof(sqacc));
 	memset(ChannelBC, 0, sizeof(ChannelBC));
 
 	LoadDMCPeriod(DMCFormat & 0xF);	/* For changing from PAL to NTSC */
+<<<<<<< HEAD
+=======
+
+<<<<<<< HEAD
+	/* Use double rather than long double here. long double has
+	 * platform-dependent precision (80-bit on x87, 64-bit with
+	 * -mfpmath=sse, 128-bit on some non-x86), so the cast-to-uint32
+	 * result varies across platforms. double is guaranteed 64-bit
+	 * IEEE-754 on every platform we target, keeping soundtsinc
+	 * deterministic across builds for replay/netplay. */
+	soundtsinc = (uint32_t)((uint64_t)((double)(PAL ? PAL_CPU : NTSC_CPU) * 65536.0) / (FSettings.SndRate * 16));
+>>>>>>> 7a8bc569 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
 
 void FCEUI_Sound(int Rate) {
@@ -1374,6 +1410,9 @@ void FCEUI_ReduceDmcPopping(int d) {
 void FCEUI_SetSoundQuality(int quality) {
 	FSettings.soundq = quality;
 	SetSoundVariables();
+=======
+	soundtsinc = (uint32)((uint64)(isPAL ? (long double)PAL_CPU * 65536 : (long double)NTSC_CPU * 65536) / (FSettings.SndRate * 16));
+>>>>>>> 29d840dc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
 
 <<<<<<< HEAD
