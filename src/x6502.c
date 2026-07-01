@@ -693,6 +693,7 @@ void X6502_Run(int32 cycles)
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	#define RdRAM RdMemNorm
 	#define WrRAM WrMemNorm
 	#define RdMem RdMemNorm
@@ -724,6 +725,9 @@ void X6502_Run(int32 cycles)
 =======
 >>>>>>> e2320656 ((X6502) Further cleanups)
 	if (PAL)
+=======
+	if (isPAL)
+>>>>>>> bf9e0b00 (Update Makefile.libretro)
 		cycles *= 15;	/* 15*4=60 */
 	else
 		cycles *= 16;	/* 16*4=64 */

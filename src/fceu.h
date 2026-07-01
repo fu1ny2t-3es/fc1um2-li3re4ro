@@ -78,7 +78,11 @@ extern void (*GameStateRestore)(int version);
 #include "git.h"
 extern FCEUGI *GameInfo;
 
+<<<<<<< HEAD
 extern uint8_t PAL;
+=======
+extern uint8 isPAL;
+>>>>>>> bf9e0b00 (Update Makefile.libretro)
 
 #include "driver.h"
 
