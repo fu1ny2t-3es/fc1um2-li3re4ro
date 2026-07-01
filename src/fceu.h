@@ -78,7 +78,11 @@ extern void (*GameStateRestore)(int version);
 #include "git.h"
 extern FCEUGI *GameInfo;
 
+<<<<<<< HEAD
 extern uint8_t PAL;
+=======
+extern uint8 isPAL;
+>>>>>>> 77219ed2 (Update ppu.c)
 
 #include "driver.h"
 

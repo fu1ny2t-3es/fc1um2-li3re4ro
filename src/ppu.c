@@ -75,7 +75,7 @@ static uint32_t ppulut3[128];
 #define RENDIS_SHOW_BACKGROUND (rendis & 2)
 #define PAL(c)  ((c) + cc)
 
-#define GETLASTPIXEL    (PAL ? ((timestamp * 48 - linestartts) / 15) : ((timestamp * 48 - linestartts) >> 4))
+#define GETLASTPIXEL    (isPAL ? ((timestamp * 48 - linestartts) / 15) : ((timestamp * 48 - linestartts) >> 4))
 
 #define MMC5SPRVRAMADR(V)   &MMC5SPRVPage[(V) >> 10][(V)]
 #define VRAMADR(V)          &VPage[(V) >> 10][(V)]
