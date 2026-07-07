@@ -29,12 +29,16 @@ static uint8_t reg;
 static uint8_t pad;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static DECLFR (readPad) {
 	return CartBR(A &~3 | pad &3);
 }
 =======
 static uint8 Mapper460_ReadOB(uint32 A) { return X.DB; }
 >>>>>>> 8b538f0 (Update ppu.c)
+=======
+static uint8 Mapper460_ReadOB(uint32 A) { return cpu.DB; }
+>>>>>>> 431495b (Update ppu.c)
 
 static void sync () {
 	MMC3_syncPRG(0x0F, reg <<4 &~0x0F);
