@@ -23,11 +23,22 @@
 
 static int32_t dwave = 0;
 static OPLL *VRC7Sound = NULL;
+<<<<<<< HEAD
 static uint8_t vrc7idx, preg[3], creg[8], mirr;
 static uint8_t IRQLatch, IRQa, IRQd;
 static int32_t IRQCount, CycleCount;
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 vrc7idx, preg[3], creg[8], mirr;
+static uint8 IRQLatch, IRQa, IRQd;
+static int32 IRQCount, CycleCount;
+static uint8 *WRAM = NULL;
+
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+>>>>>>> 99588a93 (Update libretro.c)
 
 static SFORMAT StateRegs[] =
 {
@@ -193,7 +204,7 @@ static void VRC7Power(void) {
 	SetWriteHandler(0x6000, 0x7FFF, CartBW);
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
 	SetWriteHandler(0x8000, 0xFFFF, VRC7Write);
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 }
 
 static void VRC7Close(void) {
@@ -238,13 +249,19 @@ void Mapper85_Init(CartInfo *info) {
 	info->Power = VRC7Power;
 	info->Close = VRC7Close;
 	MapIRQHook = VRC7IRQHook;
+<<<<<<< HEAD
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+=======
+	WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> 99588a93 (Update libretro.c)
 	if (info->battery) {
 		info->SaveGame[0] = WRAM;
-		info->SaveGameLen[0] = WRAMSIZE;
+		info->SaveGameLen[0] = WRAM_SIZE;
 	}
 	GameStateRestore = VRC7StateRestore;
 	VRC7_ESI();
