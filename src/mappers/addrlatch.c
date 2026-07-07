@@ -39,10 +39,13 @@ static uint32_t hasBattery;
 static uint32_t submapper = 0;
 =======
 static uint8 *WRAM = NULL;
-static uint32 WRAMSIZE;
 static uint32 hasBattery;
 uint32 submapper = 0;
 >>>>>>> 554a20bc (Update libretro_core_options.h)
+
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
 
 static void LatchWrite(uint32 A, uint8 V) {
 	latche = A;
@@ -60,7 +63,7 @@ static void LatchPower(void) {
 	if (WRAM) {
 		SetReadHandler(0x6000, 0xFFFF, CartBR);
 		SetWriteHandler(0x6000, 0x7FFF, CartBW);
-		FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+		FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 	} else
 		SetReadHandler(0x6000, 0xFFFF, defread);
 	SetWriteHandler(addrreg0, addrreg1, LatchWrite);
@@ -94,15 +97,20 @@ void Latch_Init(CartInfo *info, void (*proc)(void), readfunc func, uint16 linit,
 	info->Reset = LatchReset;
 	info->Close = LatchClose;
 	if (wram) {
+<<<<<<< HEAD
 		WRAMSIZE = 8192;
 		WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 		SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
+=======
+		WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+		SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+>>>>>>> 0daf5c03 (Update libretro_core_options.h)
 		if (info->battery) {
 			hasBattery = 1;
 			info->SaveGame[0] = WRAM;
-			info->SaveGameLen[0] = WRAMSIZE;
+			info->SaveGameLen[0] = WRAM_SIZE;
 		}
-		AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+		AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
 	}
 	GameStateRestore = StateRestore;
 	AddExState(&latche, 2, 1, "LATC");
