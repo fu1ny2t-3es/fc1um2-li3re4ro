@@ -37,7 +37,7 @@
  */
 
 #include "mapinc.h"
-#include "../fds_apu.h"
+#include "sound/fdssound.h"
 
 static uint8_t reg0, reg1;
 static uint8_t *WRAM = NULL;
