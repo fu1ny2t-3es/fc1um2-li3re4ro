@@ -33,10 +33,22 @@ void X6502_Run(int32 cycles);
 
 extern uint32 timestamp;
 extern uint32 sound_timestamp;
+<<<<<<< HEAD
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 extern X6502 X;
 extern uint8_t encryptOpcodes;
+<<<<<<< HEAD
 extern uint8_t encryptOpcodesConfig;
+=======
+=======
+<<<<<<< HEAD
+extern X6502 X;
+extern uint8 encryptOpcodes;
+=======
+extern X6502 cpu;
+>>>>>>> 4825644 (Update Makefile.libretro)
+>>>>>>> da22871d (Update Makefile.libretro)
+>>>>>>> 611edae8 (Update Makefile.libretro)
 
 #define N_FLAG  0x80
 #define V_FLAG  0x40
