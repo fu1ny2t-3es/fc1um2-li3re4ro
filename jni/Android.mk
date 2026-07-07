@@ -17,5 +17,9 @@ include $(CLEAR_VARS)
 LOCAL_MODULE    := retro
 LOCAL_SRC_FILES := $(SOURCES_C)
 LOCAL_CFLAGS    := $(COREFLAGS)
+<<<<<<< HEAD
 LOCAL_LDFLAGS   := -Wl,-version-script=$(CORE_DIR)/drivers/libretro/link.T,-z,max-page-size=16384
+=======
+LOCAL_LDFLAGS   := -Wl,-version-script=$(CORE_DIR)/libretro/link.T
+>>>>>>> 28246e35 ((Android) Fix build)
 include $(BUILD_SHARED_LIBRARY)
