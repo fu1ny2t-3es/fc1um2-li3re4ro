@@ -33,10 +33,22 @@ void X6502_Run(int32 cycles);
 
 extern uint32 timestamp;
 extern uint32 sound_timestamp;
+<<<<<<< HEAD
 >>>>>>> b8aebecd (Update libretro.c)
 extern X6502 X;
 extern uint8_t encryptOpcodes;
+<<<<<<< HEAD
 extern uint8_t encryptOpcodesConfig;
+=======
+=======
+<<<<<<< HEAD
+extern X6502 X;
+extern uint8 encryptOpcodes;
+=======
+extern X6502 cpu;
+>>>>>>> e45e7da (Update libretro.c)
+>>>>>>> cf1c387c (Update libretro.c)
+>>>>>>> c8c3577b (Update libretro.c)
 
 #define N_FLAG  0x80
 #define V_FLAG  0x40
