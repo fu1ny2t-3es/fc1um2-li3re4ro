@@ -13,9 +13,13 @@ typedef struct __X6502 {
 	uint32_t IRQlow;		/* Simulated IRQ pin held low(or is it high?).
 						And other junk hooked on for speed reasons.*/
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8_t DB;			/* Data bus "cache" for reads from certain areas */
 =======
 	uint8 DB;			/* Data bus "cache" for reads from certain areas */
+=======
+	uint8 openbus;		/* Data bus "cache" for reads from certain areas */
+>>>>>>> 3b128606 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 	int preexec;		/* Pre-exec'ing for debug breakpoints. */
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
