@@ -31,8 +31,15 @@ static uint32_t WRAMSIZE;
 static uint8 isPC10;
 static uint8 creg[4], latch0, latch1, preg, mirr;
 static uint8 *WRAM = NULL;
+<<<<<<< HEAD
 static uint32 WRAMSIZE;
 >>>>>>> 33b26dd0 (Turn mmc2and4.c into mapper009.c and mapper010.c and remove isPC10):src/mappers/mapper009.c
+=======
+
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+>>>>>>> 0daf5c03 (Update libretro_core_options.h)
 
 static SFORMAT StateRegs[] =
 {
@@ -107,7 +114,7 @@ static void MMC2and4Power(void) {
 	if (isPC10) {
 		SetReadHandler(0x6000, 0x7FFF, CartBR);
 		SetWriteHandler(0x6000, 0x7FFF, CartBW);
-		FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+		FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 	}
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 	SetWriteHandler(0xA000, 0xFFFF, MMC2and4Write);
@@ -135,13 +142,19 @@ void Mapper9_Init(CartInfo *info) {
 	PPU_hook = MMC2and4PPUHook;
 	if (info->battery) { /* Mike Tyson's Punch-Out!! (PC10) supports save ram */
 		isPC10 = 1;
+<<<<<<< HEAD
 		WRAMSIZE = 8192;
 		WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 		SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 		AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+=======
+		WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+		SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+		AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> 0daf5c03 (Update libretro_core_options.h)
 		if (info->battery) {
 			info->SaveGame[0] = WRAM;
-			info->SaveGameLen[0] = WRAMSIZE;
+			info->SaveGameLen[0] = WRAM_SIZE;
 		}
 	}
 	GameStateRestore = StateRestore;
