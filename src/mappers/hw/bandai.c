@@ -28,8 +28,16 @@ static uint8_t reg[16], is153, x24c02;
 static uint8_t IRQa;
 static int16_t IRQCount, IRQLatch;
 
+<<<<<<< HEAD
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 *WRAM = NULL;
+
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+>>>>>>> 78532036 (Update libretro.c)
 
 /* TODO: Clean this up. State variables are expanded for
  * big-endian compatibility when saving and loading states */
@@ -377,7 +385,7 @@ static void M153Power(void) {
 	SetWriteHandler(0x6000, 0x7FFF, CartBW);
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 	SetWriteHandler(0x8000, 0xFFFF, BandaiWrite);
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 }
 
 
@@ -393,14 +401,20 @@ void Mapper153_Init(CartInfo *info) {
 	info->Close = M153Close;
 	MapIRQHook = BandaiIRQHook;
 
+<<<<<<< HEAD
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+=======
+	WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> 78532036 (Update libretro.c)
 
 	if (info->battery) {
 		info->SaveGame[0] = WRAM;
-		info->SaveGameLen[0] = WRAMSIZE;
+		info->SaveGameLen[0] = WRAM_SIZE;
 	}
 
 	GameStateRestore = StateRestore;
