@@ -33,10 +33,22 @@ void X6502_Run(int32 cycles);
 
 extern uint32 timestamp;
 extern uint32 sound_timestamp;
+<<<<<<< HEAD
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 extern X6502 X;
 extern uint8_t encryptOpcodes;
+<<<<<<< HEAD
 extern uint8_t encryptOpcodesConfig;
+=======
+=======
+<<<<<<< HEAD
+extern X6502 X;
+extern uint8 encryptOpcodes;
+=======
+extern X6502 cpu;
+>>>>>>> 61719fd (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> fa17363b (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> daa616bc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 #define N_FLAG  0x80
 #define V_FLAG  0x40
