@@ -185,18 +185,26 @@ static DECLFR(M36Read) {
 =======
 static uint8 M36Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> b8aebecd (Update libretro.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> cf1c387c (Update libretro.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> cbc36876 (Update libretro.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> bc2331c5 (Update libretro.c)
 	  ret = (X.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
 =======
 	  ret = (cpu.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
 >>>>>>> c8c3577b (Update libretro.c)
+=======
+	  ret = (cpu.openbus & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
+>>>>>>> ac1be4d2 (Update libretro.c)
 	return ret;
 }
 
@@ -234,18 +242,26 @@ static DECLFR(M132Read) {
 =======
 static uint8 M132Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> b8aebecd (Update libretro.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> cf1c387c (Update libretro.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> cbc36876 (Update libretro.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> bc2331c5 (Update libretro.c)
 	  ret = ((X.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
 =======
 	  ret = ((cpu.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
 >>>>>>> c8c3577b (Update libretro.c)
+=======
+	  ret = ((cpu.openbus & 0xF0) | (TXC_CMDRead() & 0x0F));
+>>>>>>> ac1be4d2 (Update libretro.c)
 	return ret;
 }
 
@@ -299,18 +315,26 @@ static DECLFR(M136Read) {
 =======
 static uint8 M136Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> b8aebecd (Update libretro.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> cf1c387c (Update libretro.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> cbc36876 (Update libretro.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> bc2331c5 (Update libretro.c)
 	  ret = ((X.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
 =======
 	  ret = ((cpu.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
 >>>>>>> c8c3577b (Update libretro.c)
+=======
+	  ret = ((cpu.openbus & 0xC0) | (TXC_CMDRead() & 0x3F));
+>>>>>>> ac1be4d2 (Update libretro.c)
 	return ret;
 }
 
@@ -346,11 +370,15 @@ static DECLFR(M147Read) {
 =======
 static uint8 M147Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> b8aebecd (Update libretro.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> cf1c387c (Update libretro.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> cbc36876 (Update libretro.c)
 	if ((A & 0x103) == 0x100) {
 >>>>>>> bc2331c5 (Update libretro.c)
 	  uint8_t value = TXC_CMDRead();
@@ -395,18 +423,26 @@ static DECLFR(M172Read) {
 =======
 static uint8 M172Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> b8aebecd (Update libretro.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> cf1c387c (Update libretro.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> cbc36876 (Update libretro.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> bc2331c5 (Update libretro.c)
 	  ret = (X.DB & 0xC0) | GetValue(TXC_CMDRead());
 =======
 	  ret = (cpu.DB & 0xC0) | GetValue(TXC_CMDRead());
 >>>>>>> c8c3577b (Update libretro.c)
+=======
+	  ret = (cpu.openbus & 0xC0) | GetValue(TXC_CMDRead());
+>>>>>>> ac1be4d2 (Update libretro.c)
 	return ret;
 }
 
