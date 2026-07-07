@@ -24,9 +24,18 @@
 #include "mapinc.h"
 #include "sound/fdssound.h"
 
+<<<<<<< HEAD
 static uint8_t reg;
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 reg;
+static uint8 *WRAM = NULL;
+
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+>>>>>>> 99588a93 (Update libretro.c)
 
 static SFORMAT StateRegs[] =
 {
@@ -54,7 +63,7 @@ static void LH32Power(void) {
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
 	SetWriteHandler(0xC000, 0xDFFF, CartBW);
 	SetWriteHandler(0x6000, 0x6000, LH32Write);
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 }
 
 static void LH32Close(void) {
@@ -71,10 +80,16 @@ void LH32_Init(CartInfo *info) {
 	info->Power = LH32Power;
 	info->Close = LH32Close;
 
+<<<<<<< HEAD
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+=======
+	WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> 99588a93 (Update libretro.c)
 
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
