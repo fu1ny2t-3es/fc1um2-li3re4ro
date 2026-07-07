@@ -19,7 +19,7 @@
  */
 
 #include "mapinc.h"
-#include "../fds_apu.h"
+#include "sound/fdssound.h"
 
 static uint8_t latche, latcheinit, bus_conflict;
 static uint16_t addrreg0, addrreg1;
