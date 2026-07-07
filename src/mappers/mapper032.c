@@ -28,8 +28,14 @@ static uint32_t WRAMSIZE;
 =======
 static uint8 *WRAM = NULL;
 
+<<<<<<< HEAD
 #define M32_WRAMSIZE 8192
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+>>>>>>> 78532036 (Update libretro.c)
 
 static SFORMAT StateRegs[] =
 {
@@ -87,7 +93,7 @@ static void M32Power(void) {
 	SetWriteHandler(0x9000, 0x9FFF, M32Write1);
 	SetWriteHandler(0xA000, 0xAFFF, M32Write2);
 	SetWriteHandler(0xB000, 0xBFFF, M32Write3);
-        FCEU_CheatAddRAM(M32_WRAMSIZE >> 10, 0x6000, WRAM);
+        FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 }
 
 static void M32Close(void) {
@@ -106,6 +112,7 @@ void Mapper32_Init(CartInfo *info) {
 	GameStateRestore = M32StateRestore;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
@@ -115,6 +122,11 @@ void Mapper32_Init(CartInfo *info) {
 	SetupCartPRGMapping(0x10, WRAM, M32_WRAMSIZE, 1);
 	AddExState(WRAM, M32_WRAMSIZE, 0, "WRAM");
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+	WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> 78532036 (Update libretro.c)
 
 	AddExState(&StateRegs, ~0, 0, 0);
 }
