@@ -511,7 +511,7 @@ static void M45CW(uint32_t A, uint8_t V) {
 }
 
 static uint8 M45ReadOB(uint32 A) {
-	return X.DB;
+	return cpu.DB;
 }
 
 static void M45PW(uint32_t A, uint8_t V) {
@@ -569,8 +569,8 @@ static uint8 M45Read(uint32 A) {
 	uint32 addr = 1 << (EXPREGS[5] + 4);
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	if (A & (addr | (addr - 1)))
-		return X.DB | 1;
-	return X.DB;
+		return cpu.DB | 1;
+	return cpu.DB;
 }
 
 static void M45Reset(void) {

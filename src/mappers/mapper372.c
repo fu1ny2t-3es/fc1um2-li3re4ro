@@ -74,8 +74,8 @@ static uint8 M372Read(uint32 A) {
 	uint32 addr = 1 << (EXPREGS[5] + 4);
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	if (A & (addr | (addr - 1)))
-		return X.DB | 1;
-	return X.DB;
+		return cpu.DB | 1;
+	return cpu.DB;
 }
 
 static void M372Reset(void) {
