@@ -149,15 +149,19 @@ void FDSSoundStateAdd(void) {
 =======
 static uint8 FDSSRead(uint32 A) {
 	switch (A & 0xF) {
-	case 0x0: return(amplitude[0] | (cpu.DB & 0xC0));
-	case 0x2: return(amplitude[1] | (cpu.DB & 0xC0));
+	case 0x0: return(amplitude[0] | (cpu.openbus & 0xC0));
+	case 0x2: return(amplitude[1] | (cpu.openbus & 0xC0));
 	}
+<<<<<<< HEAD
 <<<<<<< HEAD
 	return(X.DB);
 >>>>>>> 1837df34 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 =======
 	return(cpu.DB);
 >>>>>>> 69e16666 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+	return(cpu.openbus);
+>>>>>>> 40eaa77a (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
 
 static void RenderSound(void);
@@ -249,7 +253,7 @@ static void DoEnv(void) {
 }
 
 static uint8 FDSWaveRead(uint32 A) {
-	return(fdso.cwave[A & 0x3f] | (cpu.DB & 0xC0));
+	return(fdso.cwave[A & 0x3f] | (cpu.openbus & 0xC0));
 }
 
 static void FDSWaveWrite(uint32 A, uint8 V) {
@@ -610,7 +614,7 @@ void FDSSoundReset(void) {
 static uint8_t FDSSoundRead(uint32_t A) {
 	if (A >= 0x4040 && A < 0x4080) return FDSWaveRead(A);
 	if (A >= 0x4090 && A < 0x4093) return FDSSRead(A);
-	return cpu.DB;
+	return cpu.openbus;
 }
 
 >>>>>>> 69e16666 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
