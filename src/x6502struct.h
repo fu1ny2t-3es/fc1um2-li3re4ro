@@ -13,9 +13,13 @@ typedef struct __X6502 {
 	uint32_t IRQlow;		/* Simulated IRQ pin held low(or is it high?).
 						And other junk hooked on for speed reasons.*/
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8_t DB;			/* Data bus "cache" for reads from certain areas */
 =======
 	uint8 DB;			/* Data bus "cache" for reads from certain areas */
+=======
+	uint8 openbus;		/* Data bus "cache" for reads from certain areas */
+>>>>>>> 0105d2d1 (Update libretro_core_options.h)
 
 	int preexec;		/* Pre-exec'ing for debug breakpoints. */
 >>>>>>> d5085b8d (Update libretro_core_options.h)
