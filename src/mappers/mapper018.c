@@ -32,8 +32,14 @@ static uint8 IRQa, mirr;
 static int32 IRQCount, IRQLatch;
 static uint8 *WRAM = NULL;
 
+<<<<<<< HEAD
 #define M18_WRAMSIZE 8192
 >>>>>>> f6efdc94 (Update Makefile.libretro)
+=======
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+>>>>>>> d8c3ec5a (Update Makefile.libretro)
 
 static SFORMAT StateRegs[] =
 {
@@ -108,7 +114,7 @@ static void M18Power(void) {
 	SetWriteHandler(0x8000, 0x9FFF, M18WritePrg);
 	SetWriteHandler(0xA000, 0xDFFF, M18WriteChr);
 	SetWriteHandler(0xE000, 0xFFFF, M18WriteIRQ);
-	FCEU_CheatAddRAM(M18_WRAMSIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 }
 
 static void M18IRQHook(int a) {
@@ -139,6 +145,7 @@ void Mapper18_Init(CartInfo *info) {
 	GameStateRestore = M18StateRestore;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
@@ -148,9 +155,14 @@ void Mapper18_Init(CartInfo *info) {
 	SetupCartPRGMapping(0x10, WRAM, M18_WRAMSIZE, 1);
 	AddExState(WRAM, M18_WRAMSIZE, 0, "WRAM");
 >>>>>>> f6efdc94 (Update Makefile.libretro)
+=======
+	WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> d8c3ec5a (Update Makefile.libretro)
 	if (info->battery) {
 		info->SaveGame[0] = WRAM;
-		info->SaveGameLen[0] = M18_WRAMSIZE;
+		info->SaveGameLen[0] = WRAM_SIZE;
 	}
 
 	AddExState(&StateRegs, ~0, 0, 0);

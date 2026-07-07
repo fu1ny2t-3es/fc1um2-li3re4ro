@@ -37,8 +37,14 @@ static uint32_t WRAMSIZE;
 static uint8 regs[3];
 static uint8 *WRAM = NULL;
 
+<<<<<<< HEAD
 #define M34_WRAMSIZE 8192
 >>>>>>> f6efdc94 (Update Makefile.libretro)
+=======
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+>>>>>>> d8c3ec5a (Update Makefile.libretro)
 
 static SFORMAT StateRegs[] =
 {
@@ -73,7 +79,7 @@ static void M34Power(void) {
 	SetWriteHandler(0x6000, 0x7ffc, CartBW);
 	SetReadHandler(0x8000, 0xffff, CartBR);
 	SetWriteHandler(0x7ffd, 0xffff, M34Write);
-	FCEU_CheatAddRAM(M34_WRAMSIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 }
 
 static void M34Close(void) {
@@ -92,6 +98,7 @@ void Mapper34_Init(CartInfo *info) {
 	GameStateRestore = M34StateRestore;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
@@ -101,6 +108,11 @@ void Mapper34_Init(CartInfo *info) {
 	SetupCartPRGMapping(0x10, WRAM, M34_WRAMSIZE, 1);
 	AddExState(WRAM, M34_WRAMSIZE, 0, "WRAM");
 >>>>>>> f6efdc94 (Update Makefile.libretro)
+=======
+	WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> d8c3ec5a (Update Makefile.libretro)
 
 	AddExState(&StateRegs, ~0, 0, 0);
 }
