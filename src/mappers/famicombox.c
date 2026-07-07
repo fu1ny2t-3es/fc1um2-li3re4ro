@@ -20,9 +20,18 @@
 
 #include "mapinc.h"
 
+<<<<<<< HEAD
 static uint8_t regs[8];
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 regs[8];
+static uint8 *WRAM = NULL;
+
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 16384
+#endif
+>>>>>>> 78532036 (Update libretro.c)
 
 static SFORMAT StateRegs[] =
 {
@@ -70,7 +79,11 @@ static void SSSNROMPower(void) {
 	SetReadHandler(0x6000, 0x7FFF, CartBR);
 	SetWriteHandler(0x6000, 0x7FFF, CartBW);
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
+<<<<<<< HEAD
 	FCEU_CheatAddRAM((WRAMSIZE >> 10) < 8 ? (WRAMSIZE >> 10) : 8, 0x6000, WRAM);
+=======
+	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
+>>>>>>> 236fbb94 (Update libretro.c)
 }
 
 static void SSSNROMReset(void) {
@@ -93,9 +106,15 @@ void SSSNROM_Init(CartInfo *info) {
 	GameHBIRQHook = SSSNROMIRQHook;
 	GameStateRestore = StateRestore;
 
+<<<<<<< HEAD
 	WRAMSIZE = 16384;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+=======
+	WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+>>>>>>> 78532036 (Update libretro.c)
 	AddExState(&StateRegs, ~0, 0, 0);
 }
