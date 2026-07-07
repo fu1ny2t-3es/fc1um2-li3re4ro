@@ -35,21 +35,33 @@ static INLINE void MMC5SPRVROM_BANK1(uint32_t A, uint32_t V) {
 	}
 }
 
+<<<<<<< HEAD
 static INLINE void MMC5BGVROM_BANK1(uint32_t A, uint32_t V) {
 	if (CHRptr[0]) {
+=======
+static INLINE void MMC5BGVROM_BANK1(uint32 A, uint32 V) {
+	if (CHRptr[0])
+>>>>>>> 0711d69c (Update ppu.c)
 		V &= CHRmask1[0]; MMC5BGVPage[(A) >> 10] = &CHRptr[0][(V) << 10] - (A);
-	}
 }
 
+<<<<<<< HEAD
 static INLINE void MMC5SPRVROM_BANK2(uint32_t A, uint32_t V) {
 	if (CHRptr[0]) {
+=======
+static INLINE void MMC5SPRVROM_BANK2(uint32 A, uint32 V) {
+	if (CHRptr[0])
+>>>>>>> 0711d69c (Update ppu.c)
 		V &= CHRmask2[0]; MMC5SPRVPage[(A) >> 10] = MMC5SPRVPage[((A) >> 10) + 1] = &CHRptr[0][(V) << 11] - (A);
-	}
 }
+<<<<<<< HEAD
 static INLINE void MMC5BGVROM_BANK2(uint32_t A, uint32_t V) {
 	if (CHRptr[0]) {
+=======
+static INLINE void MMC5BGVROM_BANK2(uint32 A, uint32 V) {
+	if (CHRptr[0])
+>>>>>>> 0711d69c (Update ppu.c)
 		V &= CHRmask2[0]; MMC5BGVPage[(A) >> 10] = MMC5BGVPage[((A) >> 10) + 1] = &CHRptr[0][(V) << 11] - (A);
-	}
 }
 
 static INLINE void MMC5SPRVROM_BANK4(uint32_t A, uint32_t V) {
