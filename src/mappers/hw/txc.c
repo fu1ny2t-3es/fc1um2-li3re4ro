@@ -185,18 +185,26 @@ static DECLFR(M36Read) {
 =======
 static uint8 M36Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f9553c43 (Update ppu.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> db14433d (Update ppu.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 0da1b8f8 (Update ppu.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> f3105760 (Update ppu.c)
 	  ret = (X.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
 =======
 	  ret = (cpu.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
 >>>>>>> c07e527e (Update ppu.c)
+=======
+	  ret = (cpu.openbus & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
+>>>>>>> a9cbc005 (Update ppu.c)
 	return ret;
 }
 
@@ -234,18 +242,26 @@ static DECLFR(M132Read) {
 =======
 static uint8 M132Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f9553c43 (Update ppu.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> db14433d (Update ppu.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 0da1b8f8 (Update ppu.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> f3105760 (Update ppu.c)
 	  ret = ((X.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
 =======
 	  ret = ((cpu.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
 >>>>>>> c07e527e (Update ppu.c)
+=======
+	  ret = ((cpu.openbus & 0xF0) | (TXC_CMDRead() & 0x0F));
+>>>>>>> a9cbc005 (Update ppu.c)
 	return ret;
 }
 
@@ -299,18 +315,26 @@ static DECLFR(M136Read) {
 =======
 static uint8 M136Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f9553c43 (Update ppu.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> db14433d (Update ppu.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 0da1b8f8 (Update ppu.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> f3105760 (Update ppu.c)
 	  ret = ((X.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
 =======
 	  ret = ((cpu.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
 >>>>>>> c07e527e (Update ppu.c)
+=======
+	  ret = ((cpu.openbus & 0xC0) | (TXC_CMDRead() & 0x3F));
+>>>>>>> a9cbc005 (Update ppu.c)
 	return ret;
 }
 
@@ -346,11 +370,15 @@ static DECLFR(M147Read) {
 =======
 static uint8 M147Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f9553c43 (Update ppu.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> db14433d (Update ppu.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 0da1b8f8 (Update ppu.c)
 	if ((A & 0x103) == 0x100) {
 >>>>>>> f3105760 (Update ppu.c)
 	  uint8_t value = TXC_CMDRead();
@@ -395,18 +423,26 @@ static DECLFR(M172Read) {
 =======
 static uint8 M172Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f9553c43 (Update ppu.c)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> db14433d (Update ppu.c)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 0da1b8f8 (Update ppu.c)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> f3105760 (Update ppu.c)
 	  ret = (X.DB & 0xC0) | GetValue(TXC_CMDRead());
 =======
 	  ret = (cpu.DB & 0xC0) | GetValue(TXC_CMDRead());
 >>>>>>> c07e527e (Update ppu.c)
+=======
+	  ret = (cpu.openbus & 0xC0) | GetValue(TXC_CMDRead());
+>>>>>>> a9cbc005 (Update ppu.c)
 	return ret;
 }
 

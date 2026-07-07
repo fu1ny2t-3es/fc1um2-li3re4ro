@@ -364,7 +364,7 @@ static void Mapper5_write(uint32 A, uint8 V) {
 static uint8 MMC5_ReadROMRAM(uint32 A) {
 	if (MMC5MemIn[(A - 0x6000) >> 13])
 		return Page[A >> 11][A];
-	return cpu.DB;
+	return cpu.openbus;
 }
 
 static void MMC5_WriteROMRAM(uint32 A, uint8 V) {
@@ -396,7 +396,7 @@ static uint8 MMC5_read(uint32 A) {
 	case 0x5206:
 		return((mul[0] * mul[1]) >> 8);
 	}
-	return(cpu.DB);
+	return(cpu.openbus);
 }
 
 static void MMC5Synco(void) {
