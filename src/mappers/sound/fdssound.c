@@ -149,11 +149,15 @@ void FDSSoundStateAdd(void) {
 =======
 static uint8 FDSSRead(uint32 A) {
 	switch (A & 0xF) {
-	case 0x0: return(amplitude[0] | (X.DB & 0xC0));
-	case 0x2: return(amplitude[1] | (X.DB & 0xC0));
+	case 0x0: return(amplitude[0] | (cpu.DB & 0xC0));
+	case 0x2: return(amplitude[1] | (cpu.DB & 0xC0));
 	}
+<<<<<<< HEAD
 	return(X.DB);
 >>>>>>> 3b1da35c (Update libretro_core_options.h)
+=======
+	return(cpu.DB);
+>>>>>>> da697872 (Update libretro_core_options.h)
 }
 
 static void RenderSound(void);
@@ -245,7 +249,7 @@ static void DoEnv(void) {
 }
 
 static uint8 FDSWaveRead(uint32 A) {
-	return(fdso.cwave[A & 0x3f] | (X.DB & 0xC0));
+	return(fdso.cwave[A & 0x3f] | (cpu.DB & 0xC0));
 }
 
 static void FDSWaveWrite(uint32 A, uint8 V) {
@@ -598,9 +602,18 @@ void FDSSoundReset(void) {
 	GameExpSound.RChange = FDS_ESI;
 }
 
+<<<<<<< HEAD
 /* Used by FDS-conversion mappers (e.g. some Whirlwind Manu bootlegs) that
  * surface the FDS audio registers through their own write paths instead of
  * the standard FDS BIOS layout.  Same signature as before the backport. */
+=======
+static uint8_t FDSSoundRead(uint32_t A) {
+	if (A >= 0x4040 && A < 0x4080) return FDSWaveRead(A);
+	if (A >= 0x4090 && A < 0x4093) return FDSSRead(A);
+	return cpu.DB;
+}
+
+>>>>>>> da697872 (Update libretro_core_options.h)
 void FDSSoundWrite(uint32_t A, uint8_t V) {
 	switch (A) {
 	case 0x4080: FDSSReg0Write(A, V); break;
