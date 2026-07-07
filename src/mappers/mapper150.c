@@ -233,8 +233,8 @@ static DECLFR(TCA01Read) {
 static uint8 TCA01Read(uint32 A) {
 >>>>>>> f9553c43 (Update ppu.c)
 	if ((A & 0x4100) == 0x4100)
-		return (cpu.DB & 0xC0) | ((~A) & 0x3F);
-	return cpu.DB;
+		return (cpu.openbus & 0xC0) | ((~A) & 0x3F);
+	return cpu.openbus;
 }
 
 static void TCA01Power(void) {
@@ -281,10 +281,10 @@ static uint8 S74LS374NRead(uint32 A) {
 >>>>>>> f9553c43 (Update ppu.c)
 	if ((A & 0xC101) == 0x4101) {
 		if (dip & 1)
-			return (latch[cmd] & 3) | (cpu.DB & 0xFC);
-		return (latch[cmd] & 7) | (cpu.DB & 0xF8);
+			return (latch[cmd] & 3) | (cpu.openbus & 0xFC);
+		return (latch[cmd] & 7) | (cpu.openbus & 0xF8);
 	}
-	return cpu.DB;
+	return cpu.openbus;
 }
 
 static void S74LS374NWrite(uint32 A, uint8 V) {
