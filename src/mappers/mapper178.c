@@ -160,6 +160,7 @@ static void M178WriteSnd(uint32 A, uint8 V) {
 
 static uint8 M178ReadSnd(uint32 A) {
 	if (A == 0x5800)
+<<<<<<< HEAD
 		return (X.DB & 0xBF) | ((pcm_enable ^ 1) << 6);
 	return X.DB;
 <<<<<<< HEAD
@@ -190,7 +191,14 @@ static void M551Power(void) {
 	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
 =======
 >>>>>>> ee43609 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+<<<<<<< HEAD
 >>>>>>> c77115b9 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+=======
+		return (cpu.DB & 0xBF) | ((pcm_enable ^ 1) << 6);
+	return cpu.DB;
+>>>>>>> d7ecb21 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> daa616bc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
 
 static void M178Power(void) {
