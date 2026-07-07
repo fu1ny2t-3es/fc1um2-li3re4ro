@@ -160,6 +160,7 @@ static void M178WriteSnd(uint32 A, uint8 V) {
 
 static uint8 M178ReadSnd(uint32 A) {
 	if (A == 0x5800)
+<<<<<<< HEAD
 		return (X.DB & 0xBF) | ((pcm_enable ^ 1) << 6);
 	return X.DB;
 <<<<<<< HEAD
@@ -190,7 +191,14 @@ static void M551Power(void) {
 	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
 =======
 >>>>>>> 47b584e (Update libretro.c)
+<<<<<<< HEAD
 >>>>>>> dcc6f072 (Update libretro.c)
+=======
+=======
+		return (cpu.DB & 0xBF) | ((pcm_enable ^ 1) << 6);
+	return cpu.DB;
+>>>>>>> ca8af88 (Update libretro.c)
+>>>>>>> 2fd8a91e (Update libretro.c)
 }
 
 static void M178Power(void) {
