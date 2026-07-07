@@ -21,28 +21,41 @@
 #include "mapinc.h"
 #include "sound/fdssound.h"
 
+<<<<<<< HEAD
 static uint8_t latche, latcheinit, bus_conflict;
 static uint16_t addrreg0, addrreg1;
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 latche, latcheinit, bus_conflict;
+static uint16 addrreg0, addrreg1;
+static uint8 *WRAM = NULL;
+>>>>>>> d8c3ec5a (Update Makefile.libretro)
 static void (*WSync)(void);
 static uint8_t submapper;
 
+#ifndef WRAM_SIZE
+#define WRAM_SIZE 8192
+#endif
+
 static void LatchWrite(uint32 A, uint8 V) {
 	if (bus_conflict)
-		latche = V & CartBR(A);
-	else
-		latche = V;
+		V &= CartBR(A);
+	latche = V;
+	WSync();
+}
+
+static void Latch_RegReset(void) {
+	latche = latcheinit;
 	WSync();
 }
 
 static void LatchPower(void) {
-	latche = latcheinit;
-	WSync();
+	Latch_RegReset();
 	if (WRAM) {
 		SetReadHandler(0x6000, 0xFFFF, CartBR);
 		SetWriteHandler(0x6000, 0x7FFF, CartBW);
-		FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+		FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 	} else {
 		SetReadHandler(0x8000, 0xFFFF, CartBR);
 	}
@@ -67,14 +80,19 @@ static void Latch_Init(CartInfo *info, void (*proc)(void), uint8_t init, uint16_
 	info->Close = LatchClose;
 	GameStateRestore = StateRestore;
 	if (wram) {
+<<<<<<< HEAD
 		WRAMSIZE = 8192;
 		WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 		SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
+=======
+		WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+		SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+>>>>>>> d8c3ec5a (Update Makefile.libretro)
 		if (info->battery) {
-			info->SaveGame[0] = WRAM;
-			info->SaveGameLen[0] = WRAMSIZE;
+			info->SaveGame[0]    = WRAM;
+			info->SaveGameLen[0] = WRAM_SIZE;
 		}
-		AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+		AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
 	}
 	AddExState(&latche, 1, 0, "LATC");
 	AddExState(&bus_conflict, 1, 0, "BUSC");
@@ -92,21 +110,26 @@ static void NROMPower(void) {
 	SetWriteHandler(0x6000, 0x7FFF, CartBW);
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
 }
 
 void NROM_Init(CartInfo *info) {
 	info->Power = NROMPower;
 	info->Close = LatchClose;
+<<<<<<< HEAD
 
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
+=======
+	WRAM        = (uint8*)FCEU_gmalloc(WRAM_SIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
+>>>>>>> d8c3ec5a (Update Makefile.libretro)
 	if (info->battery) {
-		info->SaveGame[0] = WRAM;
-		info->SaveGameLen[0] = WRAMSIZE;
+		info->SaveGame[0]    = WRAM;
+		info->SaveGameLen[0] = WRAM_SIZE;
 	}
-	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
 }
 
 /*------------------ Map 2 ---------------------------*/
