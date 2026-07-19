@@ -53,8 +53,13 @@ static void Sync(void) {
 	setmirror(mirr ^ 1);
 }
 
+<<<<<<< HEAD
 static DECLFW(M225Write) {
 	uint8_t bank = (A >> 14) & 1;
+=======
+static void M225Write(uint32 A, uint8 V) {
+	uint8 bank = (A >> 14) & 1;
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 	mirr = (A >> 13) & 1;
 	mode = (A >> 12) & 1;
 	if (is255)
@@ -65,12 +70,12 @@ static DECLFW(M225Write) {
 	Sync();
 }
 
-static DECLFW(M225LoWrite) {
+static void M225LoWrite(uint32 A, uint8 V) {
 	/* e.g. 115-in-1 [p1][!] CRC32 0xb39d30b4 */
 	if (A & 0x800) extraRAM[A & 3] = V & 0x0F;
 }
 
-static DECLFR(M225LoRead) {
+static uint8 M225LoRead(uint32 A) {
 	if (A & 0x800) return extraRAM[A & 3];
 	return X.DB;
 }
@@ -105,5 +110,8 @@ void Mapper225_Init(CartInfo *info) {
 
 void Mapper255_Init(CartInfo *info) {	
 	Mapper225_Init(info);
+<<<<<<< HEAD
 	is255 = 1;
+=======
+>>>>>>> f8068a80 (Update Makefile.libretro)
 }

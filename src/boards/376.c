@@ -38,11 +38,15 @@ static void Mapper376PW(uint32_t A, uint8_t V) {
 		setprg8(A, (base << 1) | (V & 0x0F));
 }
 
+<<<<<<< HEAD
 static DECLFR(Mapper376Read) {
 	return EXPREGS[2];
 }
 
 static DECLFW(Mapper376Write) {
+=======
+static void Mapper376Write(uint32 A, uint8 V) {
+>>>>>>> b315de77 (Update Makefile.libretro)
 	EXPREGS[A & 1] = V;
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);

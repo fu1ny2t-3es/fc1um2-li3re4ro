@@ -34,8 +34,13 @@ static void Mapper195_CHRWrap(uint32_t A, uint8_t V) {
 		setchr1r(0, A, V);
 }
 
+<<<<<<< HEAD
 static const uint8_t compares[8] = { 0x28, 0x00, 0x4C, 0x64, 0x46, 0x7C, 0x04, 0xFF };
 static DECLFW(Mapper195_InterceptPPUWrite) {
+=======
+static const uint8 compares[8] = { 0x28, 0x00, 0x4C, 0x64, 0x46, 0x7C, 0x04, 0xFF };
+static void Mapper195_InterceptPPUWrite(uint32 A, uint8 V) {
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 	if (RefreshAddr <0x2000) {
 		int addr =RefreshAddr;
 		int reg, bank;
