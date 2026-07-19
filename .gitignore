@@ -2,6 +2,13 @@
 *.a
 *.so
 .vscode
+<<<<<<< HEAD
 build.log
+<<<<<<< HEAD
 *.dll
 *.dylib
+=======
+=======
+.clang-format
+>>>>>>> 551bfbab (Update)
+>>>>>>> d0f98a05 (Update libretro_core_options.h)
