@@ -72,12 +72,19 @@ uint32_t CHRmask8[32];
 
 int geniestage = 0;
 
-int modcon;
+static int modcon;
 
+<<<<<<< HEAD
 uint8_t genieval[3];
 uint8_t geniech[3];
 
 uint32_t genieaddr[3];
+=======
+static uint8 genieval[3];
+static uint8 geniech[3];
+
+static uint32 genieaddr[3];
+>>>>>>> f9553c43 (Update ppu.c)
 
 static INLINE void setpageptr(int s, uint32_t A, uint8_t *p, int ram) {
 	uint32_t AB = A >> 11;
@@ -104,9 +111,8 @@ void ResetCartMapping(void) {
 		PRGptr[x] = CHRptr[x] = 0;
 		PRGsize[x] = CHRsize[x] = 0;
 	}
-	for (x = 0; x < 8; x++) {
+	for (x = 0; x < 8; x++)
 		MMC5SPRVPage[x] = MMC5BGVPage[x] = VPageR[x] = nothing - 0x400 * x;
-	}
 }
 
 void SetupCartPRGMapping(int chip, uint8_t *p, uint32_t size, int ram) {
@@ -134,22 +140,22 @@ void SetupCartCHRMapping(int chip, uint8_t *p, uint32_t size, int ram) {
 	CHRram[chip] = ram;
 }
 
-DECLFR(CartBR) {
+uint8 CartBR(uint32 A) {
 	return Page[A >> 11][A];
 }
 
-DECLFW(CartBW) {
+void CartBW(uint32 A, uint8 V) {
 	if (PRGIsRAM[A >> 11] && Page[A >> 11])
 		Page[A >> 11][A] = V;
 }
 
-DECLFR(CartBROB) {
+uint8 CartBROB(uint32 A) {
 	if (!Page[A >> 11])
 		return(X.DB);
-	else
-		return Page[A >> 11][A];
+	return Page[A >> 11][A];
 }
 
+<<<<<<< HEAD
 void FASTAPASS(3) setprg2r(int r, uint32_t A, uint32_t V) {
 	/* If the registered chip size is < 2KB, PRGmask2[r] underflowed to
 	 * 0xFFFFFFFF in SetupCartPRGMapping. Clear the page rather than
@@ -161,10 +167,14 @@ void FASTAPASS(3) setprg2r(int r, uint32_t A, uint32_t V) {
 		setpageptr(2, A, NULL, PRGram[r]);
 		return;
 	}
+=======
+void setprg2r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	V &= PRGmask2[r];
 	setpageptr(2, A, &PRGptr[r][V << 11], PRGram[r]);
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) setprg2(uint32_t A, uint32_t V) {
 	setprg2r(0, A, V);
 }
@@ -185,15 +195,30 @@ void FASTAPASS(3) setprg4r(int r, uint32_t A, uint32_t V) {
 		}
 		return;
 	}
+=======
+void setprg2(uint32 A, uint32 V) {
+	setprg2r(0, A, V);
+}
+
+void setprg4r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	V &= PRGmask4[r];
 	setpageptr(4, A, &PRGptr[r][V << 12], PRGram[r]);
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) setprg4(uint32_t A, uint32_t V) {
 	setprg4r(0, A, V);
 }
 
 void FASTAPASS(3) setprg8r(int r, uint32_t A, uint32_t V) {
+=======
+void setprg4(uint32 A, uint32 V) {
+	setprg4r(0, A, V);
+}
+
+void setprg8r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (PRGsize[r] >= 8192) {
 		V &= PRGmask8[r];
 		setpageptr(8, A, PRGptr[r] ? (&PRGptr[r][V << 13]) : 0, PRGram[r]);
@@ -205,11 +230,19 @@ void FASTAPASS(3) setprg8r(int r, uint32_t A, uint32_t V) {
 	}
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) setprg8(uint32_t A, uint32_t V) {
 	setprg8r(0, A, V);
 }
 
 void FASTAPASS(3) setprg16r(int r, uint32_t A, uint32_t V) {
+=======
+void setprg8(uint32 A, uint32 V) {
+	setprg8r(0, A, V);
+}
+
+void setprg16r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (PRGsize[r] >= 16384) {
 		V &= PRGmask16[r];
 		setpageptr(16, A, PRGptr[r] ? (&PRGptr[r][V << 14]) : 0, PRGram[r]);
@@ -222,11 +255,17 @@ void FASTAPASS(3) setprg16r(int r, uint32_t A, uint32_t V) {
 	}
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) setprg16(uint32_t A, uint32_t V) {
 	setprg16r(0, A, V);
 }
 
 void FASTAPASS(3) setprg32r(int r, uint32_t A, uint32_t V) {
+=======
+void setprg16(uint32 A, uint32 V) { setprg16r(0, A, V); }
+
+void setprg32r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (PRGsize[r] >= 32768) {
 		V &= PRGmask32[r];
 		setpageptr(32, A, PRGptr[r] ? (&PRGptr[r][V << 15]) : 0, PRGram[r]);
@@ -239,11 +278,17 @@ void FASTAPASS(3) setprg32r(int r, uint32_t A, uint32_t V) {
 	}
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) setprg32(uint32_t A, uint32_t V) {
 	setprg32r(0, A, V);
 }
 
 void FASTAPASS(3) setchr1r(int r, uint32_t A, uint32_t V) {
+=======
+void setprg32(uint32 A, uint32 V) { setprg32r(0, A, V); }
+
+void setchr1r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (!CHRptr[r]) return;
 	if (CHRsize[r] < 1024) return;	/* mask underflow guard */
 	FCEUPPU_LineUpdate();
@@ -255,7 +300,11 @@ void FASTAPASS(3) setchr1r(int r, uint32_t A, uint32_t V) {
 	VPageR[(A) >> 10] = &CHRptr[r][(V) << 10] - (A);
 }
 
+<<<<<<< HEAD
 void FASTAPASS(3) setchr2r(int r, uint32_t A, uint32_t V) {
+=======
+void setchr2r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (!CHRptr[r]) return;
 	if (CHRsize[r] < 2048) return;	/* mask underflow guard */
 	FCEUPPU_LineUpdate();
@@ -267,7 +316,11 @@ void FASTAPASS(3) setchr2r(int r, uint32_t A, uint32_t V) {
 		PPUCHRRAM &= ~(3 << (A >> 10));
 }
 
+<<<<<<< HEAD
 void FASTAPASS(3) setchr4r(int r, uint32_t A, uint32_t V) {
+=======
+void setchr4r(int r, uint32 A, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (!CHRptr[r]) return;
 	if (CHRsize[r] < 4096) return;	/* mask underflow guard */
 	FCEUPPU_LineUpdate();
@@ -280,7 +333,11 @@ void FASTAPASS(3) setchr4r(int r, uint32_t A, uint32_t V) {
 		PPUCHRRAM &= ~(15 << (A >> 10));
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) setchr8r(int r, uint32_t V) {
+=======
+void setchr8r(int r, uint32 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	int x;
 
 	if (!CHRptr[r]) return;
@@ -302,6 +359,7 @@ void FASTAPASS(2) setchr8r(int r, uint32_t V) {
 		PPUCHRRAM = 0;
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) setchr1(uint32_t A, uint32_t V) {
 	setchr1r(0, A, V);
 }
@@ -321,6 +379,16 @@ void FASTAPASS(1) setchr8(uint32_t V) {
 /* This function can be called without calling SetupCartMirroring(). */
 
 void FASTAPASS(3) setntamem(uint8_t * p, int ram, uint32_t b) {
+=======
+void setchr1(uint32 A, uint32 V) { setchr1r(0, A, V); }
+void setchr2(uint32 A, uint32 V) { setchr2r(0, A, V); }
+void setchr4(uint32 A, uint32 V) { setchr4r(0, A, V); }
+void setchr8(uint32 V) { setchr8r(0, V); }
+
+/* This function can be called without calling SetupCartMirroring(). */
+
+void setntamem(uint8 * p, int ram, uint32 b) {
+>>>>>>> f9553c43 (Update ppu.c)
 	FCEUPPU_LineUpdate();
 	vnapage[b] = p;
 	PPUNTARAM &= ~(1 << b);
@@ -337,7 +405,7 @@ void setmirrorw(int a, int b, int c, int d) {
 	vnapage[3] = NTARAM + d * 0x400;
 }
 
-void FASTAPASS(1) setmirror(int t) {
+void setmirror(int t) {
 	FCEUPPU_LineUpdate();
 	if (!mirrorhard) {
 		switch (t) {
@@ -448,11 +516,9 @@ void FCEU_KillGenie(void) {
 	}
 }
 
-static DECLFR(GenieRead) {
-	return GENIEROM[A & 4095];
-}
+static uint8 GenieRead(uint32 A) { return GENIEROM[A & 4095]; }
 
-static DECLFW(GenieWrite) {
+static void GenieWrite(uint32 A, uint8 V) {
 	switch (A) {
 	case 0x800c:
 	case 0x8008:
@@ -484,8 +550,13 @@ static DECLFW(GenieWrite) {
 
 static readfunc GenieBackup[3];
 
+<<<<<<< HEAD
 static DECLFR(GenieFix1) {
 	uint8_t r = GenieBackup[0](A);
+=======
+static uint8 GenieFix1(uint32 A) {
+	uint8 r = GenieBackup[0](A);
+>>>>>>> f9553c43 (Update ppu.c)
 
 	if ((modcon >> 1) & 1)	/* No check */
 		return genieval[0];
@@ -495,8 +566,13 @@ static DECLFR(GenieFix1) {
 	return r;
 }
 
+<<<<<<< HEAD
 static DECLFR(GenieFix2) {
 	uint8_t r = GenieBackup[1](A);
+=======
+static uint8 GenieFix2(uint32 A) {
+	uint8 r = GenieBackup[1](A);
+>>>>>>> f9553c43 (Update ppu.c)
 
 	if ((modcon >> 2) & 1)	/* No check */
 		return genieval[1];
@@ -506,8 +582,13 @@ static DECLFR(GenieFix2) {
 	return r;
 }
 
+<<<<<<< HEAD
 static DECLFR(GenieFix3) {
 	uint8_t r = GenieBackup[2](A);
+=======
+static uint8 GenieFix3(uint32 A) {
+	uint8 r = GenieBackup[2](A);
+>>>>>>> f9553c43 (Update ppu.c)
 
 	if ((modcon >> 3) & 1)	/* No check */
 		return genieval[2];

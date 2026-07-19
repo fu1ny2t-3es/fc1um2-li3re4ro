@@ -27,8 +27,12 @@ extern "C" {
 #define FCEUNPCMD_TEXT        0x90
 
 /* This makes me feel dirty for some reason. */
+<<<<<<< HEAD
 void FCEU_printf(const char *format, ...);
 #define FCEUI_printf FCEU_printf
+=======
+void FCEU_printf(char *format, ...);
+>>>>>>> f9553c43 (Update ppu.c)
 
 /* Video interface */
 void FCEUD_SetPalette(uint16_t index, uint8_t r, uint8_t g, uint8_t b);
@@ -138,6 +142,7 @@ void FCEUI_Sound(int Rate);
 void FCEUI_SetSoundVolume(uint32_t volume);
 void FCEUI_SetSoundQuality(int quality);
 
+<<<<<<< HEAD
 int32_t FCEUI_GetDesiredFPS(void);
 
 int FCEUI_DecodePAR(const char *code, uint16_t *a, uint8_t *v, int *c, int *type);
@@ -158,6 +163,11 @@ int FCEUI_SetCheat(uint32_t which, const char *name, int32_t a, int32_t v, int c
 
 void FCEUI_CheatSearchShowExcluded(void);
 void FCEUI_CheatSearchSetCurrentAsOriginal(void);
+=======
+int FCEUI_DecodePAR(const char *code, uint16 *a, uint8 *v, int *c, int *type);
+int FCEUI_DecodeGG(const char *str, uint16 *a, uint8 *v, int *c);
+int FCEUI_AddCheat(const char *name, uint32 addr, uint8 val, int compare, int type);
+>>>>>>> f9553c43 (Update ppu.c)
 
 void FCEUI_SetLowPass(int q);
 void FCEUI_RemoveTriangleNoise(int d);

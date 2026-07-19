@@ -120,14 +120,21 @@ static void UNL8237PW(uint32_t A, uint8_t V) {
 	}
 }
 
-static DECLFR(UNL8237ProtRead) {
+static uint8 UNL8237ProtRead(uint32 A) {
 	return protarray[EXPREGS[3]][A &7] &0x0F | 0x50;
 }
 
+<<<<<<< HEAD
 static DECLFW(UNL8237Write) {
 	uint8_t dat = V;
 	uint8_t adr = adrperm[EXPREGS[2]][((A >> 12) & 6) | (A & 1)];
 	uint16_t addr = (adr & 1) | ((adr & 6) << 12) | 0x8000;
+=======
+static void UNL8237Write(uint32 A, uint8 V) {
+	uint8 dat = V;
+	uint8 adr = adrperm[EXPREGS[2]][((A >> 12) & 6) | (A & 1)];
+	uint16 addr = (adr & 1) | ((adr & 6) << 12) | 0x8000;
+>>>>>>> f9553c43 (Update ppu.c)
 	if (adr < 4) {
 		if (!adr)
 			dat = (dat & 0xC0) | (regperm[EXPREGS[2]][dat & 7]);
@@ -136,7 +143,7 @@ static DECLFW(UNL8237Write) {
 		MMC3_IRQWrite(addr, dat);
 }
 
-static DECLFW(UNL8237ExWrite) {
+static void UNL8237ExWrite(uint32 A, uint8 V) {
 	switch (A & 0xF007) {
 	case 0x5000: EXPREGS[0] = V; FixMMC3PRG(MMC3_cmd); FixMMC3CHR(MMC3_cmd); break;
 	case 0x5001: EXPREGS[1] = V; FixMMC3PRG(MMC3_cmd); FixMMC3CHR(MMC3_cmd); break;
