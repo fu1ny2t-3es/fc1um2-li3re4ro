@@ -160,7 +160,11 @@ uint8_t serialROMstate(uint8_t linestate)
   return answ;
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) BBRead(int w, uint8_t ret)
+=======
+static uint8 BBRead(int w, uint8 ret)
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 {
   if(w)
   {
@@ -170,7 +174,11 @@ static uint8_t FP_FASTAPASS(2) BBRead(int w, uint8_t ret)
   return(ret);
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) BBWrite(uint8_t V)
+=======
+static void BBWrite(uint8 V)
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 {
   OUT0state = V;
   serialROMstate(OUT0state?OUT0:0);

@@ -31,10 +31,46 @@
 
 uint32_t FCEU_de32lsb(const uint8_t *morp)
 {
+<<<<<<< HEAD
 #ifndef MSB_FIRST
    uint32_t v;
    memcpy(&v, morp, 4);
    return v;
+=======
+   uint8 *start = src;
+   uint8 *end = src + count - 1;
+
+   if ((count & 1) || !count)
+      return;     /* This shouldn't happen. */
+
+   while (count--)
+   {
+      uint8 tmp = *end;
+      *end = *start;
+      *start = tmp;
+      end--;
+      start++;
+   }
+}
+
+int write32le_mem(uint32 b, memstream_t *mem)
+{
+   uint8 s[4];
+   s[0]=b;
+   s[1]=b>>8;
+   s[2]=b>>16;
+   s[3]=b>>24;
+   return((memstream_write(mem, s, 4)<4)?0:4);
+}
+
+int read32le_mem(uint32 *Bufo, memstream_t *mem)
+{
+   uint32 buf;
+   if(memstream_read(mem, &buf, 4)<4)
+      return 0;
+#ifdef MSB_FIRST
+   *(uint32*)Bufo=((buf&0xFF)<<24)|((buf&0xFF00)<<8)|((buf&0xFF0000)>>8)|((buf&0xFF000000)>>24);
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 #else
    return(morp[0] | (morp[1] << 8) | (morp[2] << 16) | (morp[3] << 24));
 #endif

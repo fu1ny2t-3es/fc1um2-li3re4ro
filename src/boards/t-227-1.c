@@ -63,15 +63,20 @@ static void BMCT2271PW(uint32_t A, uint8_t V) {
 	}
 }
 
-static DECLFW(BMCT2271LoWrite) {
+static void BMCT2271LoWrite(uint32 A, uint8 V) {
 	if (!(EXPREGS[0] & 0x80))
 		EXPREGS[0] = A & 0xFF;
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
 }
 
+<<<<<<< HEAD
 static DECLFR(BMCT2271HiRead) {
 	uint32_t av = A;
+=======
+static uint8 BMCT2271HiRead(uint32 A) {
+	uint32 av = A;
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if (EXPREGS[0] & 0x40) av = (av & 0xFFF0) | reset_flag;
 	return CartBR(av);
 }
