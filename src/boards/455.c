@@ -45,7 +45,17 @@ static void sync () {
 	MMC3_syncMirror();
 }
 
+<<<<<<< HEAD
 static DECLFW (writeReg) {
+=======
+static void Mapper455_CHRWrap(uint32 A, uint8 V) {
+	int chrAND =EXPREGS[1] &0x02? 0xFF: 0x7F;
+	int chrOR  =(EXPREGS[0] >>2 &0x07 | EXPREGS[1] <<1 &0x08 | EXPREGS[0] >>2 &0x10) <<4;
+	setchr1(A, V &chrAND | chrOR &~chrAND);
+}
+
+static void Mapper455_Write(uint32 A, uint8 V) {
+>>>>>>> e94122c (Update libretro_core_options.h)
 	if (A &0x100) {
 		reg[0] = V;
 		reg[1] = A &0xFF;
