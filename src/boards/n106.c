@@ -26,13 +26,8 @@ static uint8_t IRQa;
 static uint8_t WRAM[8192];
 static uint8_t IRAM[128];
 
-static DECLFR(AWRAM) {
-	return(WRAM[A - 0x6000]);
-}
-
-static DECLFW(BWRAM) {
-	WRAM[A - 0x6000] = V;
-}
+static uint8 AWRAM(uint32 A) { return(WRAM[A - 0x6000]); }
+static void BWRAM(uint32 A, uint8 V) { WRAM[A - 0x6000] = V; }
 
 void Mapper19_ESI(void);
 
@@ -81,7 +76,7 @@ static void SyncMirror() {
 	}
 }
 
-static void FP_FASTAPASS(1) NamcoIRQHook(int a) {
+static void NamcoIRQHook(int a) {
 	if (IRQa) {
 		IRQCount += a;
 		if (IRQCount >= 0x7FFF) {
@@ -92,23 +87,31 @@ static void FP_FASTAPASS(1) NamcoIRQHook(int a) {
 	}
 }
 
+<<<<<<< HEAD
 static DECLFR(Namco_Read4800) {
 	uint8_t ret = IRAM[dopol & 0x7f];
+=======
+static uint8 Namco_Read4800(uint32 A) {
+	uint8 ret = IRAM[dopol & 0x7f];
+>>>>>>> 74114ad0 (Update libretro.c)
 	/* Maybe I should call NamcoSoundHack() here? */
 	if (dopol & 0x80)
 		dopol = (dopol & 0x80) | ((dopol + 1) & 0x7f);
 	return ret;
 }
 
-static DECLFR(Namco_Read5000) {
-	return(IRQCount);
-}
+static uint8 Namco_Read5000(uint32 A) { return(IRQCount); }
+static uint8 Namco_Read5800(uint32 A) { return(IRQCount >> 8); }
 
+<<<<<<< HEAD
 static DECLFR(Namco_Read5800) {
 	return(IRQCount >> 8);
 }
 
 static void FASTAPASS(2) DoNTARAMROM(int w, uint8_t V) {
+=======
+static void DoNTARAMROM(int w, uint8 V) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	NTAPage[w] = V;
 	if (V >= 0xE0)
 		setntamem(NTARAM + ((V & 1) << 10), 1, w);
@@ -124,7 +127,11 @@ static void FixNTAR(void) {
 		DoNTARAMROM(x, NTAPage[x]);
 }
 
+<<<<<<< HEAD
 static void FASTAPASS(2) DoCHRRAMROM(int x, uint8_t V) {
+=======
+static void DoCHRRAMROM(int x, uint8 V) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	CHR[x] = V;
 	if (!is210 && !((gorfus >> ((x >> 2) + 6)) & 1) && (V >= 0xE0)) {
 	} else
@@ -137,7 +144,7 @@ static void FixCRR(void) {
 		DoCHRRAMROM(x, CHR[x]);
 }
 
-static DECLFW(Mapper19C0D8_write) {
+static void Mapper19C0D8_write(uint32 A, uint8 V) {
 	DoNTARAMROM((A - 0xC000) >> 11, V);
 }
 
@@ -164,7 +171,7 @@ static void FixCache(int a, int V) {
 	}
 }
 
-static DECLFW(Mapper19_write) {
+static void Mapper19_write(uint32 A, uint8 V) {
 	A &= 0xF800;
 	if (A >= 0x8000 && A <= 0xb800)
 		DoCHRRAMROM((A - 0x8000) >> 11, V);
@@ -266,10 +273,14 @@ static SFORMAT N106_SStateRegs[] =
 };
 
 /* 16:15 */
+<<<<<<< HEAD
 static void SyncHQ(int32_t ts) {
 	CVBC = ts;
 }
 
+=======
+static void SyncHQ(int32 ts) { CVBC = ts; }
+>>>>>>> 74114ad0 (Update libretro.c)
 
 /* Things to do:
 	1        Read freq low
@@ -279,9 +290,14 @@ static void SyncHQ(int32_t ts) {
 	...?
 */
 
+<<<<<<< HEAD
 static INLINE uint32_t FetchDuff(uint32_t P, uint32_t envelope) {
 	uint32_t duff;
 	duff = IRAM[((IRAM[0x46 + (P << 3)] + (PlayIndex[P] >> TOINDEX)) & 0xFF) >> 1];
+=======
+static INLINE uint32 FetchDuff(uint32 P, uint32 envelope) {
+	uint32 duff = IRAM[((IRAM[0x46 + (P << 3)] + (PlayIndex[P] >> TOINDEX)) & 0xFF) >> 1];
+>>>>>>> 74114ad0 (Update libretro.c)
 	if ((IRAM[0x46 + (P << 3)] + (PlayIndex[P] >> TOINDEX)) & 1)
 		duff >>= 4;
 	duff &= 0xF;
@@ -295,6 +311,7 @@ static void DoNamcoSoundHQ(void) {
 
 	for (P = 7; P >= (7 - ((IRAM[0x7F] >> 4) & 7)); P--) {
 		if ((IRAM[0x44 + (P << 3)] & 0xE0) && (IRAM[0x47 + (P << 3)] & 0xF)) {
+<<<<<<< HEAD
 			uint32_t freq;
 			int32_t vco;
 			uint32_t duff2, lengo, envelope;
@@ -304,7 +321,18 @@ static void DoNamcoSoundHQ(void) {
 			envelope = EnvCache[P];
 			lengo = LengthCache[P];
 
+<<<<<<< HEAD
 			duff2 = GetExpOutput(SND_N163, FetchDuff(P, envelope));
+=======
+			duff2 = FetchDuff(P, envelope);
+=======
+			int32 vco   = vcount[P];
+			uint32 freq = FreqCache[P];
+			uint32 envelope = EnvCache[P];
+			uint32 lengo = LengthCache[P];
+			uint32 duff2 = FetchDuff(P, envelope);
+>>>>>>> 74114ad0 (Update libretro.c)
+>>>>>>> d0dea0fb (Update libretro.c)
 			for (V = CVBC << 1; V < (int)SOUNDTS << 1; V++) {
 				WaveHi[V >> 1] += duff2;
 				if (!vco) {
@@ -326,6 +354,7 @@ static void DoNamcoSound(int32_t *WaveBuf, int Count) {
 	int P, V;
 	for (P = 7; P >= 7 - ((IRAM[0x7F] >> 4) & 7); P--) {
 		if ((IRAM[0x44 + (P << 3)] & 0xE0) && (IRAM[0x47 + (P << 3)] & 0xF)) {
+<<<<<<< HEAD
 			int32_t inc;
 			uint32_t freq;
 			int32_t vco;
@@ -335,6 +364,14 @@ static void DoNamcoSound(int32_t *WaveBuf, int Count) {
 			freq = FreqCache[P];
 			envelope = EnvCache[P];
 			lengo = LengthCache[P];
+=======
+			int32 inc;
+			uint32 duff, duff2;
+			int32 vco = vcount[P];
+			uint32 freq = FreqCache[P];
+			uint32 envelope = EnvCache[P];
+			uint32 lengo = LengthCache[P];
+>>>>>>> 74114ad0 (Update libretro.c)
 
 			if (!freq)
 				continue;

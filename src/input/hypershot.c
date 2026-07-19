@@ -23,13 +23,17 @@
 
 static uint8_t HSVal, HSValR;
 
+<<<<<<< HEAD
 
 static uint8_t FP_FASTAPASS(2) HS_Read(int w, uint8_t ret) {
+=======
+static uint8 HS_Read(int w, uint8 ret) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (w) ret |= HSValR;
-
 	return(ret);
 }
 
+<<<<<<< HEAD
 static void HS_Strobe(void) {
 	HSValR = HSVal << 1;
 }
@@ -37,6 +41,10 @@ static void HS_Strobe(void) {
 static void FP_FASTAPASS(2) HS_Update(void *data, int arg) {
 	HSVal = *(uint8_t*)data;
 }
+=======
+static void HS_Strobe(void) { HSValR = HSVal << 1; }
+static void HS_Update(void *data, int arg) { HSVal = *(uint8*)data; }
+>>>>>>> 74114ad0 (Update libretro.c)
 
 static INPUTCFC HyperShot = { HS_Read, 0, HS_Strobe, HS_Update, 0, 0 };
 
