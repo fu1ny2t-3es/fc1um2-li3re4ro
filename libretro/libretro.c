@@ -25,6 +25,7 @@
 #include <libretro_dipswitch.h>
 #include <libretro_core_options.h>
 
+<<<<<<< HEAD
 #include "../../fceu.h"
 #include "../../fceu-endian.h"
 #include "../../input.h"
@@ -46,6 +47,25 @@
 #include "../../hdpack/hdpack.h"
 #endif
 #include "../../video.h"
+=======
+#include "../src/fceu.h"
+#include "../src/fceu-endian.h"
+#include "../src/input.h"
+#include "../src/state.h"
+#include "../src/ppu.h"
+#include "../src/cart.h"
+#include "../src/x6502.h"
+#include "../src/git.h"
+#include "../src/palette.h"
+#include "../src/sound.h"
+#include "../src/file.h"
+#include "../src/cheat.h"
+#include "../src/ines.h"
+#include "../src/unif.h"
+#include "../src/fds.h"
+#include "../src/vsuni.h"
+#include "../src/video.h"
+>>>>>>> 95ce172e (Update libretro_core_options.h)
 
 #ifdef PSP
 #include "pspgu.h"
