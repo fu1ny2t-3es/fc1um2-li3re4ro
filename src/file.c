@@ -51,7 +51,7 @@ static MEMWRAP *MakeMemWrap(RFILE *tz)
       return NULL;
 
    if (!(tmp = (MEMWRAP*)FCEU_malloc(sizeof(MEMWRAP))))
-      goto doret;
+      return NULL;
    tmp->location = 0;
    tmp->size     = (size_t)fsize;
 
@@ -59,14 +59,13 @@ static MEMWRAP *MakeMemWrap(RFILE *tz)
    {
       free(tmp);
       tmp = NULL;
-      goto doret;
+      return NULL;
    }
 
    if (tmp->size)
       filestream_read(tz, tmp->data_int, tmp->size);
    tmp->data = tmp->data_int;
 
-doret:
    return tmp;
 }
 
@@ -143,10 +142,10 @@ int FCEU_fclose(FCEUFILE *fp)
    }
    fp->fp = NULL;
 
-	free(fp);
-	fp = NULL;
+   free(fp);
+   fp = NULL;
 
-	return 1;
+   return 1;
 }
 
 uint64_t FCEU_fread(void *ptr, size_t element_size, size_t nmemb, FCEUFILE *fp)
@@ -217,12 +216,16 @@ int FCEU_fgetc(FCEUFILE *fp)
    return EOF;
 }
 
+<<<<<<< HEAD
 uint64_t FCEU_ftell(FCEUFILE *fp)
 {
    return fp->fp->location;
 }
 
 uint64_t FCEU_fgetsize(FCEUFILE *fp)
+=======
+uint64 FCEU_fgetsize(FCEUFILE *fp)
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 {
    return fp->fp->size;
 }

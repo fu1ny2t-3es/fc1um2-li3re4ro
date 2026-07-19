@@ -36,6 +36,7 @@ static SFORMAT stateRegs[] = {
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static void sync () {
 	VRC24_syncPRG(0x01F, 0x000);
 	VRC24_syncCHR(0x1FF, 0x000);
@@ -80,6 +81,13 @@ static void FP_FASTAPASS(1) cpuCycle (int a) {
 			X6502_IRQBegin(FCEU_IQEXT);
 		else
 			X6502_IRQEnd(FCEU_IQEXT);
+=======
+static void M222IRQ(void) {
+	if (IRQa) {
+		IRQCount++;
+		if (IRQCount >= 238)
+			X6502_IRQBegin(FCEU_IQEXT);
+>>>>>>> 3b0150a (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	}
 }
 
@@ -90,9 +98,50 @@ static void power (void) {
 	SetWriteHandler(0xF000, 0xFFFF, writeIRQ);
 }
 
+<<<<<<< HEAD
 void Mapper222_Init (CartInfo *info) {
+<<<<<<< HEAD
 	VRC2_init(info, sync, 0x01, 0x02, NULL, NULL, NULL, NULL);
 	AddExState(stateRegs, ~0, 0, 0);
 	info->Power =power;
 	MapIRQHook = cpuCycle;
+=======
+	VRC24_init(info, sync, 0x01, 0x02, 0, 0, 0);
+	AddExState(Mapper222_stateRegs, ~0, 0, 0);
+	info->Power =Mapper222_power;
+	MapIRQHook =Mapper222_cpuCycle;
+=======
+static void M222Write(uint32 A, uint8 V) {
+	switch (A & 0xF003) {
+	case 0x8000: prg_reg[0] = V; break;
+	case 0x9000: mirr = V & 1; break;
+	case 0xA000: prg_reg[1] = V; break;
+	case 0xB000: chr_reg[0] = V; break;
+	case 0xB002: chr_reg[1] = V; break;
+	case 0xC000: chr_reg[2] = V; break;
+	case 0xC002: chr_reg[3] = V; break;
+	case 0xD000: chr_reg[4] = V; break;
+	case 0xD002: chr_reg[5] = V; break;
+	case 0xE000: chr_reg[6] = V; break;
+	case 0xE002: chr_reg[7] = V; break;
+	case 0xF000: IRQa = IRQCount = V; if (scanline < 240) IRQCount -= 8; else IRQCount += 4; X6502_IRQEnd(FCEU_IQEXT); break;
+	}
+	Sync();
+}
+
+static void M222Power(void) {
+	setprg16(0xC000, ~0);
+	SetReadHandler(0x8000, 0xFFFF, CartBR);
+	SetWriteHandler(0x8000, 0xFFFF, M222Write);
+}
+
+static void StateRestore(int version) { Sync(); }
+
+void Mapper222_Init(CartInfo *info) {
+	info->Power = M222Power;
+	GameHBIRQHook = M222IRQ;
+	GameStateRestore = StateRestore;
+	AddExState(&StateRegs, ~0, 0, 0);
+>>>>>>> 3b0150a (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> 5bd39b4 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }

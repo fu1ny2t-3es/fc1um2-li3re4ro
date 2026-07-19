@@ -24,20 +24,24 @@
 static uint8_t QZVal, QZValR;
 static uint8_t FunkyMode;
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) QZ_Read(int w, uint8_t ret) {
+=======
+static uint8 QZ_Read(int w, uint8 ret) {
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if (w) {
 		ret |= (QZValR & 0x7) << 2;
 		QZValR = QZValR >> 3;
 
-		if (FunkyMode) {
+		if (FunkyMode)
 			QZValR |= 0x28;
-		} else {
+		else
 			QZValR |= 0x38;
-		}
 	}
 	return(ret);
 }
 
+<<<<<<< HEAD
 static void QZ_Strobe(void) {
 	QZValR = QZVal;
 }
@@ -49,6 +53,11 @@ static void FP_FASTAPASS(1) QZ_Write(uint8_t V) {
 static void FP_FASTAPASS(2) QZ_Update(void *data, int arg) {
 	QZVal = *(uint8_t*)data;
 }
+=======
+static void QZ_Strobe(void) { QZValR = QZVal; }
+static void QZ_Write(uint8 V) { FunkyMode = V & 4; }
+static void QZ_Update(void *data, int arg) { QZVal = *(uint8*)data; }
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 static INPUTCFC QuizKing = { QZ_Read, QZ_Write, QZ_Strobe, QZ_Update, 0, 0 };
 
