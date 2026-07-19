@@ -76,7 +76,12 @@ static int Huang2_getPRGBank (uint8_t bank) {
 	return MMC1_getPRGBank(bank) >>1;
 }
 
+<<<<<<< HEAD
 static void applyMode (uint8_t clear) {
+=======
+<<<<<<< HEAD
+static void applyMode (uint8 clear) {
+>>>>>>> f9553c43 (Update ppu.c)
 	PPU_hook = NULL;
 	MapIRQHook = NULL;
 	GameHBIRQHook = NULL;
@@ -96,6 +101,151 @@ static void applyMode (uint8_t clear) {
 			VRC24_writeReg(0xD000, 0xFF); VRC24_writeReg(0xD001, 0xFF); VRC24_writeReg(0xD002, 0xFF); VRC24_writeReg(0xD003, 0xFF);
 			VRC24_writeReg(0xE000, 0xFF); VRC24_writeReg(0xE001, 0xFF); VRC24_writeReg(0xE002, 0xFF); VRC24_writeReg(0xE003, 0xFF);
 			init &= ~4;
+=======
+static void SyncMIR(void) {
+	switch (mode & 3) {
+	case 0: {
+		setmirror((vrc2_mirr & 1) ^ 1);
+		break;
+	}
+	case 1: {
+		setmirror((mmc3_mirr & 1) ^ 1);
+		break;
+	}
+	case 2:
+	case 3: {
+		switch (mmc1_regs[0] & 3) {
+		case 0: setmirror(MI_0); break;
+		case 1: setmirror(MI_1); break;
+		case 2: setmirror(MI_V); break;
+		case 3: setmirror(MI_H); break;
+		}
+		break;
+	}
+	}
+}
+
+static void Sync(void) {
+	SyncPRG();
+	SyncCHR();
+	SyncMIR();
+}
+
+<<<<<<< HEAD
+static DECLFW(UNLSL12ModeWrite) {
+	if (A & 0x100) {
+=======
+static void UNLSL12ModeWrite(uint32 A, uint8 V) {
+	if ((A & 0x4100) == 0x4100) {
+>>>>>>> 5e1ab11 (#1 batch of backports/cleanups (#575))
+		mode = V;
+		if (A & 1) {	/* hacky hacky, there are two configuration modes on SOMARI HUANG-1 PCBs
+						 * Solder pads with P1/P2 shorted called SOMARI P,
+						 * Solder pads with W1/W2 shorted called SOMARI W
+						 * Both identical 3-in-1 but W wanted MMC1 registers
+						 * to be reset when switch to MMC1 mode P one - doesn't
+						 * There is issue with W version of Somari at starting copyrights
+						 */
+			mmc1_regs[0] = 0xc;
+			mmc1_regs[3] = 0;
+			mmc1_buffer = 0;
+			mmc1_shift = 0;
+		}
+		Sync();
+	}
+}
+
+static void UNLSL12Write(uint32 A, uint8 V) {
+	switch (mode & 3) {
+	case 0: {
+		if ((A >= 0xB000) && (A <= 0xE003)) {
+			int32 ind = ((((A & 2) | (A >> 10)) >> 1) + 2) & 7;
+			int32 sar = ((A & 1) << 2);
+			vrc2_chr[ind] = (vrc2_chr[ind] & (0xF0 >> sar)) | ((V & 0x0F) << sar);
+			SyncCHR();
+		} else
+			switch (A & 0xF000) {
+			case 0x8000: vrc2_prg[0] = V; SyncPRG(); break;
+			case 0xA000: vrc2_prg[1] = V; SyncPRG(); break;
+			case 0x9000: vrc2_mirr = V; SyncMIR(); break;
+			}
+		break;
+	}
+	case 1: {
+		switch (A & 0xE001) {
+		case 0x8000: {
+			uint8 old_ctrl = mmc3_ctrl;
+			mmc3_ctrl = V;
+			if ((old_ctrl & 0x40) != (mmc3_ctrl & 0x40))
+				SyncPRG();
+			if ((old_ctrl & 0x80) != (mmc3_ctrl & 0x80))
+				SyncCHR();
+			break;
+		}
+		case 0x8001:
+			mmc3_regs[mmc3_ctrl & 7] = V;
+			if ((mmc3_ctrl & 7) < 6)
+				SyncCHR();
+			else
+				SyncPRG();
+			break;
+		case 0xA000:
+			mmc3_mirr = V;
+			SyncMIR();
+			break;
+		case 0xC000:
+			IRQLatch = V;
+			break;
+		case 0xC001:
+			IRQReload = 1;
+			break;
+		case 0xE000:
+			X6502_IRQEnd(FCEU_IQEXT);
+			IRQa = 0;
+			break;
+		case 0xE001:
+			IRQa = 1;
+			break;
+		}
+		break;
+	}
+	case 2:
+	case 3: {
+		if (V & 0x80) {
+			mmc1_regs[0] |= 0xc;
+			mmc1_buffer = mmc1_shift = 0;
+			SyncPRG();
+		} else {
+			uint8 n = (A >> 13) - 4;
+			mmc1_buffer |= (V & 1) << (mmc1_shift++);
+			if (mmc1_shift == 5) {
+				mmc1_regs[n] = mmc1_buffer;
+				mmc1_buffer = mmc1_shift = 0;
+				switch (n) {
+				case 0: SyncMIR(); break;
+				case 2: SyncCHR(); break;
+				case 3:
+				case 1: SyncPRG(); break;
+				}
+			}
+		}
+		break;
+	}
+	}
+}
+
+static void UNLSL12HBIRQ(void) {
+	if ((mode & 3) == 1) {
+		int32 count = IRQCount;
+		if (!count || IRQReload) {
+			IRQCount = IRQLatch;
+			IRQReload = 0;
+		} else
+			IRQCount--;
+		if (!IRQCount) {
+			if (IRQa)
+				X6502_IRQBegin(FCEU_IQEXT);
+>>>>>>> 8b538f0 (Update ppu.c)
 		}
 	}
 }

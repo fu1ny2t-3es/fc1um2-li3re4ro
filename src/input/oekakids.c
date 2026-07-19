@@ -25,14 +25,22 @@ static uint8_t OKValR, LastWR;
 static uint32_t OKData;
 static uint32_t OKX, OKY, OKB;
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) OK_Read(int w, uint8_t ret) {
 	if (w) {
+=======
+static uint8 OK_Read(int w, uint8 ret) {
+	if (w)
+>>>>>>> f9553c43 (Update ppu.c)
 		ret |= OKValR;
-	}
 	return(ret);
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) OK_Write(uint8_t V) {
+=======
+static void OK_Write(uint8 V) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (!(V & 0x1)) {
 		int32_t vx, vy;
 
@@ -64,6 +72,7 @@ static void FP_FASTAPASS(1) OK_Write(uint8_t V) {
 	LastWR = V;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) OK_Update(void *data, int arg) {
 	OKX = ((uint32_t*)data)[0];
 	OKY = ((uint32_t*)data)[1];
@@ -71,6 +80,15 @@ static void FP_FASTAPASS(2) OK_Update(void *data, int arg) {
 }
 
 static void FP_FASTAPASS(2) DrawOeka(uint8_t * buf, int arg) {
+=======
+static void OK_Update(void *data, int arg) {
+	OKX = ((uint32*)data)[0];
+	OKY = ((uint32*)data)[1];
+	OKB = ((uint32*)data)[2];
+}
+
+static void DrawOeka(uint8 * buf, int arg) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (arg && OKY < 44)
 		FCEU_DrawCursor(buf, OKX, OKY);
 }

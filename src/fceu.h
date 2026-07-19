@@ -23,6 +23,7 @@ extern unsigned swapDuty; /* Swap bits 6 & 7 of $4000/$4004 to mimic bug
 
 void ResetGameLoaded(void);
 
+<<<<<<< HEAD
 #define DECLFR(x) uint8_t FP_FASTAPASS(1) x(uint32_t A)
 #define DECLFW(x) void FP_FASTAPASS(2) x(uint32_t A, uint8_t V)
 
@@ -32,6 +33,13 @@ void FASTAPASS(3) SetReadHandler(int32_t start, int32_t end, readfunc func);
 void FASTAPASS(3) SetWriteHandler(int32_t start, int32_t end, writefunc func);
 writefunc FASTAPASS(1) GetWriteHandler(int32_t a);
 readfunc FASTAPASS(1) GetReadHandler(int32_t a);
+=======
+void FCEU_MemoryRand(uint8 *ptr, uint32 size);
+void SetReadHandler(int32 start, int32 end, readfunc func);
+void SetWriteHandler(int32 start, int32 end, writefunc func);
+writefunc GetWriteHandler(int32 a);
+readfunc GetReadHandler(int32 a);
+>>>>>>> f9553c43 (Update ppu.c)
 
 int AllocGenieRW(void);
 void FlushGenieRW(void);
@@ -133,9 +141,19 @@ void SetNESDeemph(uint8_t d, int force);
 void DrawTextTrans(uint8_t *dest, uint32_t width, uint8_t *textmsg, uint8_t fgcolor);
 void FCEU_PutImage(void);
 
+<<<<<<< HEAD
 extern uint8_t Exit;
 extern uint8_t default_palette_selected;
 extern uint8_t vsdip;
+=======
+<<<<<<< HEAD
+extern uint8 Exit;
+extern uint8 default_palette_selected;
+=======
+extern uint8 pale;
+>>>>>>> ea3c9cc (Update ppu.c)
+extern uint8 vsdip;
+>>>>>>> f9553c43 (Update ppu.c)
 
 #define JOY_A        0x01
 #define JOY_B        0x02
