@@ -54,10 +54,8 @@
 
 #define PPU_status      (PPU[2])
 
-#define Pal             (PALRAM)
-
 static void FetchSpriteData(void);
-static void FASTAPASS(1) RefreshLine(int lastpixel);
+static void RefreshLine(int lastpixel);
 static void RefreshSprites(void);
 static void CopySprites(uint8_t *target);
 
@@ -92,8 +90,13 @@ static void makeppulut(void) {
 	}
 }
 
+<<<<<<< HEAD
 static uint8_t ppudead = 1;
 static uint8_t kook = 0;
+=======
+static uint8 ppudead = 1;
+static uint8 kook = 0;
+>>>>>>> b8aebecd (Update libretro.c)
 
 int MMC5Hack = 0, PEC586Hack = 0;
 uint32_t MMC5HackVROMMask = 0;
@@ -115,7 +118,11 @@ static uint8_t deemp = 0;
 static int deempcnt[8];
 
 void (*GameHBIRQHook)(void), (*GameHBIRQHook2)(void);
+<<<<<<< HEAD
 void FP_FASTAPASS(1) (*PPU_hook)(uint32_t A);
+=======
+void (*PPU_hook)(uint32 A);
+>>>>>>> b8aebecd (Update libretro.c)
 
 uint8_t vtoggle = 0;
 uint8_t XOffset = 0;
@@ -186,30 +193,47 @@ static uint8_t * MMC5BGVRAMADR(uint32_t V) {
 	} else return &MMC5BGVPage[(V) >> 10][(V)];
 }
 
+<<<<<<< HEAD
 static DECLFR(A2002) {
 	uint8_t ret;
+=======
+static uint8 A2002(uint32 A) {
+	uint8 ret;
+>>>>>>> b8aebecd (Update libretro.c)
 
 	FCEUPPU_LineUpdate();
 	ret = PPU_status;
 	ret |= PPUGenLatch & 0x1F;
 
+<<<<<<< HEAD
 	{
 		vtoggle = 0;
 		PPU_status &= 0x7F;
 		PPUGenLatch = ret;
 	}
+=======
+	vtoggle = 0;
+	PPU_status &= 0x7F;
+	PPUGenLatch = ret;
+>>>>>>> b8aebecd (Update libretro.c)
 
 	return ret;
 }
 
-static DECLFR(A200x) {	/* Not correct for $2004 reads. */
+static uint8 A200x(uint32 A) {	/* Not correct for $2004 reads. */
 	FCEUPPU_LineUpdate();
 	return PPUGenLatch;
 }
 
+<<<<<<< HEAD
 static DECLFR(A2007) {
 	uint8_t ret;
 	uint32_t tmp = RefreshAddr & 0x3FFF;
+=======
+static uint8 A2007(uint32 A) {
+	uint8 ret;
+	uint32 tmp = RefreshAddr & 0x3FFF;
+>>>>>>> b8aebecd (Update libretro.c)
 
 	FCEUPPU_LineUpdate();
 
@@ -267,7 +291,7 @@ static DECLFR(A2007) {
 	return ret;
 }
 
-static DECLFW(B2000) {
+static void B2000(uint32 A, uint8 V) {
 	FCEUPPU_LineUpdate();
 	PPUGenLatch = V;
 
@@ -279,7 +303,7 @@ static DECLFW(B2000) {
 	TempAddr |= (V & 3) << 10;
 }
 
-static DECLFW(B2001) {
+static void B2001(uint32 A, uint8 V) {
 	FCEUPPU_LineUpdate();
 	PPUGenLatch = V;
 	PPU[1] = V;
@@ -287,17 +311,15 @@ static DECLFW(B2001) {
 		deemp = V >> 5;
 }
 
-static DECLFW(B2002) {
-	PPUGenLatch = V;
-}
+static void B2002(uint32 A, uint8 V) { PPUGenLatch = V; }
 
-static DECLFW(B2003) {
+static void B2003(uint32 A, uint8 V) {
 	PPUGenLatch = V;
 	PPU[3] = V;
 	PPUSPL = V & 0x7;
 }
 
-static DECLFW(B2004) {
+static void B2004(uint32 A, uint8 V) {
 	PPUGenLatch = V;
 	if (PPUSPL >= 8) {
 		if (PPU[3] >= 8)
@@ -309,8 +331,13 @@ static DECLFW(B2004) {
 	PPUSPL++;
 }
 
+<<<<<<< HEAD
 static DECLFW(B2005) {
 	uint32_t tmp = TempAddr;
+=======
+static void B2005(uint32 A, uint8 V) {
+	uint32 tmp = TempAddr;
+>>>>>>> b8aebecd (Update libretro.c)
 	FCEUPPU_LineUpdate();
 	PPUGenLatch = V;
 	if (!vtoggle) {
@@ -327,7 +354,7 @@ static DECLFW(B2005) {
 }
 
 
-static DECLFW(B2006) {
+static void B2006(uint32 A, uint8 V) {
 	FCEUPPU_LineUpdate();
 
 	PPUGenLatch = V;
@@ -345,8 +372,13 @@ static DECLFW(B2006) {
 	vtoggle ^= 1;
 }
 
+<<<<<<< HEAD
 static DECLFW(B2007) {
 	uint32_t tmp = RefreshAddr & 0x3FFF;
+=======
+static void B2007(uint32 A, uint8 V) {
+	uint32 tmp = RefreshAddr & 0x3FFF;
+>>>>>>> b8aebecd (Update libretro.c)
 	PPUGenLatch = V;
 	if (tmp < 0x2000) {
 		if (PPUCHRRAM & (1 << (tmp >> 10)))
@@ -371,8 +403,13 @@ static DECLFW(B2007) {
 		PPU_hook(RefreshAddr & 0x3fff);
 }
 
+<<<<<<< HEAD
 static DECLFW(B4014) {
 	uint32_t t = V << 8;
+=======
+static void B4014(uint32 A, uint8 V) {
+	uint32 t = V << 8;
+>>>>>>> b8aebecd (Update libretro.c)
 	int x;
 
 	for (x = 0; x < 256; x++)
@@ -457,16 +494,27 @@ static void CheckSpriteHit(int p) {
 static int spork = 0;
 
 /* lasttile is really "second to last tile." */
+<<<<<<< HEAD
 static void FASTAPASS(1) RefreshLine(int lastpixel) {
 	static uint32_t pshift[2];
 	static uint32_t atlatch;
 	uint32_t smorkus = RefreshAddr;
+=======
+static void RefreshLine(int lastpixel) {
+	static uint32 pshift[2];
+	static uint32 atlatch;
+	uint32 smorkus = RefreshAddr;
+>>>>>>> b8aebecd (Update libretro.c)
 
 	#define RefreshAddr smorkus
 	uint32_t vofs;
 	int X1;
 
+<<<<<<< HEAD
 	register uint8_t *P = Pline;
+=======
+	uint8 *P = Pline;
+>>>>>>> b8aebecd (Update libretro.c)
 	int lasttile = lastpixel >> 3;
 	int numtiles;
 	static int norecurse = 0;	/* Yeah, recursion would be bad.
@@ -497,8 +545,13 @@ static void FASTAPASS(1) RefreshLine(int lastpixel) {
 		vofs = ((PPU[0] & 0x10) << 8) | ((RefreshAddr >> 12) & 7);
 
 	if (!ScreenON && !SpriteON) {
+<<<<<<< HEAD
 		uint32_t tem;
 		tem = Pal[0] | (Pal[0] << 8) | (Pal[0] << 16) | (Pal[0] << 24);
+=======
+		uint32 tem;
+		tem = PALRAM[0] | (PALRAM[0] << 8) | (PALRAM[0] << 16) | (PALRAM[0] << 24);
+>>>>>>> b8aebecd (Update libretro.c)
 		tem |= 0x40404040;
 		FCEU_dwmemset(Pline, tem, numtiles * 8);
 		P += numtiles * 8;
@@ -519,10 +572,10 @@ static void FASTAPASS(1) RefreshLine(int lastpixel) {
 	}
 
 	/* Priority bits, needed for sprite emulation. */
-	Pal[0] |= 64;
-	Pal[4] |= 64;
-	Pal[8] |= 64;
-	Pal[0xC] |= 64;
+	PALRAM[0] |= 64;
+	PALRAM[4] |= 64;
+	PALRAM[8] |= 64;
+	PALRAM[0xC] |= 64;
 
 	/* Rebuild the bg pair LUT *after* the priority |= 64 modification
 	 * above so that the LUT entries for PALRAM[0/4/8/0xC] carry the
@@ -555,9 +608,6 @@ static void FASTAPASS(1) RefreshLine(int lastpixel) {
 				tochange--;
 			}
 		} else if (MMC5HackCHRMode == 1 && (MMC5HackSPMode & 0x80)) {
-			int tochange = MMC5HackSPMode & 0x1F;
-			tochange -= firsttile;
-
 			#define PPUT_MMC5SP
 			#define PPUT_MMC5CHR1
 			for (X1 = firsttile; X1 < lasttile; X1++) {
@@ -612,15 +662,20 @@ static void FASTAPASS(1) RefreshLine(int lastpixel) {
 #undef RefreshAddr
 
 	/* Reverse changes made before. */
-	Pal[0] &= 63;
-	Pal[4] &= 63;
-	Pal[8] &= 63;
-	Pal[0xC] &= 63;
+	PALRAM[0] &= 63;
+	PALRAM[4] &= 63;
+	PALRAM[8] &= 63;
+	PALRAM[0xC] &= 63;
 
 	RefreshAddr = smorkus;
 	if (firsttile <= 2 && 2 < lasttile && !(PPU[1] & 2)) {
+<<<<<<< HEAD
 		uint32_t tem;
 		tem = Pal[0] | (Pal[0] << 8) | (Pal[0] << 16) | (Pal[0] << 24);
+=======
+		uint32 tem;
+		tem = PALRAM[0] | (PALRAM[0] << 8) | (PALRAM[0] << 16) | (PALRAM[0] << 24);
+>>>>>>> b8aebecd (Update libretro.c)
 		tem |= 0x40404040;
 		*(uint32_t*)Plinef = *(uint32_t*)(Plinef + 4) = tem;
 	}
@@ -628,7 +683,7 @@ static void FASTAPASS(1) RefreshLine(int lastpixel) {
 	if (!ScreenON) {
 		uint32_t tem;
 		int tstart, tcount;
-		tem = Pal[0] | (Pal[0] << 8) | (Pal[0] << 16) | (Pal[0] << 24);
+		tem = PALRAM[0] | (PALRAM[0] << 8) | (PALRAM[0] << 16) | (PALRAM[0] << 24);
 		tem |= 0x40404040;
 
 		tcount = lasttile - firsttile;
@@ -714,8 +769,13 @@ static void DoLine(void)
 	EndRL();
 
 	if (rendis & 2) {/* User asked to not display background data. */
+<<<<<<< HEAD
 		uint32_t tem;
 		tem = Pal[0] | (Pal[0] << 8) | (Pal[0] << 16) | (Pal[0] << 24);
+=======
+		uint32 tem;
+		tem = PALRAM[0] | (PALRAM[0] << 8) | (PALRAM[0] << 16) | (PALRAM[0] << 24);
+>>>>>>> b8aebecd (Update libretro.c)
 		tem |= 0x40404040;
 		FCEU_dwmemset(target, tem, 256);
 	}
@@ -803,6 +863,7 @@ void FCEUI_DisableSpriteLimitation(int a) {
 
 static uint8_t numsprites, SpriteBlurp;
 static void FetchSpriteData(void) {
+<<<<<<< HEAD
 	uint8_t ns, sb;
 	SPR *spr;
 	uint8_t H;
@@ -816,6 +877,15 @@ static void FetchSpriteData(void) {
 	ns = sb = 0;
 
 	vofs = (uint32_t)(P0 & 0x8 & (((P0 & 0x20) ^ 0x20) >> 2)) << 9;
+=======
+	int n;
+	uint8 P0 = PPU[0];
+	SPR *spr = (SPR*)SPRAM;
+	uint8 H  = 8;
+	uint8 ns = 0;
+	uint8 sb = 0;
+	int vofs = (uint32)(P0 & 0x8 & (((P0 & 0x20) ^ 0x20) >> 2)) << 9;
+>>>>>>> b8aebecd (Update libretro.c)
 	H += (P0 & 0x20) >> 2;
 
 #ifdef HAVE_HDPACK
@@ -831,11 +901,17 @@ static void FetchSpriteData(void) {
 
 				{
 					SPRB dst;
+<<<<<<< HEAD
 					uint8_t *C;
 					int t;
 					uint32_t vadr;
 
 					t = (int)scanline - (spr->y);
+=======
+					uint8 *C;
+					uint32 vadr;
+					int t = (int)scanline - (spr->y);
+>>>>>>> b8aebecd (Update libretro.c)
 
 					if (Sprite16)
 						vadr = ((spr->no & 1) << 12) + ((spr->no & 0xFE) << 4);
@@ -898,11 +974,17 @@ static void FetchSpriteData(void) {
 
 				{
 					SPRB dst;
+<<<<<<< HEAD
 					uint8_t *C;
 					int t;
 					uint32_t vadr;
 
 					t = (int)scanline - (spr->y);
+=======
+					uint8 *C;
+					uint32 vadr;
+					int t = (int)scanline - (spr->y);
+>>>>>>> b8aebecd (Update libretro.c)
 
 					if (Sprite16)
 						vadr = ((spr->no & 1) << 12) + ((spr->no & 0xFE) << 4);
@@ -979,6 +1061,7 @@ static void RefreshSprites(void) {
 	spr = (SPRB*)SPRBUF + numsprites;
 
 	for (n = numsprites; n >= 0; n--, spr--) {
+<<<<<<< HEAD
 		register uint32_t pixdata;
 		register uint8_t J, atr;
 
@@ -989,6 +1072,14 @@ static void RefreshSprites(void) {
 		pixdata = ppulut1[spr->ca[0]] | ppulut2[spr->ca[1]];
 		J = spr->ca[0] | spr->ca[1];
 		atr = spr->atr;
+=======
+		int x = spr->x;
+		uint8 *C;
+		uint8 *VB;
+		uint32 pixdata = ppulut1[spr->ca[0]] | ppulut2[spr->ca[1]];
+		uint8 J = spr->ca[0] | spr->ca[1];
+		uint8 atr = spr->atr;
+>>>>>>> b8aebecd (Update libretro.c)
 
 		if (J) {
 			if (n == 0 && SpriteBlurp && !(PPU_status & 0x40)) {
