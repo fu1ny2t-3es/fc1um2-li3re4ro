@@ -165,6 +165,7 @@ static uint8_t sstat[2541] =
 	0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80
 };
 
+<<<<<<< HEAD
 void FCEU_DrawNumberRow(uint8_t *XBuf, int *nstatus, int cur) {
 	uint8_t *XBaf;
 	int z, x, y;
@@ -198,4 +199,6 @@ void FCEU_DrawNumberRow(uint8_t *XBuf, int *nstatus, int cur) {
 }
 
 
+=======
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 #endif

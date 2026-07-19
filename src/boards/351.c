@@ -85,7 +85,12 @@ static void sync () {
 		MMC1_syncMirror();
 }
 
+<<<<<<< HEAD
 static DECLFW (VRC24_trapWriteReg) { /* When A11 is set, VRC4's A0 and A1 are swapped */
+=======
+<<<<<<< HEAD
+DECLFW (VRC24_trapWriteReg) { /* When A11 is set, VRC4's A0 and A1 are swapped */
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if (A &0x800) A = A &~0xF | A >>1 &0x5 | A <<1 &0xA;
 	VRC24_writeReg(A, V);
 }
@@ -103,10 +108,31 @@ static void applyMode (uint8_t clear) {
 		else
 			VRC4_activate(clear, sync, 0x02, 0x04, 1, NULL, NULL, NULL, NULL, NULL);
 		SetWriteHandler(0x8000, 0xFFFF, VRC24_trapWriteReg);
+=======
+static void writeMMC3(uint32 A, uint8 V) {
+	switch(A &0xE001) {
+	case 0x8000: MMC3_index =V;              sync();    break;
+	case 0x8001: MMC3_reg[MMC3_index &7] =V; sync();    break;
+	case 0xA000: MMC3_mirroring =V;          sync();    break;
+	case 0xA001: MMC3_wram =V;               sync();    break;
+	case 0xC000: MMC3_reload =V;                        break;
+	case 0xC001: MMC3_count =0;                         break;
+	case 0xE000: MMC3_irq =0; X6502_IRQEnd(FCEU_IQEXT); break;
+	case 0xE001: MMC3_irq =1;                           break;
+	}
+}
+
+static void writeMMC1(uint32 A, uint8 V) {
+	if (V &0x80) {
+		MMC1_shift =MMC1_count =0;
+		MMC1_reg[0] |=0x0C;
+		sync();
+>>>>>>> 5bd39b4 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	} else
 		MMC1_activate(clear, sync, MMC1_TYPE_MMC1B, NULL, NULL, NULL, NULL);
 }
 
+<<<<<<< HEAD
 static void restore (int version) {
 	applyMode(0);
 	sync();
@@ -123,6 +149,99 @@ static DECLFW (writeReg) {
 
 static DECLFW (writeFDSMirroring) {
 	MMC3_writeReg(0xA000, V >>3 &1);
+=======
+static void writeVRC4(uint32 A, uint8 V) {
+	uint8 index;
+	if (~reg[2] &4) A =A &0xF800 | A >>1 &0x3FF; /* A2,A1 -> A1,A0 if 5002.2=1 */
+	A |=A >>2 &3; /* A3,A2 -> A1,A0 */
+	if (A &0x800) A =A >>1 &1 | A <<1 &2 | A &~3; /* A8==1 => Swap A1,A0 */
+	switch (A &0xF000) {
+	case 0x8000: case 0xA000:
+		VRC4_prg[A >>13 &1] =V;
+		sync();
+		break;
+	case 0x9000:
+		if (~A &2)
+			VRC4_mirroring =V;
+		else
+		if (~A &1)
+			VRC4_misc =V;
+		sync();
+		break;
+	case 0xF000:
+		switch (A &3) {
+		case 0: VRCIRQ_latch =VRCIRQ_latch &0xF0 | V &0x0F; break;
+		case 1: VRCIRQ_latch =VRCIRQ_latch &0x0F | V <<4;   break;
+		case 2: VRCIRQ_mode =V;
+		        if (VRCIRQ_mode &0x02) {
+				VRCIRQ_count =VRCIRQ_latch;
+				VRCIRQ_cycles =341;
+			}
+			X6502_IRQEnd(FCEU_IQEXT);
+			break;
+		case 3: VRCIRQ_mode =VRCIRQ_mode &~0x02 | VRCIRQ_mode <<1 &0x02;
+			X6502_IRQEnd(FCEU_IQEXT);
+			break;
+		}
+		break;
+	default:
+		index =(A -0xB000) >>11 &~1 | A >>1 &1;
+		if (A &1)
+			VRC4_chr[index] =VRC4_chr[index] & 0x0F | V <<4;
+		else
+			VRC4_chr[index] =VRC4_chr[index] &~0x0F | V &0x0F;
+		sync();
+		break;
+	}
+}
+
+static void cpuCycle(int a) {
+	if ((reg[0] &3) ==3) while (a--) { /* VRC4 mode */
+		if (VRCIRQ_mode &0x02 && (VRCIRQ_mode &0x04 || (VRCIRQ_cycles -=3) <=0)) {
+			if (~VRCIRQ_mode &0x04) VRCIRQ_cycles +=341;
+			if (!++VRCIRQ_count) {
+				VRCIRQ_count =VRCIRQ_latch;
+				X6502_IRQBegin(FCEU_IQEXT);
+			}
+		}
+	}
+	if (MMC1_filter) MMC1_filter--;
+}
+	
+static void horizontalBlanking(void) {
+	if (~reg[0] &2) { /* MMC3 mode */
+		MMC3_count =!MMC3_count? MMC3_reload: --MMC3_count;
+		if (!MMC3_count && MMC3_irq) X6502_IRQBegin(FCEU_IQEXT);
+	}
+}
+
+static void applyMode() {
+	switch (reg[0] &3) {
+	case 0:
+	case 1: SetWriteHandler(0x8000, 0xFFFF, writeMMC3); break;
+	case 2: SetWriteHandler(0x8000, 0xFFFF, writeMMC1); break;	
+	case 3: SetWriteHandler(0x8000, 0xFFFF, writeVRC4); break;
+	}
+}
+
+static void Mapper351_restore (int version) {
+	applyMode();
+	sync();
+}
+
+static uint8 readDIP(uint32 A) { return dip; }
+
+static void writeReg(uint32 A, uint8 V) {
+	uint8 previousMode =reg[0] &3;
+	reg[A &3] =V;
+	if ((reg[0] &3) !=previousMode) applyMode();
+	sync();
+}
+
+static void writeFDSMirroring(uint32 A, uint8 V) {
+	MMC3_mirroring =V >>3 &1;
+	sync();
+>>>>>>> 5bd39b4 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
 
 static void power (void) {

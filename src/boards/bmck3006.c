@@ -53,8 +53,17 @@ static void BMCK3006PW(uint32_t A, uint8_t V) {
 	}
 }
 
+<<<<<<< HEAD
 static DECLFW(BMCK3006Write) {
 	EXPREGS[0] = A &0xFF;
+<<<<<<< HEAD
+=======
+	EXPREGS[1] = A >>8 &0xFF;
+=======
+static void BMCK3006Write(uint32 A, uint8 V) {
+	EXPREGS[0] = A & 0x3F;
+>>>>>>> 5bd39b4 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> 38cb0e69 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
 	if (submapper == 2 || submapper == 3) SetReadHandler(0x8000, 0xFFFF, EXPREGS[0] &0x80? readPad: CartBR);
