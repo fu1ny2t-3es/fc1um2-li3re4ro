@@ -54,14 +54,19 @@ static void Sync(void) {
 	setmirror(((regs[0] & 0x20) >> 5) ^ 1);
 }
 
+<<<<<<< HEAD
 static DECLFR(M390Read) {
 	uint8_t ret = CartBR(A);
+=======
+static uint8 M390Read(uint32 A) {
+	uint8 ret = CartBR(A);
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 	if ((regs[1] & 0x30) == 0x10)
-		ret |= dipswitch;
+		return (ret | dipswitch);
 	return ret;
 }
 
-static DECLFW(M390Write) {
+static void M390Write(uint32 A, uint8 V) {
 	regs[(A >> 14) & 1] = A & 0x3F;
 	Sync();
 }

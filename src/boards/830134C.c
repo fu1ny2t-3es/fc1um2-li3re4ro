@@ -44,8 +44,13 @@ static void BMC830134CPW(uint32_t A, uint8_t V) {
 		setprg8(A, (V & 0x0F) | ((EXPREGS[0] & 0x06) << 3));
 }
 
+<<<<<<< HEAD
 static DECLFW(BMC830134CWrite) {
 	EXPREGS[0] = A &0xFF;
+=======
+static void BMC830134CWrite(uint32 A, uint8 V) {
+	EXPREGS[0] = V;
+>>>>>>> d873826 (Update Makefile.libretro)
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
 }

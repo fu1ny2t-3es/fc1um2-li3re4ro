@@ -26,6 +26,7 @@
 
 #include "mapinc.h"
 
+<<<<<<< HEAD
 /* Use a local xorshift32 instead of libc rand() so weak-bit reads are
  * deterministic across runs and reproducible in replay/netplay. The
  * sequence still appears "noisy" to the game's protection check (which
@@ -54,6 +55,13 @@ static DECLFR(UNLRT01Read) {
 		return 0xF2 | (weakbits_next() & 0x0D);
 	} else
 		return CartBR(A);
+=======
+static uint8 UNLRT01Read(uint32 A) {
+	if(((A >= 0xCE80) && (A < 0xCF00)) ||
+	   ((A >= 0xFE80) && (A < 0xFF00)))
+		return 0xF2 | (rand() & 0x0D);
+	return CartBR(A);
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 }
 
 static void UNLRT01Power(void) {
