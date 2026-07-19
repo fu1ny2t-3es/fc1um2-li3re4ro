@@ -49,9 +49,9 @@ void SetupCartPRGMapping(int chip, uint8_t *p, uint32_t size, int ram);
 void SetupCartCHRMapping(int chip, uint8_t *p, uint32_t size, int ram);
 void SetupCartMirroring(int m, int hard, uint8_t *extra);
 
-DECLFR(CartBROB);
-DECLFR(CartBR);
-DECLFW(CartBW);
+uint8 CartBROB(uint32 A);
+uint8 CartBR(uint32 A);
+void CartBW(uint32 A, uint8 V);
 
 extern uint8_t *PRGptr[32];
 extern uint8_t *CHRptr[32];
@@ -70,6 +70,7 @@ extern uint32_t CHRmask2[32];
 extern uint32_t CHRmask4[32];
 extern uint32_t CHRmask8[32];
 
+<<<<<<< HEAD
 void FASTAPASS(2) setprg2(uint32_t A, uint32_t V);
 void FASTAPASS(2) setprg4(uint32_t A, uint32_t V);
 void FASTAPASS(2) setprg8(uint32_t A, uint32_t V);
@@ -91,10 +92,37 @@ void FASTAPASS(2) setchr1(uint32_t A, uint32_t V);
 void FASTAPASS(2) setchr2(uint32_t A, uint32_t V);
 void FASTAPASS(2) setchr4(uint32_t A, uint32_t V);
 void FASTAPASS(2) setchr8(uint32_t V);
+=======
+void setprg2(uint32 A, uint32 V);
+void setprg4(uint32 A, uint32 V);
+void setprg8(uint32 A, uint32 V);
+void setprg16(uint32 A, uint32 V);
+void setprg32(uint32 A, uint32 V);
 
-void FASTAPASS(1) setmirror(int t);
+void setprg2r(int r, uint32 A, uint32 V);
+void setprg4r(int r, uint32 A, uint32 V);
+void setprg8r(int r, uint32 A, uint32 V);
+void setprg16r(int r, uint32 A, uint32 V);
+void setprg32r(int r, uint32 A, uint32 V);
+
+void setchr1r(int r, uint32 A, uint32 V);
+void setchr2r(int r, uint32 A, uint32 V);
+void setchr4r(int r, uint32 A, uint32 V);
+void setchr8r(int r, uint32 V);
+
+void setchr1(uint32 A, uint32 V);
+void setchr2(uint32 A, uint32 V);
+void setchr4(uint32 A, uint32 V);
+void setchr8(uint32 V);
+>>>>>>> d5085b8d (Update libretro_core_options.h)
+
+void setmirror(int t);
 void setmirrorw(int a, int b, int c, int d);
+<<<<<<< HEAD
 void FASTAPASS(3) setntamem(uint8_t *p, int ram, uint32_t b);
+=======
+void setntamem(uint8 *p, int ram, uint32 b);
+>>>>>>> d5085b8d (Update libretro_core_options.h)
 
 #define MI_H 0
 #define MI_V 1
