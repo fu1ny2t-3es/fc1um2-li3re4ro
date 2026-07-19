@@ -208,7 +208,7 @@ void FCEUI_CloseGame(void)
    GameInfo = 0;
 }
 
-void ResetGameLoaded(void)
+static void ResetGameLoaded(void)
 {
 	if (GameInfo)
       FCEUI_CloseGame();
@@ -336,23 +336,23 @@ void FCEUI_Kill(void) {
 	FCEU_KillGenie();
 }
 
+<<<<<<< HEAD
 void FCEUI_Emulate(uint8_t **pXBuf, int32_t **SoundBuf, int32_t *SoundBufSize, int skip) {
+=======
+int FCEUI_Emulate(void) {
+>>>>>>> 890412a8 (Simplify some functions)
 	int r, ssize;
-
 	FCEU_UpdateInput();
 	if (geniestage != 1) FCEU_ApplyPeriodicCheats();
-	r = FCEUPPU_Loop(skip);
+	r               = FCEUPPU_Loop(0);
+	ssize           = FlushEmulateSound();
 
-	ssize = FlushEmulateSound();
+	timestampbase  += timestamp;
 
-	timestampbase += timestamp;
-
-	timestamp = 0;
+	timestamp       = 0;
 	sound_timestamp = 0;
 
-	*pXBuf = skip ? 0 : XBuf;
-	*SoundBuf = WaveFinal;
-	*SoundBufSize = ssize;
+	return ssize;
 }
 
 
@@ -528,24 +528,6 @@ void FCEU_PrintError(const char *format, ...)
 	va_end(ap);
 }
 
-void FCEUI_SetRenderedLines(int ntscf, int ntscl, int palf, int pall)
-{
-	FSettings.UsrFirstSLine[0] = ntscf;
-	FSettings.UsrLastSLine[0] = ntscl;
-	FSettings.UsrFirstSLine[1] = palf;
-	FSettings.UsrLastSLine[1] = pall;
-	if (PAL || dendy)
-   {
-		FSettings.FirstSLine = FSettings.UsrFirstSLine[1];
-		FSettings.LastSLine = FSettings.UsrLastSLine[1];
-	}
-   else
-   {
-		FSettings.FirstSLine = FSettings.UsrFirstSLine[0];
-		FSettings.LastSLine = FSettings.UsrLastSLine[0];
-	}
-}
-
 void FCEUI_SetVidSystem(int a)
 {
 	FSettings.PAL = a ? 1 : 0;
@@ -555,15 +537,6 @@ void FCEUI_SetVidSystem(int a)
 
    FCEU_ResetVidSys();
    FCEU_ResetPalette();
-}
-
-int FCEUI_GetCurrentVidSystem(int *slstart, int *slend)
-{
-	if (slstart)
-		*slstart = FSettings.FirstSLine;
-	if (slend)
-		*slend = FSettings.LastSLine;
-	return(PAL);
 }
 
 void FCEUI_SetGameGenie(int a)
