@@ -37,7 +37,12 @@ static void sync () {
 	MMC3_syncMirror();
 }
 
+<<<<<<< HEAD
 static int getPRGBank (uint8_t bank) {
+=======
+<<<<<<< HEAD
+static int getPRGBank (uint8 bank) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (reg[1] &0x40) {
 		int mask = reg[1] &(submapper == 2? 0x20: 0x80)? 3: 1;
 		return MMC3_getPRGBank(bank &1) &~mask | bank &mask;
@@ -50,6 +55,23 @@ static int getCHRBank (uint8_t bank) {
 		return MMC3_getCHRBank(bank &6 | bank >>1 &1) <<1 | bank &1;
 	else
 		return MMC3_getCHRBank(bank);
+=======
+<<<<<<< HEAD
+static DECLFR(M432Read) {
+   if (submapper ==1? !!(EXPREGS[1] &0x20): !!(EXPREGS[0] &0x01)) return EXPREGS[2];
+=======
+static uint8 M432Read(uint32 A) {
+   if (EXPREGS[0] & 1 || EXPREGS[1] & 0x20 && ROM_size <64)
+	  return EXPREGS[2];
+>>>>>>> ad188a6 (Update libretro.c)
+   return CartBR(A);
+}
+
+static void M432Write(uint32 A, uint8 V) {
+	EXPREGS[A & 1] = V;
+	FixMMC3PRG(MMC3_cmd);
+	FixMMC3CHR(MMC3_cmd);
+>>>>>>> fd87b87 (Update libretro.c)
 }
 
 static DECLFR (interceptPRGRead_submapper023) {
