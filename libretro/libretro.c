@@ -3380,7 +3380,6 @@ static void retro_run_blit(uint8_t *gfx)
 
 void retro_run(void)
 {
-   uint8_t *gfx;
    int32_t ssize = 0;
    bool updated  = false;
 
@@ -3388,8 +3387,9 @@ void retro_run(void)
       check_variables(false);
 
    FCEUD_UpdateInput();
-   FCEUI_Emulate(&gfx, &sound, &ssize, 0);
+   ssize = FCEUI_Emulate();
 
+<<<<<<< HEAD
 #ifdef HAVE_HDPACK
    if (hdnes_active)
       HDNes_FrameEnd();
@@ -3406,6 +3406,12 @@ void retro_run(void)
    }
 #endif
    audio_batch_cb((const int16_t*)sound, ssize);
+=======
+   retro_run_blit(XBuf);
+
+   stereo_filter_apply(WaveFinal, ssize);
+   audio_batch_cb((const int16_t*)WaveFinal, ssize);
+>>>>>>> 9ee71e4c (Update libretro.c)
 }
 
 size_t retro_serialize_size(void)
@@ -3501,7 +3507,7 @@ void retro_cheat_set(unsigned index, bool enabled, const char *code)
    int    c;
    int    type = 1;
 
-   if (code == NULL)
+   if (!code)
       return;
 
    /* Cheat strings can be arbitrarily long (multiple codes joined by
