@@ -2,6 +2,13 @@
 *.a
 *.so
 .vscode
+<<<<<<< HEAD
 build.log
+<<<<<<< HEAD
 *.dll
 *.dylib
+=======
+=======
+.clang-format
+>>>>>>> 2b595c30 (Update)
+>>>>>>> a5fa3cd2 (Update ppu.c)
