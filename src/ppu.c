@@ -1398,6 +1398,10 @@ static void CopySprites(uint8 *target) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> 988dddc2 (Update ppu.c)
 static void RefreshSprites(void) {
 	int n;
 	SPRB *spr;
@@ -1513,10 +1517,17 @@ static void RefreshSprites(void) {
 static void DoLine(void)
 {
 	int x, colour_emphasis;
+<<<<<<< HEAD
 	uint8_t *target = NULL;
 	uint8_t *dtarget = NULL;
 
 	if (scanline >= 240 && (unsigned)scanline != totalscanlines)
+=======
+	uint8 *target = NULL;
+	uint8 *dtarget = NULL;
+
+	if (scanline >= 240 && scanline != totalscanlines)
+>>>>>>> 988dddc2 (Update ppu.c)
 	{
 		X6502_Run(256 + 69);
 		scanline++;
@@ -1540,6 +1551,7 @@ static void DoLine(void)
 	EndRL();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	if (rendis & 2) {/* User asked to not display background data. */
 <<<<<<< HEAD
 		uint32_t tem;
@@ -1551,6 +1563,11 @@ static void DoLine(void)
 		uint32 tem;
 		tem = PALRAM[0] | (PALRAM[0] << 8) | (PALRAM[0] << 16) | (PALRAM[0] << 24);
 >>>>>>> f9553c43 (Update ppu.c)
+=======
+	if (RENDIS_SHOW_BACKGROUND) {/* User asked to not display background data. */
+		uint32 tem;
+		tem = PALRAM[0] | (PALRAM[0] << 8) | (PALRAM[0] << 16) | (PALRAM[0] << 24);
+>>>>>>> 988dddc2 (Update ppu.c)
 		tem |= 0x40404040;
 		FCEU_dwmemset(target, tem, 256);
 	}
@@ -1570,11 +1587,16 @@ static void DoLine(void)
 	if (ScreenON || SpriteON) {	/* Yes, very el-cheapo. */
 		if (PPU[1] & 0x01) {
 			for (x = 63; x >= 0; x--)
+<<<<<<< HEAD
 				*(uint32_t*)&target[x << 2] = (*(uint32_t*)&target[x << 2]) & 0x30303030;
+=======
+				*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) & 0x30303030;
+>>>>>>> 988dddc2 (Update ppu.c)
 		}
 	}
 	if ((PPU[1] >> 5) == 0x7) {
 		for (x = 63; x >= 0; x--)
+<<<<<<< HEAD
 			*(uint32_t*)&target[x << 2] = ((*(uint32_t*)&target[x << 2]) & 0x3f3f3f3f) | 0xc0c0c0c0;
 	} else if (PPU[1] & 0xE0)
 		for (x = 63; x >= 0; x--)
@@ -1582,11 +1604,24 @@ static void DoLine(void)
 	else
 		for (x = 63; x >= 0; x--)
 			*(uint32_t*)&target[x << 2] = ((*(uint32_t*)&target[x << 2]) & 0x3f3f3f3f) | 0x80808080;
+=======
+			*(uint32*)&target[x << 2] = ((*(uint32*)&target[x << 2]) & 0x3f3f3f3f) | 0xc0c0c0c0;
+	} else if (PPU[1] & 0xE0)
+		for (x = 63; x >= 0; x--)
+			*(uint32*)&target[x << 2] = (*(uint32*)&target[x << 2]) | 0x40404040;
+	else
+		for (x = 63; x >= 0; x--)
+			*(uint32*)&target[x << 2] = ((*(uint32*)&target[x << 2]) & 0x3f3f3f3f) | 0x80808080;
+>>>>>>> 988dddc2 (Update ppu.c)
 
 	/* write the actual colour emphasis */
 	colour_emphasis = ((PPU[1] >> 5) << 24) | ((PPU[1] >> 5) << 16) | ((PPU[1] >> 5) << 8) | ((PPU[1] >> 5) << 0);
 	for (x = 63; x >= 0; x--)
+<<<<<<< HEAD
 		*(uint32_t*)&dtarget[x << 2] = colour_emphasis;
+=======
+		*(uint32*)&dtarget[x << 2] = colour_emphasis;
+>>>>>>> 988dddc2 (Update ppu.c)
 
     sphitx = 0x100;
 
@@ -1623,6 +1658,7 @@ static void DoLine(void)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define V_FLIP  0x80
 #define H_FLIP  0x40
 #define SP_BACK 0x20
@@ -1637,10 +1673,13 @@ typedef struct {
 
 =======
 >>>>>>> f6d211a9 ((ppu.c) Cleanups)
+=======
+>>>>>>> 988dddc2 (Update ppu.c)
 void FCEUI_DisableSpriteLimitation(int a) {
 	maxsprites = a ? 64 : 8;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static uint8_t numsprites, SpriteBlurp;
 =======
@@ -1663,12 +1702,34 @@ static void FetchSpriteData(void) {
 =======
 	int n;
 	uint8 P0 = PPU[0];
+=======
+static void FetchSpriteData(void) {
+	int n;
+	uint8 P0 = PPU[0];
+<<<<<<< HEAD
+>>>>>>> 988dddc2 (Update ppu.c)
 	SPR *spr = (SPR*)SPRAM;
 	uint8 H  = 8;
 	uint8 ns = 0;
 	uint8 sb = 0;
 	int vofs = (uint32)(P0 & 0x8 & (((P0 & 0x20) ^ 0x20) >> 2)) << 9;
+<<<<<<< HEAD
 >>>>>>> f9553c43 (Update ppu.c)
+=======
+=======
+	uint8 identicalSpriteCount;
+	uint16 lastPosition;
+
+	spr = (SPR*)SPRAM;
+	H = 8;
+
+	ns = sb = 0;
+	identicalSpriteCount = 0;
+	lastPosition = 0xffff;
+
+	vofs = (uint32)(P0 & 0x8 & (((P0 & 0x20) ^ 0x20) >> 2)) << 9;
+>>>>>>> 9a6a74d (Update ppu.c)
+>>>>>>> 988dddc2 (Update ppu.c)
 	H += (P0 & 0x20) >> 2;
 
 #ifdef HAVE_HDPACK
@@ -1678,11 +1739,16 @@ static void FetchSpriteData(void) {
 
 	if (!PPU_hook)
 		for (n = 63; n >= 0; n--, spr++) {
+<<<<<<< HEAD
 			if ((uint32_t)(scanline - spr->y) >= H) continue;
+=======
+			if ((uint32)(scanline - spr->y) >= H) continue;
+>>>>>>> 988dddc2 (Update ppu.c)
 			if (ns < maxsprites) {
 				if (n == 63) sb = 1;
 
 				{
+<<<<<<< HEAD
 					SPRB dst;
 <<<<<<< HEAD
 					uint8_t *C;
@@ -1695,6 +1761,25 @@ static void FetchSpriteData(void) {
 					uint32 vadr;
 					int t = (int)scanline - (spr->y);
 >>>>>>> f9553c43 (Update ppu.c)
+=======
+					uint16 position = (spr->y << 8) | spr->x;
+					if (lastPosition != position) {
+						lastPosition = position;
+						identicalSpriteCount = 1;
+					} else {
+						identicalSpriteCount++;
+						if (identicalSpriteCount == 8) {
+							maxsprites = 8;
+						}
+					}
+				}
+
+				{
+					SPRB dst;
+					uint8 *C;
+					uint32 vadr;
+					int t = (int)scanline - (spr->y);
+>>>>>>> 988dddc2 (Update ppu.c)
 
 					if (Sprite16)
 						vadr = ((spr->no & 1) << 12) + ((spr->no & 0xFE) << 4);
@@ -1722,12 +1807,14 @@ static void FetchSpriteData(void) {
 					dst.x = spr->x;
 					dst.atr = spr->atr;
 
+<<<<<<< HEAD
 					/* memcpy avoids the strict-aliasing UB of casting
 					 * a uint8_t buffer and a struct SPRB through a
 					 * uint32_t* and also dodges the alignment trap on
 					 * strict-alignment hosts. The compiler emits the
 					 * same single 32-bit move on x86/ARM. */
 					memcpy(&SPRBUF[ns << 2], &dst, 4);
+<<<<<<< HEAD
 
 #ifdef HAVE_HDPACK
 					/* HD packs: record the sprite for next
@@ -1740,6 +1827,11 @@ static void FetchSpriteData(void) {
 							C - (vadr & 7), (uint8_t)(vadr & 7),
 							dst.ca[0], dst.ca[1]);
 #endif
+=======
+=======
+					*(uint32*)&SPRBUF[ns << 2] = *(uint32*)&dst;
+>>>>>>> 988dddc2 (Update ppu.c)
+>>>>>>> 64640614 (Update ppu.c)
 				}
 
 				ns++;
@@ -1750,12 +1842,17 @@ static void FetchSpriteData(void) {
 		}
 	else
 		for (n = 63; n >= 0; n--, spr++) {
+<<<<<<< HEAD
 			if ((uint32_t)(scanline - spr->y) >= H) continue;
+=======
+			if ((uint32)(scanline - spr->y) >= H) continue;
+>>>>>>> 988dddc2 (Update ppu.c)
 
 			if (ns < maxsprites) {
 				if (n == 63) sb = 1;
 
 				{
+<<<<<<< HEAD
 					SPRB dst;
 <<<<<<< HEAD
 					uint8_t *C;
@@ -1768,6 +1865,25 @@ static void FetchSpriteData(void) {
 					uint32 vadr;
 					int t = (int)scanline - (spr->y);
 >>>>>>> f9553c43 (Update ppu.c)
+=======
+					uint16 position = (spr->y << 8) | spr->x;
+					if (lastPosition != position) {
+						lastPosition = position;
+						identicalSpriteCount = 1;
+					} else {
+						identicalSpriteCount++;
+						if (identicalSpriteCount == 8) {
+							maxsprites = 8;
+						}
+					}
+				}
+
+				{
+					SPRB dst;
+					uint8 *C;
+					uint32 vadr;
+					int t = (int)scanline - (spr->y);
+>>>>>>> 988dddc2 (Update ppu.c)
 
 					if (Sprite16)
 						vadr = ((spr->no & 1) << 12) + ((spr->no & 0xFE) << 4);
@@ -1798,7 +1914,9 @@ static void FetchSpriteData(void) {
 					dst.atr = spr->atr;
 
 
+<<<<<<< HEAD
 					memcpy(&SPRBUF[ns << 2], &dst, 4);
+<<<<<<< HEAD
 
 #ifdef HAVE_HDPACK
 					/* HD packs: record the sprite for next
@@ -1811,6 +1929,11 @@ static void FetchSpriteData(void) {
 							C - (vadr & 7), (uint8_t)(vadr & 7),
 							dst.ca[0], dst.ca[1]);
 #endif
+=======
+=======
+					*(uint32*)&SPRBUF[ns << 2] = *(uint32*)&dst;
+>>>>>>> 988dddc2 (Update ppu.c)
+>>>>>>> 64640614 (Update ppu.c)
 				}
 
 				ns++;
@@ -1832,6 +1955,7 @@ static void FetchSpriteData(void) {
 	SpriteBlurp = sb;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static void RefreshSprites(void) {
 	int n;
@@ -2023,6 +2147,9 @@ static void CopySprites(uint8_t *target) {
 >>>>>>> f6d211a9 ((ppu.c) Cleanups)
 =======
 >>>>>>> e98261e5 (Update ppu.c)
+=======
+>>>>>>> 5659b3f (Update ppu.c)
+>>>>>>> 988dddc2 (Update ppu.c)
 void FCEUPPU_SetVideoSystem(int w) {
 	if (w) {
 		scanlines_per_frame = isDendy ? 262 : 312;
