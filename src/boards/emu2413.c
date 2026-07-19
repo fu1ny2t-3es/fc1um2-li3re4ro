@@ -318,30 +318,22 @@ INLINE static uint32_t calc_eg_dphase(OPLL_SLOT * slot) {
 	switch (slot->eg_mode) {
 	case ATTACK:
 		return dphaseARTable[slot->patch.AR][slot->rks];
-
 	case DECAY:
 		return dphaseDRTable[slot->patch.DR][slot->rks];
-
-	case SUSHOLD:
-		return 0;
-
 	case SUSTINE:
 		return dphaseDRTable[slot->patch.RR][slot->rks];
-
 	case RELEASE:
 		if (slot->sustine)
 			return dphaseDRTable[5][slot->rks];
 		else if (slot->patch.EG)
 			return dphaseDRTable[slot->patch.RR][slot->rks];
-		else
-			return dphaseDRTable[7][slot->rks];
-
+		return dphaseDRTable[7][slot->rks];
+	case SUSHOLD:
 	case FINISH:
-		return 0;
-
 	default:
-		return 0;
+		break;
 	}
+	return 0;
 }
 
 /*************************************************************
@@ -492,6 +484,10 @@ static void maketables(uint32_t c, uint32_t r) {
 		 * the transcendental ones are baked constants (emu2413_tables.h). */
 		makeTllTable();
 		makeRksTable();
+<<<<<<< HEAD
+=======
+		makeSinTable();
+>>>>>>> a90f8571 (Update libretro.c)
 	}
 
 	if (r != rate) {
@@ -506,7 +502,7 @@ OPLL *OPLL_new(uint32_t _clk, uint32_t _rate) {
 	maketables(_clk, _rate);
 
 	opll = (OPLL*)calloc(sizeof(OPLL), 1);
-	if (opll == NULL)
+	if (!opll)
 		return NULL;
 
 	opll->mask = 0;
@@ -715,11 +711,10 @@ static void calc_envelope(OPLL_SLOT * slot, int32_t lfo) {
 INLINE static int32_t calc_slot_car(OPLL_SLOT * slot, int32_t fm) {
 	slot->output[1] = slot->output[0];
 
-	if (slot->egout >= (DB_MUTE - 1)) {
+	if (slot->egout >= (DB_MUTE - 1))
 		slot->output[0] = 0;
-	} else {
+	else
 		slot->output[0] = DB2LIN_TABLE[slot->sintbl[(slot->pgout + wave2_8pi(fm)) & (PG_WIDTH - 1)] + slot->egout];
-	}
 
 	return (slot->output[1] + slot->output[0]) >> 1;
 }
@@ -793,8 +788,8 @@ uint32_t OPLL_setMask(OPLL * opll, uint32_t mask) {
 		ret = opll->mask;
 		opll->mask = mask;
 		return ret;
-	} else
-		return 0;
+	}
+	return 0;
 }
 
 uint32_t OPLL_toggleMask(OPLL * opll, uint32_t mask) {
@@ -804,8 +799,8 @@ uint32_t OPLL_toggleMask(OPLL * opll, uint32_t mask) {
 		ret = opll->mask;
 		opll->mask ^= mask;
 		return ret;
-	} else
-		return 0;
+	}
+	return 0;
 }
 
 /****************************************************
@@ -1016,4 +1011,3 @@ void OPLL_writeIO(OPLL * opll, uint32_t adr, uint32_t val) {
 	else
 		opll->adr = val;
 }
-

@@ -73,6 +73,7 @@ static SFORMAT StateRegs[] =
 static uint8_t *WRAM;
 
 static void PSync(int AND, int OR) {
+<<<<<<< HEAD
 	uint8_t bankmode = cpu410x[0xb] & 7;
 	uint8_t mask = (bankmode == 0x7) ? (0xff) : (0x3f >> bankmode);
 	uint32_t block = ((cpu410x[0x0] & 0xf0) << 4) + (cpu410x[0xa] & (~mask));
@@ -82,11 +83,33 @@ static void PSync(int AND, int OR) {
 	uint8_t bank1 = cpu410x[0x8];
 	uint8_t bank2 = (cpu410x[0xb] & 0x40) ? (cpu410x[0x9]) : (~1);
 	uint8_t bank3 = ~0;
+=======
+	uint8 bankmode = cpu410x[0xb] & 7;
+	uint8 mask = (bankmode == 0x7) ? (0xff) : (0x3f >> bankmode);
+	uint32 block = ((cpu410x[0x0] & 0xf0) << 4) + (cpu410x[0xa] & (~mask));
+	uint32 pswap = (mmc3cmd & 0x40) << 8;
+<<<<<<< HEAD
+
+=======
+>>>>>>> 0006bf3 (Update libretro.c)
+	uint8 bank0 = cpu410x[0x7];
+	uint8 bank1 = cpu410x[0x8];
+	uint8 bank2 = (cpu410x[0xb] & 0x40) ? (cpu410x[0x9]) : (~1);
+	uint8 bank3 = ~0;
+<<<<<<< HEAD
+>>>>>>> b8aebecd (Update libretro.c)
 	
 	setprg8(0x8000 ^ pswap,(block | (bank0 & mask)) &AND | OR);
 	setprg8(0xa000,        (block | (bank1 & mask)) &AND | OR);
 	setprg8(0xc000 ^ pswap,(block | (bank2 & mask)) &AND | OR);
 	setprg8(0xe000,        (block | (bank3 & mask)) &AND | OR);
+=======
+
+	setprg8(0x8000 ^ pswap, block | (bank0 & mask));
+	setprg8(0xa000, block | (bank1 & mask));
+	setprg8(0xc000 ^ pswap, block | (bank2 & mask));
+	setprg8(0xe000, block | (bank3 & mask));
+>>>>>>> 0006bf3 (Update libretro.c)
 }
 
 static void CSync(int AND, int OR) {
@@ -151,9 +174,15 @@ static const uint8_t cpuMangles[16][4] = {
 	{ 0, 1, 2, 3 }, 	/* Submapper E: Karaoto (CPU opcode encryption only)    */
 	{ 0, 1, 2, 3 }  	/* Submapper F: Jungletac (CPU opcode encryption only)  */
 };
+<<<<<<< HEAD
 static DECLFW(UNLOneBusWriteCPU410X) {
 /*	FCEU_printf("CPU %04x:%04x\n",A,V); */
 	A &=0x3F;
+=======
+
+static void UNLOneBusWriteCPU410X(uint32 A, uint8 V) {
+	A &=0xF;
+>>>>>>> 0006bf3 (Update libretro.c)
 	switch (A) {
 	case 0x1: IRQLatch = V & 0xfe; break;	/* не по даташиту */
 	case 0x2: IRQReload = 1; break;
@@ -166,6 +195,7 @@ static DECLFW(UNLOneBusWriteCPU410X) {
 	}
 }
 
+<<<<<<< HEAD
 static DECLFW(UNLOneBusWriteCPU4242) {
 	reg4242 =V;
 	Sync();
@@ -191,13 +221,39 @@ static const uint8_t ppuMangles[16][6] = {
 };
 static DECLFW(UNLOneBusWritePPU201X) {
 /*	FCEU_printf("PPU %04x:%04x\n",A,V); */
+=======
+static void UNLOneBusWritePPU201X(uint32 A, uint8 V) {
+	static const uint8 ppuMangle[16][6] = {
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper 0: Normal                                  */
+		{ 1, 0, 5, 4, 3, 2 }, 	/* Submapper 1: Waixing VT03                            */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper 2: Trump Grand                             */
+		{ 5, 4, 3, 2, 0, 1 }, 	/* Submapper 3: Zechess                                 */
+		{ 2, 5, 0, 4, 3, 1 }, 	/* Submapper 4: Qishenglong                             */
+		{ 1, 0, 5, 4, 3, 2 }, 	/* Submapper 5: Waixing VT02                            */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper 6: unused so far                           */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper 7: unused so far                           */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper 8: unused so far                           */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper 9: unused so far                           */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper A: unused so far                           */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper B: unused so far                           */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper C: unused so far                           */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper D: Cube Tech (CPU opcode encryption only)  */
+		{ 0, 1, 2, 3, 4, 5 }, 	/* Submapper E: Karaoto (CPU opcode encryption only)    */
+		{ 0, 1, 2, 3, 4, 5 }  	/* Submapper F: Jungletac (CPU opcode encryption only)  */
+	};
+>>>>>>> 0006bf3 (Update libretro.c)
 	A &=0x0F;
 	if (A >=2 && A <=7) A =2 +ppuMangle[A -2];
 	ppu201x[A] = V;
 	Sync();
 }
 
+<<<<<<< HEAD
 static const uint8_t mmc3Mangles[16][8] = {
+=======
+<<<<<<< HEAD
+static const uint8 mmc3Mangles[16][8] = {
+>>>>>>> b8aebecd (Update libretro.c)
 	{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 0: Normal                                 */
 	{ 5, 4, 3, 2, 1, 0, 6, 7 }, 	/* Submapper 1: Waixing VT03                           */
 	{ 0, 1, 2, 3, 4, 5, 7, 6 }, 	/* Submapper 2: Trump Grand                            */
@@ -219,6 +275,27 @@ static const uint8_t mmc3Mangles[16][8] = {
 static DECLFW(UNLOneBusWriteMMC3) {
 /*	FCEU_printf("MMC %04x:%04x\n",A,V); */
 	if (~cpu410x[0x0B] &0x08) /* FWEN bit must be 0 */
+=======
+static void UNLOneBusWriteMMC3(uint32 A, uint8 V) {
+	static const uint8 mmc3Mangle[16][8] = {
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 0: Normal                                 */
+		{ 5, 4, 3, 2, 1, 0, 6, 7 }, 	/* Submapper 1: Waixing VT03                           */
+		{ 0, 1, 2, 3, 4, 5, 7, 6 }, 	/* Submapper 2: Trump Grand                            */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 3: Zechess                                */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 4: Qishenglong                            */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 5: Waixing VT02                           */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 6: unused so far                          */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 7: unused so far                          */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 8: unused so far                          */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper 9: unused so far                          */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper A: unused so far                          */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper B: unused so far                          */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper C: unused so far                          */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper D: Cube Tech (CPU opcode encryption only) */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }, 	/* Submapper E: Karaoto (CPU opcode encryption only)   */
+		{ 0, 1, 2, 3, 4, 5, 6, 7 }  	/* Submapper F: Jungletac (CPU opcode encryption only) */
+	};
+>>>>>>> 0006bf3 (Update libretro.c)
 	switch (A & 0xe001) {
 	case 0x8000: 
 		V =V &0xF8 | mmc3Mangle[V &0x07];
@@ -260,8 +337,7 @@ static void UNLOneBusIRQHook(void) {
 	}
 }
 
-static DECLFW(UNLOneBusWriteAPU40XX) {
-/*	if(((A & 0x3f)!=0x16) && ((apu40xx[0x30] & 0x10) || ((A & 0x3f)>0x17)))FCEU_printf("APU %04x:%04x\n",A,V); */
+static void UNLOneBusWriteAPU40XX(uint32 A, uint8 V) {
 	apu40xx[A & 0x3f] = V;
 	switch (A & 0x3f) {
 	case 0x12:
@@ -299,14 +375,18 @@ static DECLFW(UNLOneBusWriteAPU40XX) {
 	defapuwrite[A & 0x3f](A, V);
 }
 
+<<<<<<< HEAD
 static DECLFR(UNLOneBusReadAPU40XX) {
 	uint8_t result = defapuread[A & 0x3f](A);
 /*	FCEU_printf("read %04x, %02x\n",A,result); */
+=======
+static uint8 UNLOneBusReadAPU40XX(uint32 A) {
+	uint8 result = defapuread[A & 0x3f](A);
+>>>>>>> b8aebecd (Update libretro.c)
 	switch (A & 0x3f) {
 	case 0x15:
-		if (apu40xx[0x30] & 0x10) {
+		if (apu40xx[0x30] & 0x10)
 			result = (result & 0x7f) | pcm_irq;
-		}
 		break;
 	case 0x17:
 		if (cpu410x[0x0B] == 0x14) result = result &~0x04 | (dipswitch &1? 0x04: 0x00); /* Super Joy III pad */

@@ -41,10 +41,19 @@ static void sync () {
 		TC3294_syncMirror();
 }
 
+<<<<<<< HEAD
 static void close (void) {
 	if (CHRRAM) {
 		FCEU_gfree(CHRRAM);
 		CHRRAM =NULL;
+=======
+static void M356Write(uint32 A, uint8 V) {
+	if (!(EXPREGS[3] & 0x40)) {
+		EXPREGS[EXPREGS[4]] = V;
+		EXPREGS[4] = (EXPREGS[4] + 1) & 3;
+		FixMMC3PRG(MMC3_cmd);
+		FixMMC3CHR(MMC3_cmd);
+>>>>>>> 7af8d8d (Update libretro.c)
 	}
 }
 

@@ -36,7 +36,7 @@ static SFORMAT StateRegs[] =
         { 0 }
 };
 
-static void sync()
+static void M558Sync(void)
 {
    setprg32(0x8000, reg[1] <<4 | reg[0] &0xF | (reg[3] &0x04? 0x00: 0x03));
    setprg8r(0x10, 0x6000, 0);
@@ -47,7 +47,7 @@ static void sync()
       eeprom_93Cx6_write(reg[2] &0x04, reg[2] &0x02, reg[2] &0x01);
 }
 
-static void hblank(void) {
+static void M558HBIRQHook(void) {
    if (reg[0] &0x80 && scanline <239)
    {  /* Actual hardware cannot look at the current scanline number, but instead latches PA09 on PA13 rises. This does not seem possible with the current PPU emulation however. */
       setchr4(0x0000, scanline >=127? 1: 0);
@@ -57,15 +57,20 @@ static void hblank(void) {
       setchr8(0);
 }
 
-static DECLFR(readReg)
+static uint8 readReg(uint32 A)
 {
    if (haveEEPROM)
+<<<<<<< HEAD
       return eeprom_93Cx6_read()? 0x04: 0x00;
    else
       return reg[2] &0x04;
+=======
+      return eeprom_93C66_read()? 0x04: 0x00;
+   return reg[2] &0x04;
+>>>>>>> c7e9e1c (Update libretro.c)
 }
 
-static DECLFW(writeReg)
+static void writeReg(uint32 A, uint8 V)
 {
    uint8_t index = A >>8 &3;
    
@@ -77,47 +82,52 @@ static DECLFW(writeReg)
       V = V &~3 | V >>1 &1 | V <<1 &2;
    
    reg[index] = V;
-   sync();
+   M558Sync();
 }
 
-static void power(void)
+static void M558Power(void)
 {
    memset(reg, 0, sizeof(reg));
    if (haveEEPROM)
+<<<<<<< HEAD
       eeprom_93Cx6_init(512, 8);
    sync();
+=======
+      eeprom_93C66_init();
+   M558Sync();
+>>>>>>> c7e9e1c (Update libretro.c)
    SetReadHandler (0x5000, 0x57FF, readReg);
    SetWriteHandler(0x5000, 0x57FF, writeReg);
    SetReadHandler (0x6000, 0xFFFF, CartBR);
    SetWriteHandler(0x6000, 0x7FFF, CartBW);
 }
 
-static void reset(void)
+static void M558Reset(void)
 {
    memset(reg, 0, sizeof(reg));
-   sync();
+   M558Sync();
 }
 
-static void close(void)
+static void M558Close(void)
 {
    if (WRAM)
       FCEU_gfree(WRAM);
    WRAM = NULL;
 }
 
-static void StateRestore(int version)
+static void M558StateRestore(int version)
 {
-   sync();
+   M558Sync();
 }
 
 void Mapper558_Init (CartInfo *info)
 {
-   info->Power   = power;
-   info->Reset   = reset;
-   info->Close   = close;
-   GameHBIRQHook = hblank;
+   info->Power   = M558Power;
+   info->Reset   = M558Reset;
+   info->Close   = M558Close;
+   GameHBIRQHook = M558HBIRQHook;
 
-   GameStateRestore = StateRestore;
+   GameStateRestore = M558StateRestore;
    AddExState(StateRegs, ~0, 0, 0);
 
    WRAMSIZE = info->PRGRamSize + (info->PRGRamSaveSize &~0x7FF);

@@ -74,7 +74,7 @@ static INPUTCFC *FCExp = 0;
 
 void (*InputScanlineHook)(uint8_t *bg, uint8_t *spr, uint32_t linets, int final);
 
-static DECLFR(JPRead)
+static uint8 JPRead(uint32 A)
 {
 	uint8_t ret = 0;
 
@@ -90,7 +90,7 @@ static DECLFR(JPRead)
 	return(ret);
 }
 
-static DECLFW(B4016)
+static void B4016(uint32 A, uint8 V)
 {
 	if (FCExp)
 		if (FCExp->Write)
@@ -142,7 +142,11 @@ static void StrobeFami4(void) {
 	F4ReadBit[0] = F4ReadBit[1] = 0;
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) ReadFami4(int w, uint8_t ret) {
+=======
+static uint8 ReadFami4(int w, uint8 ret) {
+>>>>>>> b8aebecd (Update libretro.c)
 	ret &= 1;
 	ret |= ((joy[2 + w] >> (F4ReadBit[w])) & 1) << 1;
 	if (F4ReadBit[w] >= 8) ret |= 2;
@@ -151,8 +155,13 @@ static uint8_t FP_FASTAPASS(2) ReadFami4(int w, uint8_t ret) {
 }
 
 /* VS. Unisystem inputs */
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(1) ReadGPVS(int w) {
 	uint8_t ret = 0;
+=======
+static uint8 ReadGPVS(int w) {
+	uint8 ret = 0;
+>>>>>>> b8aebecd (Update libretro.c)
 	if (joy_readbit[w] >= 8)
 		ret = 1;
 	else {
@@ -163,8 +172,13 @@ static uint8_t FP_FASTAPASS(1) ReadGPVS(int w) {
 }
 
 /* standard gamepad inputs */
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(1) ReadGP(int w) {
 	uint8_t ret;
+=======
+static uint8 ReadGP(int w) {
+	uint8 ret;
+>>>>>>> b8aebecd (Update libretro.c)
 	if (joy_readbit[w] >= 8)
 		ret = ((joy[2 + w] >> (joy_readbit[w] & 7)) & 1);
 	else
@@ -181,12 +195,17 @@ static uint8_t FP_FASTAPASS(1) ReadGP(int w) {
 	return ret;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(3) UpdateGP(int w, void *data, int arg) {
 	/* JSReturn is constructed by the libretro frontend as a uint32_t with
 	 * player N at bits (N<<3)..(N<<3)+7. Reading via host-endian uint32_t
 	 * cast and shifting gives the correct player byte regardless of host
 	 * endianness, because the writer used the matching shift. */
 	uint32_t *ptr = (uint32_t*)data;
+=======
+static void UpdateGP(int w, void *data, int arg) {
+	uint32 *ptr = (uint32*)data;
+>>>>>>> b8aebecd (Update libretro.c)
 	if (!w) {
 		joy[0] = *(uint32_t*)ptr;
 		joy[2] = *(uint32_t*)ptr >> 16;
@@ -196,7 +215,7 @@ static void FP_FASTAPASS(3) UpdateGP(int w, void *data, int arg) {
 	}
 }
 
-static void FP_FASTAPASS(1) StrobeGP(int w) {
+static void StrobeGP(int w) {
 	joy_readbit[w] = 0;
 }
 
@@ -226,7 +245,7 @@ void FCEU_UpdateInput(void)
       FCEU_VSUniSwap(&joy[0], &joy[1]);
 }
 
-static DECLFR(VSUNIRead0)
+static uint8 VSUNIRead0(uint32 A)
 {
    uint8_t ret = 0;
 
@@ -239,7 +258,7 @@ static DECLFR(VSUNIRead0)
    return ret;
 }
 
-static DECLFR(VSUNIRead1)
+static uint8 VSUNIRead1(uint32 A)
 {
 	uint8_t ret = 0;
 
@@ -272,7 +291,7 @@ static void CheckSLHook(void)
       InputScanlineHook = SLHLHook;
 }
 
-static void FASTAPASS(1) SetInputStuff(int x)
+static void SetInputStuff(int x)
 {
 	switch (JPType[x])
    {
