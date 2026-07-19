@@ -29,6 +29,7 @@ static DECLFR (interceptPRGRead_submapper0) {
 	return Latch_address &0x200? CartBR(A &~0xF | pad &0xF): CartBR(A);
 }
 
+<<<<<<< HEAD
 static DECLFR (readPad_submapper1) {
 	return pad;
 }
@@ -54,6 +55,29 @@ static void sync () {
 	SetupCartCHRMapping(0, CHRptr[0], CHRsize[0], submapper == 0 && Latch_address &0x80? 0: 1);
 	setchr8(Latch_data);
 	setmirror(Latch_address &0x002? MI_H: MI_V);
+<<<<<<< HEAD
+=======
+	SetReadHandler(0x8000, 0xFFFF, submapper == 0 && Latch_address &0x200? readPad_submapper0: submapper == 2 && padSelect &1? readPad_submapper2: CartBR);
+=======
+static uint8 Mapper449_Read(uint32 A)
+{
+   if (dipselect)
+      return dipswitch &0x3;
+   else
+   if (latchAddr &0x200)
+      return CartBR(A | dipswitch &0xF);
+   return CartBR(A);
+}
+
+static void Mapper449_WriteDIPSelect(uint32 A, uint8 V) { dipselect = V & 1; }
+
+static void Mapper449_WriteLatch(uint32 A, uint8 V)
+{
+   latchData =V;
+   latchAddr =A &0xFFFF;
+   Mapper449_Sync();
+>>>>>>> 7af8d8d (Update libretro.c)
+>>>>>>> bc2331c5 (Update libretro.c)
 }
 
 static DECLFW (writePad_submapper2) {
@@ -78,6 +102,7 @@ static void power () {
 	}
 }
 
+<<<<<<< HEAD
 static void reset () {
 	pad++;
 	padSelect = 0;
@@ -91,4 +116,11 @@ void Mapper449_Init (CartInfo *info) {
 	info->Reset = reset;
 	AddExState(&pad, 1, 0, "DIPS");
 	if (submapper == 2) AddExState(&padSelect, 1, 0, "DIPE");
+=======
+void Mapper449_Init(CartInfo *info)
+{
+   info->Power       = Mapper449_Power;
+   info->Reset       = Mapper449_Reset;
+   AddExState(StateRegs, ~0, 0, 0);
+>>>>>>> 7af8d8d (Update libretro.c)
 }

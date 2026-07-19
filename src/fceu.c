@@ -60,14 +60,8 @@ static readfunc *AReadG = NULL;
 static writefunc *BWriteG = NULL;
 static int RWWrap = 0;
 
-static DECLFW(BNull)
-{
-}
-
-static DECLFR(ANull)
-{
-	return(X.DB);
-}
+static void BNull(uint32 A, uint8 V) { }
+static uint8 ANull(uint32 A) { return(X.DB); }
 
 int AllocGenieRW(void)
 {
@@ -118,15 +112,22 @@ void FlushGenieRW(void)
    RWWrap = 0;
 }
 
+<<<<<<< HEAD
 readfunc FASTAPASS(1) GetReadHandler(int32_t a)
+=======
+readfunc GetReadHandler(int32 a)
+>>>>>>> b8aebecd (Update libretro.c)
 {
 	if (a >= 0x8000 && RWWrap)
 		return AReadG[a - 0x8000];
-	else
-		return ARead[a];
+	return ARead[a];
 }
 
+<<<<<<< HEAD
 void FASTAPASS(3) SetReadHandler(int32_t start, int32_t end, readfunc func)
+=======
+void SetReadHandler(int32 start, int32 end, readfunc func)
+>>>>>>> b8aebecd (Update libretro.c)
 {
 	int32_t x;
 
@@ -146,15 +147,22 @@ void FASTAPASS(3) SetReadHandler(int32_t start, int32_t end, readfunc func)
 			ARead[x] = func;
 }
 
+<<<<<<< HEAD
 writefunc FASTAPASS(1) GetWriteHandler(int32_t a)
+=======
+writefunc GetWriteHandler(int32 a)
+>>>>>>> b8aebecd (Update libretro.c)
 {
 	if (RWWrap && a >= 0x8000)
 		return BWriteG[a - 0x8000];
-	else
-		return BWrite[a];
+	return BWrite[a];
 }
 
+<<<<<<< HEAD
 void FASTAPASS(3) SetWriteHandler(int32_t start, int32_t end, writefunc func)
+=======
+void SetWriteHandler(int32 start, int32 end, writefunc func)
+>>>>>>> b8aebecd (Update libretro.c)
 {
 	int32_t x;
 
@@ -178,25 +186,10 @@ uint8_t RAM[0x800];
 
 uint8_t PAL = 0;
 
-static DECLFW(BRAML)
-{
-	RAM[A] = V;
-}
-
-static DECLFR(ARAML)
-{
-	return RAM[A];
-}
-
-static DECLFW(BRAMH)
-{
-	RAM[A & 0x7FF] = V;
-}
-
-static DECLFR(ARAMH)
-{
-	return RAM[A & 0x7FF];
-}
+static void BRAML(uint32 A, uint8 V) { RAM[A] = V; }
+static uint8 ARAML(uint32 A) { return RAM[A]; }
+static void BRAMH(uint32 A, uint8 V) { RAM[A & 0x7FF] = V; }
+static uint8 ARAMH(uint32 A) { return RAM[A & 0x7FF]; }
 
 void FCEUI_CloseGame(void)
 {
@@ -407,15 +400,6 @@ void FCEU_MemoryRand(uint8_t *ptr, uint32_t size)
 {
 	int x = 0;
 	while (size) {
-#if 0
-		*ptr = (x & 4) ? 0xFF : 0x00;	/* Huang Di DEBUG MODE enabled by default */
-										/* Cybernoid NO MUSIC by default */
-		*ptr = (x & 4) ? 0x7F : 0x00;	/* Huang Di DEBUG MODE enabled by default */
-										/* Minna no Taabou no Nakayoshi Daisakusen DOESN'T BOOT */
-										/* Cybernoid NO MUSIC by default */
-		*ptr = (x & 1) ? 0x55 : 0xAA;	/* F-15 Sity War HISCORE is screwed... */
-										/* 1942 SCORE/HISCORE is screwed... */
-#endif
 		uint8_t v = 0;
 		switch (option_ramstate)
 		{
@@ -430,10 +414,13 @@ void FCEU_MemoryRand(uint8_t *ptr, uint32_t size)
 	}
 }
 
+<<<<<<< HEAD
 static void hand(X6502 *X, int type, uint32_t A)
 {
 }
 
+=======
+>>>>>>> b8aebecd (Update libretro.c)
 void PowerNES(void)
 {
 	uint32_t md5_seed;
@@ -583,6 +570,7 @@ void FCEUI_SetGameGenie(int a)
 {
 	FSettings.GameGenie = a ? 1 : 0;
 }
+<<<<<<< HEAD
 
 int32_t FCEUI_GetDesiredFPS(void)
 {
@@ -591,3 +579,5 @@ int32_t FCEUI_GetDesiredFPS(void)
 	else
 		return(1008307711);	/* ~60.1 */
 }
+=======
+>>>>>>> b8aebecd (Update libretro.c)

@@ -47,27 +47,48 @@
 
 extern SFORMAT FCEUVSUNI_STATEINFO[];
 
+<<<<<<< HEAD
 uint8_t *trainerpoo       = NULL;
 uint8_t *ROM              = NULL;
 uint8_t *VROM             = NULL;
 uint8_t *ExtraNTARAM      = NULL;
 uint8_t *MiscROM          = NULL;
+=======
+<<<<<<< HEAD
+uint8 *trainerpoo       = NULL;
+uint8 *ROM              = NULL;
+uint8 *VROM             = NULL;
+uint8 *ExtraNTARAM      = NULL;
+uint8 *MiscROM          = NULL;
+>>>>>>> b8aebecd (Update libretro.c)
 iNES_HEADER head        = {0};
+=======
+static uint8 *trainerpoo  = NULL;
+uint8 *ROM                = NULL;
+uint8 *VROM               = NULL;
+static uint8 *ExtraNTARAM = NULL;
+iNES_HEADER head          = {0};
+>>>>>>> f1c03a4 (Update libretro.c)
 
-CartInfo iNESCart       = {0};
+CartInfo iNESCart         = {0};
 
+<<<<<<< HEAD
 uint32_t ROM_size         = 0;
 uint32_t VROM_size        = 0;
+=======
+uint32 ROM_size           = 0;
+uint32 VROM_size          = 0;
+>>>>>>> b8aebecd (Update libretro.c)
 
-static int CHRRAMSize   = -1;
+static int CHRRAMSize     = -1;
 
 static int iNES_Init(int num);
 
-static DECLFR(TrainerRead) {
+static uint8 TrainerRead(uint32 A) {
 	return(trainerpoo[A & 0x1FF]);
 }
 
-static void iNES_ExecPower() {
+static void iNES_ExecPower(void) {
 	if (iNESCart.Power)
 		iNESCart.Power();
 
@@ -83,19 +104,7 @@ static void iNES_ExecPower() {
 	}
 }
 
-static void iNESGI(int h) {
-	switch (h)
-	{
-	case GI_RESETM2:
-		if (iNESCart.Reset)
-			iNESCart.Reset();
-		break;
-	case GI_POWER:
-		iNES_ExecPower();
-		break;
-	case GI_CLOSE:
-		if (iNESCart.Close)
-			iNESCart.Close();
+static void Cleanup(void) {
 		if (ROM) {
 			free(ROM);
 			ROM = NULL;
@@ -112,10 +121,29 @@ static void iNESGI(int h) {
 			free(ExtraNTARAM);
 			ExtraNTARAM = NULL;
 		}
+<<<<<<< HEAD
 		if (MiscROM) {
 			free(MiscROM);
 			MiscROM = NULL;
 		}
+=======
+}
+
+static void iNESGI(int h) {
+	switch (h)
+	{
+	case GI_RESETM2:
+		if (iNESCart.Reset)
+			iNESCart.Reset();
+		break;
+	case GI_POWER:
+		iNES_ExecPower();
+		break;
+	case GI_CLOSE:
+		if (iNESCart.Close)
+			iNESCart.Close();
+		Cleanup();
+>>>>>>> f1c03a4 (Update libretro.c)
 		break;
 	}
 }
@@ -1254,9 +1282,17 @@ int iNESLoad(const char *name, FCEUFILE *fp)
       FCEU_PrintError(" File contains %llu bytes of unused data\n", (unsigned long long)(filesize - romSize));
 
    rom_size_pow2 = uppow2(iNESCart.PRGRomSize);
+<<<<<<< HEAD
 
    if ((ROM = (uint8_t*)FCEU_malloc(rom_size_pow2)) == NULL)
+=======
+   
+   if ((ROM = (uint8*)FCEU_malloc(rom_size_pow2)) == NULL)
+   {
+      Cleanup();
+>>>>>>> b8aebecd (Update libretro.c)
       return 0;
+   }
 
    memset(ROM, 0xFF, rom_size_pow2);
    if (FCEU_fread(ROM, 1, iNESCart.PRGRomSize, fp) != (size_t)iNESCart.PRGRomSize)
@@ -1267,8 +1303,7 @@ int iNESLoad(const char *name, FCEUFILE *fp)
 
       if ((VROM = (uint8_t*)FCEU_malloc(vrom_size_pow2)) == NULL)
       {
-         free(ROM);
-         ROM = NULL;
+         Cleanup();
          return 0;
       }
 
@@ -1427,6 +1462,7 @@ int iNESLoad(const char *name, FCEUFILE *fp)
       FCEU_printf("\n");
       FCEU_PrintError(" iNES mapper #%d is not supported at all.\n",
             iNESCart.mapper);
+      Cleanup();
       return 0;
    }
 
@@ -1504,10 +1540,8 @@ static int iNES_Init(int num) {
 			}
 			if (head.ROM_type & 8)
 			{
-				if (ExtraNTARAM != NULL)
-				{
+				if (ExtraNTARAM)
 					AddExState(ExtraNTARAM, 2048, 0, "EXNR");
-				}
 			}
 			tmp->init(&iNESCart);
 			return 1;

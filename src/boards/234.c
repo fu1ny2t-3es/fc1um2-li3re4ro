@@ -28,7 +28,7 @@ static SFORMAT StateRegs[] =
 	{ 0 }
 };
 
-static void Sync(void) {
+static void M234Sync(void) {
 	if (bank & 0x40) {
 		setprg32(0x8000, (bank & 0xE) | (preg & 1));
 		setchr8(((bank & 0xE) << 2) | ((preg >> 4) & 7));
@@ -39,25 +39,35 @@ static void Sync(void) {
 	setmirror((bank >> 7) ^ 1);
 }
 
+<<<<<<< HEAD
 static DECLFR(M234ReadBank) {
 	uint8_t r = CartBR(A);
+=======
+uint8 M234ReadBank(uint32 A) {
+	uint8 r = CartBR(A);
+>>>>>>> b8aebecd (Update libretro.c)
 	if (!bank) {
 		bank = r;
-		Sync();
+		M234Sync();
 	}
 	return r;
 }
 
+<<<<<<< HEAD
 static DECLFR(M234ReadPreg) {
 	uint8_t r = CartBR(A);
+=======
+uint8 M234ReadPreg(uint32 A) {
+	uint8 r = CartBR(A);
+>>>>>>> b8aebecd (Update libretro.c)
 	preg = r;
-	Sync();
+	M234Sync();
 	return r;
 }
 
 static void M234Reset(void) {
 	bank = preg = 0;
-	Sync();
+	M234Sync();
 }
 
 static void M234Power(void) {
@@ -67,13 +77,13 @@ static void M234Power(void) {
 	SetReadHandler(0xFFE8, 0xFFF7, M234ReadPreg);
 }
 
-static void StateRestore(int version) {
-	Sync();
+static void M234StateRestore(int version) {
+	M234Sync();
 }
 
 void Mapper234_Init(CartInfo *info) {
 	info->Power = M234Power;
 	info->Reset = M234Reset;
 	AddExState(&StateRegs, ~0, 0, 0);
-	GameStateRestore = StateRestore;
+	GameStateRestore = M234StateRestore;
 }

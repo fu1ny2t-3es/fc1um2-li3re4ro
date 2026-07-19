@@ -44,7 +44,11 @@ static const uint16_t matrix[13][2][4] =
 	{ { AK(GRAVE), AK(NUMPAD6), AK(PAUSE), AK(SPACE) },	 { AK(F9), AK(NUMPAD3), AK(DECIMAL), AK(NUMPAD0) } },
 };
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) SuborKB_Write(uint8_t v) {
+=======
+static void SuborKB_Write(uint8 v) {
+>>>>>>> b8aebecd (Update libretro.c)
 	v >>= 1;
 	if (v & 2) {
 		if ((ksmode & 1) && !(v & 1))
@@ -53,7 +57,11 @@ static void FP_FASTAPASS(1) SuborKB_Write(uint8_t v) {
 	ksmode = v;
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) SuborKB_Read(int w, uint8_t ret) {
+=======
+static uint8 SuborKB_Read(int w, uint8 ret) {
+>>>>>>> b8aebecd (Update libretro.c)
 	if (w) {
 		int x;
 
@@ -71,7 +79,7 @@ static void SuborKB_Strobe(void) {
 	ksindex = 0;
 }
 
-static void FP_FASTAPASS(2) SuborKB_Update(void *data, int arg) {
+static void SuborKB_Update(void *data, int arg) {
 	memcpy(bufit + 1, data, sizeof(bufit) - 1);
 }
 

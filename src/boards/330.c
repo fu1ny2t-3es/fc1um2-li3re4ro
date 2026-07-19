@@ -58,7 +58,11 @@ static void FixCHR(void) {
 		DoCHR(x, CHR[x]);
 }
 
+<<<<<<< HEAD
 static void FASTAPASS(2) DoNTARAM(int w, uint8_t V) {
+=======
+static void DoNTARAM(int w, uint8 V) {
+>>>>>>> b8aebecd (Update libretro.c)
 	NTAPage[w] = V;
 	setntamem(NTARAM + ((V & 1) << 10), 1, w);
 }
@@ -69,7 +73,7 @@ static void FixNTAR(void) {
 		DoNTARAM(x, NTAPage[x]);
 }
 
-static DECLFW(M330Write) {
+static void M330Write(uint32 A, uint8 V) {
 	if (!(A & 0x400)) {
 		if (A >= 0x8000 && A <= 0xB800)
 			DoCHR((A - 0x8000) >> 11, V);
@@ -110,7 +114,7 @@ static void M330Power(void) {
 	SetWriteHandler(0x8000, 0xFFFF, M330Write);
 }
 
-static void FP_FASTAPASS(1) M330IRQHook(int a) {
+static void M330IRQHook(int a) {
 	if (IRQa) {
 		IRQCount += a;
 		if (IRQCount > 0x7FFF) {

@@ -81,10 +81,14 @@ struct CHEATF *cheats = 0, *cheatsl = 0;
 #define CHEATC_EXCLUDED 0x4000
 #define CHEATC_NOSHOW   0xC000
 
+<<<<<<< HEAD
 static uint16_t *CheatComp = 0;
 static int savecheats;
+=======
+static uint16 *CheatComp = 0;
+>>>>>>> b8aebecd (Update libretro.c)
 
-static DECLFR(SubCheatsRead) {
+static uint8 SubCheatsRead(uint32 A) {
 	CHEATF_SUBFAST *s = SubCheats;
 	int x = numsubcheats;
 
@@ -142,16 +146,19 @@ void FCEU_PowerCheats() {
 	RebuildSubCheats();
 }
 
+<<<<<<< HEAD
 static int AddCheatEntry(char *name, uint32_t addr, uint8_t val, int compare, int status, int type);
 static void CheatMemErr(void) {
 	FCEUD_PrintError("Error allocating memory for cheat data.");
 }
 
+=======
+>>>>>>> b8aebecd (Update libretro.c)
 /* This function doesn't allocate any memory for "name" */
 static int AddCheatEntry(char *name, uint32_t addr, uint8_t val, int compare, int status, int type) {
 	struct CHEATF *temp;
 	if (!(temp = (struct CHEATF*)malloc(sizeof(struct CHEATF)))) {
-		CheatMemErr();
+		FCEUD_PrintError("Error allocating memory for cheat data.");
 		return(0);
 	}
 	temp->name = name;
@@ -173,7 +180,7 @@ static int AddCheatEntry(char *name, uint32_t addr, uint8_t val, int compare, in
 
 void FCEU_LoadGameCheats(void)
 {
-   numsubcheats = savecheats = 0;
+   numsubcheats = 0;
    RebuildSubCheats();
 }
 
@@ -215,7 +222,7 @@ int FCEUI_AddCheat(const char *name, uint32_t addr, uint8_t val, int compare, in
 	size_t n = strlen(name) + 1;
 	if (!(t = (char*)malloc(n)))
 	{
-		CheatMemErr();
+		FCEUD_PrintError("Error allocating memory for cheat data.");
 		return(0);
 	}
 	strlcpy(t, name, n);
@@ -223,11 +230,11 @@ int FCEUI_AddCheat(const char *name, uint32_t addr, uint8_t val, int compare, in
 		free(t);
 		return(0);
 	}
-	savecheats = 1;
 	RebuildSubCheats();
 	return(1);
 }
 
+<<<<<<< HEAD
 int FCEUI_DelCheat(uint32_t which) {
 	struct CHEATF *prev;
 	struct CHEATF *cur;
@@ -267,6 +274,8 @@ int FCEUI_DelCheat(uint32_t which) {
 	return(1);
 }
 
+=======
+>>>>>>> b8aebecd (Update libretro.c)
 void FCEU_ApplyPeriodicCheats(void) {
 	struct CHEATF *cur = cheats;
 	if (!cur) return;
@@ -282,6 +291,7 @@ void FCEU_ApplyPeriodicCheats(void) {
 	}
 }
 
+<<<<<<< HEAD
 
 void FCEUI_ListCheats(int (*callb)(char *name, uint32_t a, uint8_t v, int compare, int s, int type, void *data), void *data) {
 	struct CHEATF *next = cheats;
@@ -318,6 +328,8 @@ int FCEUI_GetCheat(uint32_t which, char **name, uint32_t *a, uint8_t *v, int *co
 	return(0);
 }
 
+=======
+>>>>>>> b8aebecd (Update libretro.c)
 static int GGtobin(char c) {
 	static char lets[16] = { 'A', 'P', 'Z', 'L', 'G', 'I', 'T', 'Y', 'E', 'O', 'X', 'U', 'K', 'S', 'V', 'N' };
 	int x;
@@ -392,19 +404,6 @@ int FCEUI_DecodePAR(const char *str, uint16_t *a, uint8_t *v, int *c, int *type)
 	sscanf(str, "%02x%02x%02x%02x", boo, boo + 1, boo + 2, boo + 3);
 
 	*c = -1;
-
-	/* 2020-08-31
-	 * Why is the top code set as default on non-debug runtime when
-	 * bottom code is what works for PAR?
-	 */
-	/* if (1) {
-		*a = (boo[3] << 8) | (boo[2] + 0x7F);
-		*v = 0;
-	} else {
-		*v = boo[3];
-		*a = boo[2] | (boo[1] << 8);
-	} */
-
 	*v = boo[3];
 	*a = boo[2] | (boo[1] << 8);
 
@@ -417,6 +416,7 @@ int FCEUI_DecodePAR(const char *str, uint16_t *a, uint8_t *v, int *c, int *type)
 		*type = 1;
 	return(1);
 }
+<<<<<<< HEAD
 
 /* name can be NULL if the name isn't going to be changed. */
 /* same goes for a, v, and s(except the values of each one must be <0) */
@@ -637,3 +637,5 @@ void FCEUI_CheatSearchEnd(int type, uint8_t v1, uint8_t v2) {
 	if (type > 4)
 		FCEUI_CheatSearchSetCurrentAsOriginal();
 }
+=======
+>>>>>>> b8aebecd (Update libretro.c)

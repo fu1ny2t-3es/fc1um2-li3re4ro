@@ -41,6 +41,7 @@ static void sync () {
 	}
 }
 
+<<<<<<< HEAD
 static DECLFW (writeReg) {
 	reg[(A &0xE000) == 0xA000? 0: 1] = V;
 	sync();
@@ -49,6 +50,16 @@ static DECLFW (writeReg) {
 static DECLFW (writeReg_submapper3) {
 	reg[A >>14 &1] = V;
 	sync();
+=======
+static void M396WriteInnerBank(uint32 A, uint8 V) {
+	reg[0] = V;
+	Sync();
+}
+
+static void M396WriteOuterBank(uint32 A, uint8 V) {
+	reg[1] = V;
+	Sync();
+>>>>>>> 7af8d8d (Update libretro.c)
 }
 
 static void power () {

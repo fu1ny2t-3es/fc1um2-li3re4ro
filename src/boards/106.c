@@ -50,7 +50,7 @@ static void Sync(void) {
 	setmirror((reg[0xc] & 1) ^ 1);
 }
 
-static DECLFW(M106Write) {
+static void M106Write(uint32 A, uint8 V) {
 	A &= 0xF;
 	switch (A) {
 	case 0xD: IRQa = 0; IRQCount = 0; X6502_IRQEnd(FCEU_IQEXT); break;
@@ -78,7 +78,11 @@ static void M106Close(void) {
 	WRAM = NULL;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) M106CpuHook(int a) {
+=======
+void M106CpuHook(int a) {
+>>>>>>> b8aebecd (Update libretro.c)
 	if (IRQa) {
 		IRQCount += a;
 		if (IRQCount > 0x10000) {
