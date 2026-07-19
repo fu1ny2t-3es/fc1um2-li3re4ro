@@ -3919,6 +3919,7 @@ static void retro_run_blit(uint8 *gfx, uint8 *emp) {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifdef HAVE_HDPACK
    if (hdnes_active)
       HDNes_FrameEnd();
@@ -3944,6 +3945,22 @@ static void retro_run_blit(uint8 *gfx, uint8 *emp) {
 =======
 	video_cb(fceu_video_out, width, height, width * sizeof(Bpp_t));
 >>>>>>> a8e6d757 (Update libretro.c)
+=======
+	video_cb(fceu_video_out, width, height, width * sizeof(Bpp_t));
+=======
+   retro_run_blit(XBuf);
+
+<<<<<<< HEAD:libretro/libretro.c
+   stereo_filter_apply(WaveFinal, ssize);
+   audio_batch_cb((const int16_t*)WaveFinal, ssize);
+=======
+   stereo_filter_apply(sound, ssize);
+   for(uint32_t total = 0; total < ssize; ) {
+      total += (uint32_t)audio_batch_cb((const int16_t*)sound + total*2, ssize - total);
+   }
+>>>>>>> 4835621 (Update libretro.c):src/libretro/libretro.c
+>>>>>>> 8c5902d (Update libretro.c)
+>>>>>>> ec1ffe55 (Update libretro.c)
 }
 <<<<<<< HEAD
 
@@ -4585,9 +4602,27 @@ bool retro_load_game(const struct retro_game_info *info)
 #endif
    }
 
+<<<<<<< HEAD
 static bool checkGG(char c) {
 	static const char lets[16] = { 'A', 'P', 'Z', 'L', 'G', 'I', 'T', 'Y', 'E', 'O', 'X', 'U', 'K', 'S', 'V', 'N' };
 	int x;
+=======
+   /* initialize some of the default variables */
+#ifdef GEKKO
+   sndsamplerate  = 32000;
+#else
+<<<<<<< HEAD:libretro/libretro.c
+   sndsamplerate  = 48000;
+=======
+   sndsamplerate = 96000;
+>>>>>>> 4835621 (Update libretro.c):src/libretro/libretro.c
+#endif
+   sndquality     = 0;
+   sndvolume      = 150;
+   swapDuty       = 0;
+   isDendy        = 0;
+   opt_region     = 0;
+>>>>>>> 8c5902d (Update libretro.c)
 
 	for (x = 0; x < 16; x++) {
 		if (lets[x] == toupper(c)) {
