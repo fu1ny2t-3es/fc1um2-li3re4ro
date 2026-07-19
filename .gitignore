@@ -2,6 +2,13 @@
 *.a
 *.so
 .vscode
+<<<<<<< HEAD
 build.log
+<<<<<<< HEAD
 *.dll
 *.dylib
+=======
+=======
+.clang-format
+>>>>>>> 94440a11 (Update)
+>>>>>>> 8dd5b584 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
