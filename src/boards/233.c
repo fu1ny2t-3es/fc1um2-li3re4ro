@@ -37,8 +37,13 @@ static SFORMAT StateRegs[] =
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static void Sync(void) {
 	uint8_t bank = (latche & 0x1f) | (reset << 5);
+=======
+static void M233Sync(void) {
+	uint8 bank = (latche & 0x1f) | (reset << 5);
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 
 	if (!(latche & 0x20))
 		setprg32(0x8000, bank >> 1);
@@ -57,31 +62,31 @@ static void Sync(void) {
 	setchr8(0);
 }
 
-static DECLFW(M233Write) {
+static void M233Write(uint32 A, uint8 V) {
 	latche = V;
-	Sync();
+	M233Sync();
 }
 
 static void M233Power(void) {
 	latche = reset = 0;
-	Sync();
+	M233Sync();
 	SetWriteHandler(0x8000, 0xFFFF, M233Write);
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 }
 
-static void StateRestore(int version) {
-	Sync();
+static void M233StateRestore(int version) {
+	M233Sync();
 }
 
 static void M233Reset(void) {
 	latche = 0;
 	reset ^= 1;
-	Sync();
+	M233Sync();
 }
 
 void Mapper233_Init(CartInfo *info) {
 	info->Power = M233Power;
 	info->Reset = M233Reset;
 	AddExState(&StateRegs, ~0, 0, 0);
-	GameStateRestore = StateRestore;
+	GameStateRestore = M233StateRestore;
 }

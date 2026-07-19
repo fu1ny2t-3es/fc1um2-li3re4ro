@@ -30,7 +30,7 @@ static uint32_t WRAMSIZE;
 static uint32_t hasBattery;
 static uint32_t submapper = 0;
 
-static DECLFW(LatchWrite) {
+static void LatchWrite(uint32 A, uint8 V) {
 	latche = A;
 	WSync();
 }
@@ -102,14 +102,13 @@ static void BMCD1038Sync(void) {
 	setmirror(((latche & 8) >> 3) ^ 1);
 }
 
-static DECLFR(BMCD1038Read) {
+static uint8 BMCD1038Read(uint32 A) {
 	if (latche & 0x100)
 		return dipswitch;
-	else
-		return CartBR(A);
+	return CartBR(A);
 }
 
-static DECLFW(BMCD1038Write) {
+static void BMCD1038Write(uint32 A, uint8 V) {
 	/* Only recognize the latch write if the lock bit has not been set. Needed for NT-234 "Road Fighter" */
 	if (~latche & 0x200)
 		LatchWrite(A, V);
@@ -163,11 +162,10 @@ void Mapper58_Init(CartInfo *info) {
 	setmirror((latche >> 3) & 1);
 }
 
-static DECLFR(M59Read) {
+static uint8 M59Read(uint32 A) {
 	if (latche & 0x100)
 		return 0;
-	else
-		return CartBR(A);
+	return CartBR(A);
 }
 
 void Mapper59_Init(CartInfo *info) {
@@ -212,7 +210,7 @@ void Mapper61_Init(CartInfo *info) {
 
 static uint16_t openBus;
 
-static DECLFR(M63Read) {
+static uint8 M63Read(uint32 A) {
 	if (openBus)
 		return X.DB;
 	return CartBR(A);
@@ -350,8 +348,13 @@ void Mapper204_Init(CartInfo *info) {
 
 /*------------------ Map 212 ---------------------------*/
 
+<<<<<<< HEAD
 static DECLFR(M212Read) {
 	uint8_t ret = CartBROB(A);
+=======
+static uint8 M212Read(uint32 A) {
+	uint8 ret = CartBROB(A);
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 	if ((A & 0xE010) == 0x6000)
 		ret |= 0x80;
 	return ret;
@@ -439,11 +442,15 @@ static void M227Sync(void) {
 	if (PRGsize[0x10]) setprg8r(0x10, 0x6000, 0);
 }
 
+<<<<<<< HEAD
 static DECLFR(M227Read) {
 	if (latche &0x0400 && submapper ==1) /* Support DIP switch/solder pad only with submapper 1 multicarts */
+=======
+static uint8 M227Read(uint32 A) {
+	if (latche &0x0400)
+>>>>>>> 11b12c0 (Update Makefile.libretro)
 		return CartBR(A | dipswitch);
-	else
-		return CartBR(A);
+	return CartBR(A);
 }
 
 static void Mapper227_Reset(void) {
@@ -495,6 +502,92 @@ void Mapper231_Init(CartInfo *info) {
 	Latch_Init(info, M231Sync, NULL, 0x0000, 0x8000, 0xFFFF, 0);
 }
 
+<<<<<<< HEAD
+=======
+/*------------------ Map 242 ---------------------------*/
+static uint8_t M242TwoChips;
+static void M242Sync(void) {
+	uint32_t S = latche & 1;
+	uint32_t p = (latche >> 2) & 0x1F;
+	uint32_t L = (latche >> 9) & 1;
+	
+	if (M242TwoChips) {
+		if (latche &0x600)
+		{	/* First chip */
+			p &= 0x1F; 
+		}
+		else
+		{	/* Second chip */
+			p &= 0x07;
+			p += 0x20;
+		}
+	}
+
+	if ((latche >> 7) & 1) {
+		if (S) {
+			setprg32(0x8000, p >> 1);
+		} else {
+			setprg16(0x8000, p);
+			setprg16(0xC000, p);
+		}
+	} else {
+		if (S) {
+			if (L) {
+				setprg16(0x8000, p & 0x3E);
+				setprg16(0xC000, p | 7);
+			} else {
+				setprg16(0x8000, p & 0x3E);
+				setprg16(0xC000, p & 0x38);
+			}
+		} else {
+			if (L) {
+				setprg16(0x8000, p);
+				setprg16(0xC000, p | 7);
+			} else {
+				setprg16(0x8000, p);
+				setprg16(0xC000, p & 0x38);
+			}
+		}
+	}
+	
+	if (latche &0x80 && submapper >0) /* CHR-RAM write protection not used on single-game cartridges (submapper 0) */
+		SetupCartCHRMapping(0, CHRptr[0], 0x2000, 0);
+	else
+		SetupCartCHRMapping(0, CHRptr[0], 0x2000, 1);
+
+	setmirror(((latche >> 1) & 1) ^ 1);
+	setchr8(0);
+	if (PRGsize[0x10]) setprg8r(0x10, 0x6000, 0);
+}
+
+<<<<<<< HEAD
+static DECLFR(M242Read) {
+	if (latche &0x0100 && (latche &0x00FF) ==0)
+=======
+static uint8 M242Read(uint32 A) {
+	if (latche &0x0100)
+>>>>>>> 11b12c0 (Update Makefile.libretro)
+		return CartBR(A | dipswitch);
+	return CartBR(A);
+}
+
+static void Mapper242_Reset(void) {
+	dipswitch++;
+	dipswitch &= 31;
+	latche = 0;
+	M242Sync();
+}
+
+void Mapper242_Init(CartInfo *info) {
+	dipswitch = 0;
+	submapper = info->submapper;
+	M242TwoChips = info->PRGRomSize &0x20000 && info->PRGRomSize >0x20000;
+	Latch_Init(info, M242Sync, M242Read, 0x0000, 0x8000, 0xFFFF,  info->iNES2 && (info->PRGRamSize || info->PRGRamSaveSize) || info->battery);
+	info->Reset = Mapper242_Reset;
+	AddExState(&dipswitch, 1, 0, "DIPSW");
+}
+
+>>>>>>> b315de77 (Update Makefile.libretro)
 /*------------------ Map 288 ---------------------------*/
 /* NES 2.0 Mapper 288 is used for two GKCX1 21-in-1 multicarts
  * - 21-in-1 (GA-003)
@@ -506,10 +599,18 @@ static void M288Sync(void) {
 	setmirror(latche &0x20? MI_H: MI_V);
 }
 
+<<<<<<< HEAD
 static DECLFR(M288Read) {
 	if (latche & 0x120 && ~latche & 0x10)
 		A |= dipswitch;
 	return CartBR(A);
+=======
+static uint8 M288Read(uint32 A) {
+	uint8 ret = CartBR(A);
+	if (latche & 0x20)
+		ret |= (dipswitch << 2);
+	return ret;
+>>>>>>> b3d8774 (Update Makefile.libretro)
 }
 
 static void M288Reset(void) {
