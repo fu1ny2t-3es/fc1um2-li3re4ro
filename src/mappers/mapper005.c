@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,17 +22,12 @@
 /* None of this code should use any of the iNES bank switching wrappers. */
 
 #include "mapinc.h"
-
-static void (*sfun)(int P);
-static void (*psfun)(void);
-
-void MMC5RunSound(int Count);
-void MMC5RunSoundHQ(void);
+#include "mmc5sound.h"
 
 static INLINE void MMC5SPRVROM_BANK1(uint32_t A, uint32_t V) {
 	if (CHRptr[0]) {
 		V &= CHRmask1[0];
-		MMC5SPRVPage[(A) >> 10] = &CHRptr[0][(V) << 10] - (A);
+		MMC5SPRVPage[A >> 10] = &CHRptr[0][V << 10] - A;
 	}
 }
 
@@ -40,9 +36,15 @@ static INLINE void MMC5BGVROM_BANK1(uint32_t A, uint32_t V) {
 	if (CHRptr[0]) {
 =======
 static INLINE void MMC5BGVROM_BANK1(uint32 A, uint32 V) {
+<<<<<<< HEAD
 	if (CHRptr[0])
 >>>>>>> 99588a93 (Update libretro.c)
 		V &= CHRmask1[0]; MMC5BGVPage[(A) >> 10] = &CHRptr[0][(V) << 10] - (A);
+=======
+	if (CHRptr[0]) {
+		V &= CHRmask1[0]; MMC5BGVPage[A >> 10] = &CHRptr[0][V << 10] - A;
+	}
+>>>>>>> 7b06ddc4 (Update libretro.c)
 }
 
 <<<<<<< HEAD
@@ -50,6 +52,7 @@ static INLINE void MMC5SPRVROM_BANK2(uint32_t A, uint32_t V) {
 	if (CHRptr[0]) {
 =======
 static INLINE void MMC5SPRVROM_BANK2(uint32 A, uint32 V) {
+<<<<<<< HEAD
 	if (CHRptr[0])
 >>>>>>> 99588a93 (Update libretro.c)
 		V &= CHRmask2[0]; MMC5SPRVPage[(A) >> 10] = MMC5SPRVPage[((A) >> 10) + 1] = &CHRptr[0][(V) << 11] - (A);
@@ -62,27 +65,48 @@ static INLINE void MMC5BGVROM_BANK2(uint32 A, uint32 V) {
 	if (CHRptr[0])
 >>>>>>> 99588a93 (Update libretro.c)
 		V &= CHRmask2[0]; MMC5BGVPage[(A) >> 10] = MMC5BGVPage[((A) >> 10) + 1] = &CHRptr[0][(V) << 11] - (A);
+=======
+	if (CHRptr[0]) {
+		V &= CHRmask2[0]; MMC5SPRVPage[A >> 10] = MMC5SPRVPage[(A >> 10) + 1] = &CHRptr[0][V << 11] - A;
+	}
+}
+
+static INLINE void MMC5BGVROM_BANK2(uint32 A, uint32 V) {
+	if (CHRptr[0]) {
+		V &= CHRmask2[0]; MMC5BGVPage[A >> 10] = MMC5BGVPage[(A >> 10) + 1] = &CHRptr[0][V << 11] - A;
+	}
+>>>>>>> 7b06ddc4 (Update libretro.c)
 }
 
 static INLINE void MMC5SPRVROM_BANK4(uint32_t A, uint32_t V) {
 	if (CHRptr[0]) {
-		V &= CHRmask4[0]; MMC5SPRVPage[(A) >> 10] = MMC5SPRVPage[((A) >> 10) + 1] = MMC5SPRVPage[((A) >> 10) + 2] = MMC5SPRVPage[((A) >> 10) + 3] = &CHRptr[0][(V) << 12] - (A);
+		V &= CHRmask4[0]; MMC5SPRVPage[A >> 10] = MMC5SPRVPage[(A >> 10) + 1] = MMC5SPRVPage[(A >> 10) + 2] = MMC5SPRVPage[(A >> 10) + 3] = &CHRptr[0][V << 12] - A;
 	}
 }
+<<<<<<< HEAD
 static INLINE void MMC5BGVROM_BANK4(uint32_t A, uint32_t V) {
+=======
+
+static INLINE void MMC5BGVROM_BANK4(uint32 A, uint32 V) {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	if (CHRptr[0]) {
-		V &= CHRmask4[0]; MMC5BGVPage[(A) >> 10] = MMC5BGVPage[((A) >> 10) + 1] = MMC5BGVPage[((A) >> 10) + 2] = MMC5BGVPage[((A) >> 10) + 3] = &CHRptr[0][(V) << 12] - (A);
+		V &= CHRmask4[0]; MMC5BGVPage[A >> 10] = MMC5BGVPage[(A >> 10) + 1] = MMC5BGVPage[(A >> 10) + 2] = MMC5BGVPage[(A >> 10) + 3] = &CHRptr[0][V << 12] - A;
 	}
 }
 
 static INLINE void MMC5SPRVROM_BANK8(uint32_t V) {
 	if (CHRptr[0]) {
-		V &= CHRmask8[0]; MMC5SPRVPage[0] = MMC5SPRVPage[1] = MMC5SPRVPage[2] = MMC5SPRVPage[3] = MMC5SPRVPage[4] = MMC5SPRVPage[5] = MMC5SPRVPage[6] = MMC5SPRVPage[7] = &CHRptr[0][(V) << 13];
+		V &= CHRmask8[0]; MMC5SPRVPage[0] = MMC5SPRVPage[1] = MMC5SPRVPage[2] = MMC5SPRVPage[3] = MMC5SPRVPage[4] = MMC5SPRVPage[5] = MMC5SPRVPage[6] = MMC5SPRVPage[7] = &CHRptr[0][V << 13];
 	}
 }
+<<<<<<< HEAD
 static INLINE void MMC5BGVROM_BANK8(uint32_t V) {
+=======
+
+static INLINE void MMC5BGVROM_BANK8(uint32 V) {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	if (CHRptr[0]) {
-		V &= CHRmask8[0]; MMC5BGVPage[0] = MMC5BGVPage[1] = MMC5BGVPage[2] = MMC5BGVPage[3] = MMC5BGVPage[4] = MMC5BGVPage[5] = MMC5BGVPage[6] = MMC5BGVPage[7] = &CHRptr[0][(V) << 13];
+		V &= CHRmask8[0]; MMC5BGVPage[0] = MMC5BGVPage[1] = MMC5BGVPage[2] = MMC5BGVPage[3] = MMC5BGVPage[4] = MMC5BGVPage[5] = MMC5BGVPage[6] = MMC5BGVPage[7] = &CHRptr[0][V << 13];
 	}
 }
 
@@ -100,16 +124,46 @@ static uint8_t MMC5LineCounter;
 static uint8_t mmc5psize, mmc5vsize;
 static uint8_t mul[2];
 
+<<<<<<< HEAD
 static uint32_t WRAMSIZE = 0;
 static uint8_t *WRAM = NULL;
 static uint8_t *MMC5fill = NULL;
 static uint8_t *ExRAM = NULL;
+=======
+static uint8 *MMC5fill = NULL;
+static uint8 *ExRAM = NULL;
+static uint8 MMC5battery = 0;
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
 static uint8_t MMC5WRAMsize; /* configuration, not state */
 static uint8_t MMC5WRAMIndex[8]; /* configuration, not state */
 
 static uint8_t MMC5ROMWrProtect[4];
 static uint8_t MMC5MemIn[5];
+
+static SFORMAT MMC5_StateRegs[] = {
+	{ PRGBanks, 4, "PREG" },
+	{ CHRBanksA, 16, "CHRA" },
+	{ CHRBanksB, 8, "CHRB" },
+	{ &WRAMPage, 1, "WRMP" },
+	{ WRAMMaskEnable, 2, "WRMK" },
+	{ &mmc5ABMode, 1, "ABMD" },
+	{ &IRQScanline, 1, "IRQS" },
+	{ &IRQEnable, 1, "IRQE" },
+	{ &CHRMode, 1, "CHRM" },
+	{ &NTAMirroring, 1, "NTAM" },
+	{ &NTFill, 1, "NTFL" },
+	{ &ATFill, 1, "ATFL" },
+	{ &MMC5IRQR, 1, "IRQR" },
+	{ &MMC5LineCounter, 1, "LCTR" },
+	{ &mmc5psize, 1, "PSIZ" },
+	{ &mmc5vsize, 1, "VSIZ" },
+	{ mul, 2, "MUL0" },
+	{ MMC5ROMWrProtect, 4, "PROT" },
+	{ MMC5MemIn, 5, "MEMN" },
+
+	{ 0 }
+};
 
 static void MMC5CHRA(void);
 static void MMC5CHRB(void);
@@ -154,7 +208,7 @@ static void MMC5CHRA(void) {
 		for (x = 0; x < 8; x++) {
 			setchr1(x << 10, CHRBanksA[x]);
 			MMC5SPRVROM_BANK1(x << 10, CHRBanksA[x]);
-	}
+		}
 		break;
 	}
 }
@@ -186,7 +240,7 @@ static void MMC5CHRB(void) {
 		for (x = 0; x < 8; x++) {
 			setchr1(x << 10, CHRBanksB[x & 3]);
 			MMC5BGVROM_BANK1(x << 10, CHRBanksB[x & 3]);
-	}
+		}
 		break;
 	}
 }
@@ -201,8 +255,9 @@ static void MMC5WRAM(uint32 A, uint32 V) {
 		setprg8r(0x10, A, V);
 		FCEU_CheatAddRAM(8, 0x6000, (WRAM + ((V * 8192) & (WRAMSIZE - 1))));
 		MMC5MemIn[(A - 0x6000) >> 13] = 1;
-	} else
+	} else {
 		MMC5MemIn[(A - 0x6000) >> 13] = 0;
+	}
 }
 
 static void MMC5PRG(void) {
@@ -210,9 +265,10 @@ static void MMC5PRG(void) {
 	switch (mmc5psize & 3) {
 	case 0:
 		MMC5ROMWrProtect[0] = MMC5ROMWrProtect[1] = MMC5ROMWrProtect[2] = MMC5ROMWrProtect[3] = 1;
-		setprg32(0x8000, ((PRGBanks[1] & 0x7F) >> 2));
-		for (x = 0; x < 4; x++)
+		setprg32(0x8000, ((PRGBanks[3] & 0x7F) >> 2));
+		for (x = 0; x < 4; x++) {
 			MMC5MemIn[1 + x] = 1;
+		}
 		break;
 	case 1:
 		if (PRGBanks[1] & 0x80) {
@@ -251,7 +307,7 @@ static void MMC5PRG(void) {
 		setprg8(0xE000, PRGBanks[3] & 0x7F);
 		break;
 	case 3:
-		for (x = 0; x < 3; x++)
+		for (x = 0; x < 3; x++) {
 			if (PRGBanks[x] & 0x80) {
 				MMC5ROMWrProtect[x] = 1;
 				setprg8(0x8000 + (x << 13), PRGBanks[x] & 0x7F);
@@ -260,6 +316,7 @@ static void MMC5PRG(void) {
 				MMC5ROMWrProtect[x] = 0;
 				MMC5WRAM(0x8000 + (x << 13), PRGBanks[x] & 7);
 			}
+		}
 		MMC5MemIn[4] = 1;
 		MMC5ROMWrProtect[3] = 1;
 		setprg8(0xE000, PRGBanks[3] & 0x7F);
@@ -267,6 +324,7 @@ static void MMC5PRG(void) {
 	}
 }
 
+<<<<<<< HEAD
 static void Mapper5_write(uint32 A, uint8 V) {
 	switch (A) {
 		case 0x5100:
@@ -400,9 +458,10 @@ static uint8 MMC5_read(uint32 A) {
 }
 
 static void MMC5Synco(void) {
+=======
+static void MMC5MIRR(void) {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	int x;
-
-	MMC5PRG();
 	for (x = 0; x < 4; x++) {
 		switch ((NTAMirroring >> (x << 1)) & 3) {
 		case 0: PPUNTARAM |= 1 << x; vnapage[x] = NTARAM; break;
@@ -411,6 +470,163 @@ static void MMC5Synco(void) {
 		case 3: PPUNTARAM &= ~(1 << x); vnapage[x] = MMC5fill; break;
 		}
 	}
+}
+
+DECLFW(Mapper5_write) {
+	switch (A) {
+	case 0x5100:
+		mmc5psize = V;
+		MMC5PRG();
+		break;
+	case 0x5101:
+		mmc5vsize = V;
+		if (!mmc5ABMode) {
+			MMC5CHRB();
+			MMC5CHRA();
+		} else {
+			MMC5CHRA();
+			MMC5CHRB();
+		}
+		break;
+	case 0x5102:
+		WRAMMaskEnable[0] = V;
+		break;
+	case 0x5103:
+		WRAMMaskEnable[1] = V;
+		break;
+	case 0x5104:
+		CHRMode = V;
+		MMC5HackCHRMode = V & 3;
+		break;
+	case 0x5105:
+		NTAMirroring = V;
+		MMC5MIRR();
+		break;
+	case 0x5106:
+		if (V != NTFill) {
+			FCEU_dwmemset(MMC5fill, (V | (V << 8) | (V << 16) | (V << 24)), 0x3c0);
+		}
+		NTFill = V;
+		break;
+	case 0x5107:
+		if (V != ATFill) {
+			unsigned char moop = V | (V << 2) | (V << 4) | (V << 6);
+			FCEU_dwmemset(MMC5fill + 0x3c0, moop | (moop << 8) | (moop << 16) | (moop << 24), 0x40);
+		}
+		ATFill = V;
+		break;
+	case 0x5113:
+		WRAMPage = V;
+		MMC5WRAM(0x6000, V & 7);
+		break;
+	case 0x5114:
+	case 0x5115:
+	case 0x5116:
+	case 0x5117:
+		PRGBanks[A & 3] = V;
+		MMC5PRG();
+		break;
+	case 0x5120:
+	case 0x5121:
+	case 0x5122:
+	case 0x5123:
+	case 0x5124:
+	case 0x5125:
+	case 0x5126:
+	case 0x5127:
+		mmc5ABMode = 0;
+		CHRBanksA[A & 7] = V | ((MMC50x5130 & 0x3) << 8);
+		MMC5CHRA();
+		break;
+	case 0x5128:
+	case 0x5129:
+	case 0x512a:
+	case 0x512b:
+		mmc5ABMode = 1;
+		CHRBanksB[A & 3] = V | ((MMC50x5130 & 0x3) << 8);
+		MMC5CHRB();
+		break;
+	case 0x5130:
+		MMC50x5130 = V;
+		break;
+	case 0x5200:
+		MMC5HackSPMode = V;
+		break;
+	case 0x5201:
+		MMC5HackSPScroll = (V >> 3) & 0x1F;
+		break;
+	case 0x5202:
+		MMC5HackSPPage = V & 0x3F;
+		break;
+	case 0x5203:
+		X6502_IRQEnd(FCEU_IQEXT);
+		IRQScanline = V;
+		break;
+	case 0x5204:
+		X6502_IRQEnd(FCEU_IQEXT);
+		IRQEnable = V & 0x80;
+		break;
+	case 0x5205:
+		mul[0] = V;
+		break;
+	case 0x5206:
+		mul[1] = V;
+		break;
+	}
+}
+
+static DECLFR(MMC5_ReadROMRAM) {
+	if (MMC5MemIn[(A - 0x6000) >> 13]) {
+		return Page[A >> 11][A];
+	}
+	return cpu.openbus;
+}
+
+static DECLFW(MMC5_WriteROMRAM) {
+	if ((A >= 0x8000) && (MMC5ROMWrProtect[(A - 0x8000) >> 13])) {
+		return;
+	}
+	if (MMC5MemIn[(A - 0x6000) >> 13]) {
+		if (((WRAMMaskEnable[0] & 3) | ((WRAMMaskEnable[1] & 3) << 2)) == 6) {
+			Page[A >> 11][A] = V;
+		}
+	}
+}
+
+DECLFW(MMC5_ExRAMWr) {
+	if (MMC5HackCHRMode != 3) {
+		ExRAM[A & 0x3ff] = V;
+	}
+}
+
+static DECLFR(MMC5_ExRAMRd) {
+	return ExRAM[A & 0x3ff];
+}
+
+static DECLFR(MMC5_read) {
+	uint8 ret = cpu.openbus;
+	switch (A) {
+	case 0x5204:
+		X6502_IRQEnd(FCEU_IQEXT);
+		ret = MMC5IRQR;
+#ifdef FCEUDEF_DEBUGGER
+		if (!fceuindbg)
+#endif
+			MMC5IRQR &= 0x40;
+		return ret;
+	case 0x5205:
+		return ((uint32)(mul[0] * mul[1]) & 0xFF);
+	case 0x5206:
+		return ((uint32)(mul[0] * mul[1]) >> 8);
+	}
+	return ret;
+}
+
+static void MMC5Synco(void) {
+	uint8 moop;
+
+	MMC5PRG();
+	MMC5MIRR();
 	MMC5WRAM(0x6000, WRAMPage & 7);
 	if (!mmc5ABMode) {
 		MMC5CHRB();
@@ -422,10 +638,8 @@ static void MMC5Synco(void) {
 
 	/* in case the fill register changed, we need to overwrite the fill buffer */
 	FCEU_dwmemset(MMC5fill, NTFill | (NTFill << 8) | (NTFill << 16) | (NTFill << 24), 0x3c0);
-	{
-		unsigned char moop = ATFill | (ATFill << 2) | (ATFill << 4) | (ATFill << 6);
-		FCEU_dwmemset(MMC5fill + 0x3c0, moop | (moop << 8) | (moop << 16) | (moop << 24), 0x40);
-	}
+	moop = ATFill | (ATFill << 2) | (ATFill << 4) | (ATFill << 6);
+	FCEU_dwmemset(MMC5fill + 0x3c0, moop | (moop << 8) | (moop << 16) | (moop << 24), 0x40);
 
 	MMC5HackCHRMode = CHRMode & 3;
 
@@ -435,15 +649,20 @@ static void MMC5Synco(void) {
 	 /* X6502_IRQEnd(FCEU_IQEXT); */
 }
 
+<<<<<<< HEAD
 void MMC5_hb(int sl_param);
 void MMC5_hb(int sl_param) {
 	/* zero 24-jul-2014 - revised for newer understanding, to fix metal slader glory credits. see r7371 in bizhawk */
 	
 	int sl = sl_param + 1;
+=======
+void MMC5_hb(int cur_scanline) {
+	/* zero 24-jul-2014 - revised for newer understanding, to fix metal slader glory credits. see r7371 in bizhawk */
+	int sl = cur_scanline + 1;
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	int ppuon = (PPU[1] & 0x18);
 
-	if (!ppuon || sl >= 241)
-	{
+	if (!ppuon || sl >= 241) {
 		/* whenever rendering is off for any reason (vblank or forced disable
 		 * the irq counter resets, as well as the inframe flag (easily verifiable from software)
 		 */
@@ -454,30 +673,27 @@ void MMC5_hb(int sl_param) {
 		return;
 	}
 
-	if (!(MMC5IRQR&0x40))
-	{
+	if (!(MMC5IRQR & 0x40)) {
 		MMC5IRQR |= 0x40;
 		MMC5IRQR &= ~0x80;
 		MMC5LineCounter = 0;
 		X6502_IRQEnd(FCEU_IQEXT);
-	}
-	else
-	{
+	} else {
 		MMC5LineCounter++;
-		if (MMC5LineCounter == IRQScanline)
-		{
+		if (MMC5LineCounter == IRQScanline) {
 			MMC5IRQR |= 0x80;
-			if (IRQEnable & 0x80)
+			if (IRQEnable & 0x80) {
 				X6502_IRQBegin(FCEU_IQEXT);
+			}
 		}
 	}
-
 }
 
 static void MMC5_StateRestore(int version) {
 	MMC5Synco();
 }
 
+<<<<<<< HEAD
 typedef struct {
 	uint16_t wl[2];
 	uint8_t env[2];
@@ -700,17 +916,44 @@ static void GenMMC5_Close(void) {
 }
 
 static void GenMMC5Reset(void) {
+=======
+static void GenMMC5Power(void) {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	int x;
+	uint8 nval;
+	uint8 aval;
 
 	for (x = 0; x < 4; x++) PRGBanks[x] = ~0;
 	for (x = 0; x < 8; x++) CHRBanksA[x] = ~0;
 	for (x = 0; x < 4; x++) CHRBanksB[x] = ~0;
-	WRAMMaskEnable[0] = WRAMMaskEnable[1] = ~0;
+	for (x = 0; x < 2; x++) WRAMMaskEnable[x] = ~0;
+	for (x = 0; x < 4; x++) MMC5ROMWrProtect[x] = 0;
+	for (x = 0; x < 5; x++) MMC5MemIn[x] = 0;
+	for (x = 0; x < 2; x++) mul[x] = 0;
 
-	mmc5psize = mmc5vsize = 3;
+	WRAMPage = 0;
 	CHRMode = 0;
+	mmc5ABMode = 0;
+	mmc5psize = mmc5vsize = 3;
+
+	IRQScanline = 0;
+	IRQEnable = 0;
+	MMC5IRQR = 0;
+	MMC5LineCounter = 0;
 
 	NTAMirroring = NTFill = ATFill = 0xFF;
+
+	/* MMC5fill is and 8-bit tile index, and a 2-bit attribute implented as a mirrored nametable */
+	nval = MMC5fill[0x000];
+	aval = MMC5fill[0x3C0] & 3; aval = aval | (aval << 2) | (aval << 4) | (aval << 6);
+	FCEU_dwmemset(MMC5fill + 0x000, nval | (nval<<8) | (nval<<16) | (nval<<24), 0x3C0);
+	FCEU_dwmemset(MMC5fill + 0x3C0, aval | (aval<<8) | (aval<<16) | (aval<<24), 0x040);
+
+	if (MMC5battery == 0) {
+		FCEU_MemoryRand(WRAM, MMC5WRAMsize * 8 * 1024);
+		FCEU_MemoryRand(MMC5fill, 1024);
+		FCEU_MemoryRand(ExRAM, 1024);
+	}
 
 	MMC5Synco();
 
@@ -723,7 +966,7 @@ static void GenMMC5Reset(void) {
 	SetWriteHandler(0x6000, 0xFFFF, MMC5_WriteROMRAM);
 	SetReadHandler(0x6000, 0xFFFF, MMC5_ReadROMRAM);
 
-	SetWriteHandler(0x5000, 0x5015, Mapper5_SW);
+	SetWriteHandler(0x5000, 0x5015, MMC5Sound_Write);
 	SetWriteHandler(0x5205, 0x5206, Mapper5_write);
 	SetReadHandler(0x5205, 0x5206, MMC5_read);
 
@@ -732,89 +975,27 @@ static void GenMMC5Reset(void) {
 	FCEU_CheatAddRAM(1, 0x5c00, ExRAM);
 }
 
-/* TODO: Clean this up. State variables are expanded for
- * big-endian compatibility when saving and loading states */
-static SFORMAT MMC5_StateRegs[] = {
-	{ &PRGBanks[0], 1, "PRG1" },
-	{ &PRGBanks[1], 1, "PRG2" },
-	{ &PRGBanks[2], 1, "PRG3" },
-	{ &PRGBanks[3], 1, "PRG4" },
-
-	{ &CHRBanksA[0], 2 | FCEUSTATE_RLSB, "CRA1" },
-	{ &CHRBanksA[1], 2 | FCEUSTATE_RLSB, "CRA2" },
-	{ &CHRBanksA[2], 2 | FCEUSTATE_RLSB, "CRA3" },
-	{ &CHRBanksA[3], 2 | FCEUSTATE_RLSB, "CRA4" },
-	{ &CHRBanksA[4], 2 | FCEUSTATE_RLSB, "CRA5" },
-	{ &CHRBanksA[5], 2 | FCEUSTATE_RLSB, "CRA6" },
-	{ &CHRBanksA[6], 2 | FCEUSTATE_RLSB, "CRA7" },
-	{ &CHRBanksA[7], 2 | FCEUSTATE_RLSB, "CRA8" },
-
-	{ &CHRBanksB[0], 2 | FCEUSTATE_RLSB, "CRB1" },
-	{ &CHRBanksB[1], 2 | FCEUSTATE_RLSB, "CRB2" },
-	{ &CHRBanksB[2], 2 | FCEUSTATE_RLSB, "CRB3" },
-	{ &CHRBanksB[3], 2 | FCEUSTATE_RLSB, "CRB4" },
-
-	{ &WRAMPage, 1, "WRMP" },
-	{ &WRAMMaskEnable[0], 1, "WRM1" },
-	{ &WRAMMaskEnable[1], 1, "WRM2" },
-	{ &mmc5ABMode, 1, "ABMD" },
-	{ &IRQScanline, 1, "IRQS" },
-	{ &IRQEnable, 1, "IRQE" },
-	{ &CHRMode, 1, "CHRM" },
-	{ &NTAMirroring, 1, "NTAM" },
-	{ &NTFill, 1, "NTFL" },
-	{ &ATFill, 1, "ATFL" },
-
-	/* zero 17-apr-2013 - added */
-	{ &MMC5IRQR, 1, "IRQR" },
-	{ &MMC5LineCounter, 1, "LCTR" },
-	{ &mmc5psize, 1, "PSIZ" },
-	{ &mmc5vsize, 1, "VSIZ" },
-
-	{ &mul[0], 1, "MUL1" },
-	{ &mul[1], 1, "MUL2" },
-
-	{ &MMC5ROMWrProtect[0], 1, "WRP1" },
-	{ &MMC5ROMWrProtect[1], 1, "WRP2" },
-	{ &MMC5ROMWrProtect[2], 1, "WRP3" },
-	{ &MMC5ROMWrProtect[3], 1, "WRP4" },
-
-	{ &MMC5MemIn[0], 1, "MMI1" },
-	{ &MMC5MemIn[1], 1, "MMI2" },
-	{ &MMC5MemIn[2], 1, "MMI3" },
-	{ &MMC5MemIn[3], 1, "MMI4" },
-	{ &MMC5MemIn[4], 1, "MMI5" },
-
-	{ &MMC5Sound.wl[0], 2 | FCEUSTATE_RLSB, "SDW0" },
-	{ &MMC5Sound.wl[1], 2 | FCEUSTATE_RLSB, "SDW1" },
-	{ &MMC5Sound.env[0], 1, "SEV1" },
-	{ &MMC5Sound.env[1], 1, "SEV2" },
-	{ &MMC5Sound.enable, 1, "SDEN" },
-	{ &MMC5Sound.running, 1, "SDRU" },
-	{ &MMC5Sound.raw, 1, "SDRW" },
-	{ &MMC5Sound.rawcontrol, 1, "SDRC" },
-
-	/* zero 17-apr-2013 - added */
-	{ &MMC5Sound.dcount[0], 4 | FCEUSTATE_RLSB, "DCT0" },
-	{ &MMC5Sound.dcount[1], 4 | FCEUSTATE_RLSB, "DCT1" },
-	{ &MMC5Sound.BC[0], 4 | FCEUSTATE_RLSB, "BC00" },
-	{ &MMC5Sound.BC[1], 4 | FCEUSTATE_RLSB, "BC01" },
-	{ &MMC5Sound.BC[2], 4 | FCEUSTATE_RLSB, "BC02" },
-	{ &MMC5Sound.vcount[0], 4 | FCEUSTATE_RLSB, "VCT0" },
-	{ &MMC5Sound.vcount[1], 4 | FCEUSTATE_RLSB, "VCT1" },
-
-	{ 0 }
-};
-
 static void GenMMC5_Init(CartInfo *info, int wsize, int battery) {
 	if (wsize) {
+<<<<<<< HEAD
 		WRAM = (uint8_t*)FCEU_gmalloc(wsize * 1024);
+=======
+		WRAM = (uint8 *)FCEU_gmalloc(wsize * 1024);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 		SetupCartPRGMapping(0x10, WRAM, wsize * 1024, 1);
 		AddExState(WRAM, wsize * 1024, 0, "WRAM");
 	}
 
+<<<<<<< HEAD
 	MMC5fill = (uint8_t*)FCEU_gmalloc(1024);
 	ExRAM = (uint8_t*)FCEU_gmalloc(1024);
+=======
+	MMC5fill = (uint8 *)FCEU_gmalloc(1024);
+	ExRAM = (uint8 *)FCEU_gmalloc(1024);
+
+	FCEU_MemoryRand(MMC5fill, 1024);
+	FCEU_MemoryRand(ExRAM, 1024);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
 	AddExState(ExRAM, 1024, 0, "ERAM");
 	AddExState(&MMC5HackSPMode, 1, 0, "SPLM");
@@ -826,11 +1007,25 @@ static void GenMMC5_Init(CartInfo *info, int wsize, int battery) {
 	MMC5WRAMsize = wsize ? (wsize / 8) : 0;
 	BuildWRAMSizeTable();
 	GameStateRestore = MMC5_StateRestore;
+<<<<<<< HEAD
 	info->Power = GenMMC5Reset;
 	info->Close = GenMMC5_Close;
+=======
+	info->Power = GenMMC5Power;
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
+	MMC5battery = battery;
 	if (battery) {
+		uint32 saveramsize;
+		if (info->iNES2) {
+			saveramsize = info->PRGRamSaveSize;
+		} else {
+			if (wsize <= 16) saveramsize = 8 * 1024;
+			else if (wsize >= 64) saveramsize = 64 * 1024;
+			else saveramsize = 32 * 1024;
+		}
 		info->SaveGame[0] = WRAM;
+<<<<<<< HEAD
 		if (info->iNES2 && info->PRGRamSaveSize)
 			/* NES 2.0 declares the battery-backed size explicitly; honor it
 			 * (clamped to the allocation) so larger homebrew configurations
@@ -843,18 +1038,23 @@ static void GenMMC5_Init(CartInfo *info, int wsize, int battery) {
 			info->SaveGameLen[0] = 8192;
 		else
 			info->SaveGameLen[0] = 32768;
+=======
+		info->SaveGameLen[0] = saveramsize;
+>>>>>>> e257e4ba (Update libretro.c)
 	}
 
 	MMC5HackVROMMask = CHRmask4[0];
 	MMC5HackExNTARAMPtr = ExRAM;
-	MMC5Hack = 1;
+	MMC5Hack = TRUE;
 	MMC5HackVROMPTR = CHRptr[0];
 	MMC5HackCHRMode = 0;
 	MMC5HackSPMode = MMC5HackSPScroll = MMC5HackSPPage = 0;
-	Mapper5_ESI();
+
+	MMC5Sound_ESI();
+	MMC5Sound_AddStateInfo();
 }
 
-void Mapper5_Init(CartInfo *info) {
+void Mapper005_Init(CartInfo *info) {
 	WRAMSIZE = 64;
 	if (info->iNES2) {
 		WRAMSIZE = (info->PRGRamSize + info->PRGRamSaveSize) / 1024;

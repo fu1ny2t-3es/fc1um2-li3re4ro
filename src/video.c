@@ -34,28 +34,42 @@
 #include "nsf.h"
 #include "input.h"
 #include "vsuni.h"
+#include "ppu.h"
 
+<<<<<<< HEAD
 uint8_t *XBuf = NULL;
 uint8_t *XDBuf = NULL;
 int show_crosshair = 0;
+=======
+uint8 *XBuf = NULL;
+uint8 *XDBuf = NULL;
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
 void FCEU_KillVirtualVideo(void)
 {
 	if (XBuf)
-		free(XBuf);
-   XBuf = 0;
+		FCEU_afree(XBuf);
+   XBuf = NULL;
    if (XDBuf)
-		free(XDBuf);
-   XDBuf = 0;
+		FCEU_afree(XDBuf);
+   XDBuf = NULL;
 }
 
 int FCEU_InitVirtualVideo(void)
 {
+   if (XBuf) return 1;
+
    /* 256 bytes per scanline, * 240 scanline maximum, +8 for alignment, */
    if (!XBuf)
+<<<<<<< HEAD
       XBuf = (uint8_t*)(FCEU_malloc(256 * (256 + extrascanlines + 8)));
    if (!XDBuf)
       XDBuf = (uint8_t*)(FCEU_malloc(256 * (256 + extrascanlines + 8)));
+=======
+      XBuf = (uint8*)FCEU_amalloc(256 * 256);
+   if (!XDBuf)
+      XDBuf = (uint8*)FCEU_amalloc(256 * 256);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
    if (!XBuf || !XDBuf)
    {
@@ -65,15 +79,21 @@ int FCEU_InitVirtualVideo(void)
       return 0;
    }
 
+<<<<<<< HEAD
    memset(XBuf, 128, 256 * (256 + extrascanlines + 8));
 <<<<<<< HEAD
    memset(XDBuf, 0, 256 * (256 + extrascanlines + 8));
 =======
    memset(XDBuf, 0,  256 * (256 + extrascanlines + 8));
 >>>>>>> cff6c9b (More backports for PPU and video)
+=======
+   memset(XBuf, 0, 256 * 256);
+   memset(XDBuf, 0, 256 * 256);
+>>>>>>> 63229ff (Update libretro.c)
    return 1;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 #include "drawing.h"
 
@@ -113,4 +133,23 @@ void FCEU_DispMessage(enum retro_log_level level, unsigned duration, const char 
    va_end(ap);
 
    FCEUD_DispMessage(level, duration, msg);
+=======
+void FCEU_PutImage(void)
+{
+	if (GameInfo->type == GIT_NSF)
+		DrawNSF(XBuf);
+   else
+   {
+		if (GameInfo->type == GIT_VSUNI)
+			FCEU_VSUniDraw(XBuf);
+	}
+	if (FSettings.ShowCrosshair)
+		FCEU_DrawInput(XBuf);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 }
+
+#ifdef FRAMESKIP
+void FCEU_PutImageDummy(void)
+{
+}
+#endif

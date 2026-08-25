@@ -1,7 +1,7 @@
 /* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2020
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static uint8_t dip;
 
 static void Mapper134_PRGWrap(uint32_t A, uint8_t V) {
@@ -64,26 +65,87 @@ static void Mapper134_Write(uint32 A, uint8 V) {
 	if ((A &3) ==2) {
 		EXPREGS[A &3] =EXPREGS[A &3] &~3 | V &3;
 		FixMMC3CHR(MMC3_cmd);
+=======
+static uint8 reg[4];
+static uint8 dipsw;
+
+static SFORMAT StateRegs[] = {
+	{ reg, 4, "REGS" },
+	{ &dipsw, 1, "DPSW" },
+	{ 0 }
+};
+
+static void M134PW(uint16 A, uint16 V) {
+	uint16 mask = (reg[1] & 0x04) ? 0x0F : 0x1F;
+	uint16 base = ((reg[1] << 4) & 0x30) | ((reg[0] << 2) & 0x40);
+
+	if (reg[1] & 0x80) { /* NROM mode */
+		if (reg[1] & 0x08) { /* NROM-128 mode */
+			setprg8(0x8000, (base & ~mask) | ((mmc3.reg[6] & mask) & ~1) | 0);
+			setprg8(0xA000, (base & ~mask) | ((mmc3.reg[6] & mask) & ~1) | 1);
+			setprg8(0xC000, (base & ~mask) | ((mmc3.reg[6] & mask) & ~1) | 0);
+			setprg8(0xE000, (base & ~mask) | ((mmc3.reg[6] & mask) & ~1) | 1);
+		} else { /* NROM-256 mode */
+			setprg8(0x8000, (base & ~mask) | (((mmc3.reg[6] & ~0x02) & mask) & ~1) | 0);
+			setprg8(0xA000, (base & ~mask) | (((mmc3.reg[6] & ~0x02) & mask) & ~1) | 1);
+			setprg8(0xC000, (base & ~mask) | (((mmc3.reg[6] |  0x02) & mask) & ~1) | 0);
+			setprg8(0xE000, (base & ~mask) | (((mmc3.reg[6] |  0x02) & mask) & ~1) | 1);
+		}
+	} else { /* MMC3 */
+		setprg8(A, (base & ~mask) | (V & mask));
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	}
-	CartBW(A, V);
 }
 
-static void Mapper134_Reset(void) {
-	dip++;
-	dip &= 15;
-	EXPREGS[0] =EXPREGS[1] =EXPREGS[2] =EXPREGS[3] =0;
-	MMC3RegReset();
+static void M134CW(uint16 A, uint16 V) {
+	uint16 mask = (reg[1] & 0x40) ? 0x7F : 0xFF;
+	uint16 base = ((reg[1] << 3) & 0x180) | ((reg[0] << 4) & 0x200);
+
+	if (reg[0] & 0x08) { /* In CNROM mode, outer bank register 2 replaces the MMC3's CHR registers, and CHR A10-A12 are PPU A10-A12. */
+		setchr8(((base & ~mask) >> 3) | (reg[2] & (mask >> 3)));
+	} else {
+		setchr1(A, (base & ~mask) | (V & mask));
+	}
 }
 
-static void Mapper134_Power(void) {
-	dip =0;
-	EXPREGS[0] =EXPREGS[1] =EXPREGS[2] =EXPREGS[3] =0;
-	GenMMC3Power();
-	SetWriteHandler(0x6000, 0x7FFF, Mapper134_Write);
-	SetReadHandler(0x8000, 0xFFFF, Mapper134_Read);
+static DECLFR(M134Read) {
+	if (reg[0] & 0x40) {
+		return dipsw;
+	}
+	return CartBR(A);
+}
+
+static DECLFW(M134Write) {
+	if (MMC3_WramIsWritable()) {
+		CartBW(A, V);
+		if (!(reg[0] & 0x80)) {
+			reg[A & 0x03] = V;
+			MMC3_FixPRG();
+			MMC3_FixCHR();
+		} else if ((A & 0x03) == 2) {
+			reg[2] = (reg[2] & ~0x03) | (V & 0x03);
+			MMC3_FixCHR();
+		}
+	}
+}
+
+static void M134Reset(void) {
+	dipsw++;
+	dipsw &= 15;
+	reg[0] = reg[1] = reg[2] = reg[3] = 0;
+	MMC3_Reset();
+}
+
+static void M134Power(void) {
+	dipsw = 0;
+	reg[0] = reg[1] = reg[2] = reg[3] = 0;
+	MMC3_Power();
+	SetWriteHandler(0x6000, 0x7FFF, M134Write);
+	SetReadHandler(0x8000, 0xFFFF, M134Read);
 }
 
 void Mapper134_Init(CartInfo *info) {
+<<<<<<< HEAD
 	GenMMC3_Init(info, 256, 256, CartInfo_PRGRAM_bytes(info, 8 * 1024) / 1024, info->battery);
 	cwrap = Mapper134_CHRWrap;
 	pwrap = Mapper134_PRGWrap;
@@ -91,4 +153,12 @@ void Mapper134_Init(CartInfo *info) {
 	info->Reset = Mapper134_Reset;
 	AddExState(EXPREGS, 4, 0, "EXPR");
 	AddExState(&dip, 1, 0, "DIPS");
+=======
+	MMC3_Init(info, info->iNES2 ? (info->PRGRamSize + info->PRGRamSaveSize) / 1024 : 8, info->battery);
+	MMC3_cwrap = M134CW;
+	MMC3_pwrap = M134PW;
+	info->Power = M134Power;
+	info->Reset = M134Reset;
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 }
