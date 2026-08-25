@@ -39,6 +39,7 @@ static uint8 Read(int w, uint8 ret) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) Write(uint8_t V) {
 	bs = bss;
 }
@@ -47,6 +48,11 @@ static void FP_FASTAPASS(2) Update(void *data, int arg) {
 	bss = *(uint8_t*)data;
 =======
 static void Write(uint8 V) { bs = bss; }
+=======
+static void Write(uint8 V) {
+	bs = bss;
+}
+>>>>>>> ae14339e (Update Makefile.libretro)
 
 static void Update(void *data, int arg) {
 	bss = *(uint8*)data;
@@ -57,4 +63,7 @@ static void Update(void *data, int arg) {
 
 static INPUTCFC TopRider = { Read, Write, 0, Update, 0, 0 };
 
-INPUTCFC *FCEU_InitTopRider(void) { return(&TopRider); }
+INPUTCFC *FCEU_InitTopRider(void) {
+	return(&TopRider);
+}
+

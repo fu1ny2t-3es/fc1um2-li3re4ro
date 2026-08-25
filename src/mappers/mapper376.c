@@ -1,7 +1,7 @@
 /* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2019 Libretro Team
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static void Mapper376CW(uint32_t A, uint8_t V) {
 	uint32_t base = (EXPREGS[0] &0x40? 0x080: 0x000) | (EXPREGS[1] &0x01? 0x100: 0x000);
 	setchr1(A, base | (V & 0x7F));
@@ -31,13 +32,37 @@ static void Mapper376PW(uint32_t A, uint8_t V) {
 	if (EXPREGS[0] & 0x80) {
 		if (EXPREGS[0] &0x20) {
 			if (A ==0x8000) setprg32(A, base >>1);
-		} else {
-			if (A ==0x8000 || A ==0xC000) setprg16(A, base);
-		}
-	} else
-		setprg8(A, (base << 1) | (V & 0x0F));
+=======
+static uint8 reg[2];
+
+static SFORMAT StateRegs[] = {
+	{ reg, 2, "REGS" },
+	{ 0 }
+};
+
+static void M376CW(uint16 A, uint16 V) {
+	uint16 base = ((reg[1] << 8) & 0x100) | ((reg[0] << 1) & 0x80);
+
+	setchr1(A, base | (V & 0x7F));
 }
 
+static void M376PW(uint16 A, uint16 V) {
+	uint16 base = ((reg[1] << 4) & 0x10) | ((reg[0] >> 3) & 0x08) | (reg[0] & 0x07);
+
+	if (reg[0] & 0x80) {
+		if (reg[0] & 0x20) {
+			setprg32(0x8000, base >> 1);
+>>>>>>> ae14339e (Update Makefile.libretro)
+		} else {
+			setprg16(0x8000, base);
+			setprg16(0xC000, base);
+		}
+	} else {
+		setprg8(A, ((base << 1) & ~0x0F) | (V & 0x0F));
+	}
+}
+
+<<<<<<< HEAD
 <<<<<<< HEAD
 static DECLFR(Mapper376Read) {
 	return EXPREGS[2];
@@ -75,4 +100,25 @@ void Mapper376_Init(CartInfo *info) {
 	info->Power = Mapper376Power;
 	info->Reset = Mapper376Reset;
 	AddExState(EXPREGS, 3, 0, "EXPR");
+=======
+static DECLFW(M376Write) {
+	reg[A & 0x01] = V;
+	MMC3_FixPRG();
+	MMC3_FixCHR();
+}
+
+static void M376Power(void) {
+	reg[0] = 0;
+	reg[1] = 0;
+	MMC3_Power();
+	SetWriteHandler(0x7000, 0x7FFF, M376Write);
+}
+
+void Mapper376_Init(CartInfo *info) {
+	MMC3_Init(info, 0, 0);
+	MMC3_pwrap = M376PW;
+	MMC3_cwrap = M376CW;
+	info->Power = M376Power;
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> a89d98ca (Update Makefile.libretro)
 }
