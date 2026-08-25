@@ -2,24 +2,20 @@
 #define _FCEUH
 
 #include "fceu-types.h"
+#include "file.h"
 
-/* Overclocking-related */
-extern unsigned overclock_enabled;
-extern unsigned overclocked;
-extern unsigned skip_7bit_overclocking;
-extern unsigned DMC_7bit;
-extern unsigned totalscanlines;
-extern unsigned normal_scanlines;
-extern unsigned extrascanlines;
-extern unsigned vblankscanlines;
+#define RAM_SIZE 0x800
+#define RAM_MASK (RAM_SIZE - 1)
 
-/* Region selection */
-extern unsigned isDendy;
+#define NES_WIDTH  256
+#define NES_HEIGHT 240
+#define NTSC_WIDTH 602
 
-/* Audio mods*/
-extern unsigned swapDuty; /* Swap bits 6 & 7 of $4000/$4004 to mimic bug
-                           * found on some famiclones/Dendy models.
-                           */
+extern int fceuindbg;
+void ResetGameLoaded(void);
+
+#define DECLFR(x) uint8 x(uint16 A)
+#define DECLFW(x) void x(uint16 A, uint8 V)
 
 <<<<<<< HEAD
 void ResetGameLoaded(void);
@@ -38,19 +34,26 @@ readfunc FASTAPASS(1) GetReadHandler(int32_t a);
 =======
 >>>>>>> 890412a8 (Simplify some functions)
 void FCEU_MemoryRand(uint8 *ptr, uint32 size);
+<<<<<<< HEAD
 void SetReadHandler(int32 start, int32 end, readfunc func);
 void SetWriteHandler(int32 start, int32 end, writefunc func);
 writefunc GetWriteHandler(int32 a);
 readfunc GetReadHandler(int32 a);
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void SetReadHandler(uint16 start, uint16 end, readfunc func);
+void SetWriteHandler(uint16 start, uint16 end, writefunc func);
+writefunc GetWriteHandler(uint16 a);
+readfunc GetReadHandler(uint16 a);
+>>>>>>> 5926d713 (Update libretro.c)
 
-int AllocGenieRW(void);
-void FlushGenieRW(void);
+void FCEU_ResetVidSys(void);
 
 void ResetMapping(void);
 void ResetNES(void);
 void PowerNES(void);
 
+<<<<<<< HEAD
 
 extern uint64_t timestampbase;
 extern uint32_t MMC5HackVROMMask;
@@ -64,6 +67,26 @@ extern uint8_t MMC5HackSPScroll;
 extern uint8_t MMC5HackSPPage;
 
 extern uint8_t RAM[0x800];
+=======
+extern uint64 timestampbase;
+extern uint32 MMC5HackVROMMask;
+extern uint8 *MMC5HackExNTARAMPtr;
+extern uint8 MMC5Hack;
+extern uint8 *MMC5HackVROMPTR;
+extern uint8 MMC5HackCHRMode;
+extern uint8 MMC5HackSPMode;
+extern uint8 MMC50x5130;
+extern uint8 MMC5HackSPScroll;
+extern uint8 MMC5HackSPPage;
+
+extern uint8 PEC586Hack;
+
+extern uint8 QTAIHack;
+extern uint8 qtramreg;
+extern uint8 QTRAM[0x800];
+
+extern uint8 *RAM;
+>>>>>>> 5926d713 (Update libretro.c)
 
 extern readfunc ARead[0x10000];
 extern writefunc BWrite[0x10000];
@@ -71,9 +94,9 @@ extern writefunc BWrite[0x10000];
 extern void (*GameInterface)(int h);
 extern void (*GameStateRestore)(int version);
 
-#define GI_RESETM2  1
-#define GI_POWER  2
-#define GI_CLOSE  3
+#define GI_RESETM2 1
+#define GI_POWER   2
+#define GI_CLOSE   3
 
 #include "git.h"
 extern FCEUGI *GameInfo;
@@ -82,12 +105,17 @@ extern FCEUGI *GameInfo;
 extern uint8_t PAL;
 =======
 extern uint8 isPAL;
+<<<<<<< HEAD
 >>>>>>> 0f4fda22 (Update libretro.c)
+=======
+extern uint8 isDendy;
+>>>>>>> 5926d713 (Update libretro.c)
 
 #include "driver.h"
 
 typedef struct {
 	int PAL;
+<<<<<<< HEAD
 	int SoundVolume;
 	int TriangleVolume;
 	int SquareVolume[2];
@@ -99,6 +127,11 @@ typedef struct {
 	                     * unscaled output and 0 = silence.  Default
 	                     * 256 leaves output bit-identical to builds
 	                     * predating issue #512. */
+=======
+
+	int volume[12]; /* master, nes apu and expansion audio */
+
+>>>>>>> 7ea689ab (Update libretro.c)
 	int GameGenie;
 
 	/* Current first and last rendered scanlines. */
@@ -110,9 +143,15 @@ typedef struct {
 	 */
 	int UsrFirstSLine[2];
 	int UsrLastSLine[2];
+<<<<<<< HEAD
 	uint32_t SndRate;
+=======
+
+	int SndRate;
+>>>>>>> 5926d713 (Update libretro.c)
 	int soundq;
 	int lowpass;
+<<<<<<< HEAD
 	int RemoveTriangleNoise;	/* Mute triangle channel when its period
 	                             * is low enough to produce only ultrasonic
 	                             * output (period <= 3, > ~12 kHz at NTSC),
@@ -135,12 +174,28 @@ typedef struct {
 	                             * NOT affected.  Default off so the DAC
 	                             * trajectory is bit-exact when the
 	                             * option is not set. */
+=======
+
+	int SwapDutyCycles;
+	int RamInitState;
+	int ShowCrosshair;
+	int ReplaceP2StartWithMicrophone;
+	int PPUOverclockEnabled;
+	int SkipDMC7BitOverclock;
+	int ReduceDMCPopping;
+>>>>>>> 7ea689ab (Update libretro.c)
 } FCEUS;
 
 extern FCEUS FSettings;
 
+<<<<<<< HEAD
 void FCEU_PrintError(const char *format, ...);
 void FCEU_printf(const char *format, ...);
+=======
+void FCEU_PrintError(char *format, ...); /* warning level messages */
+void FCEU_PrintDebug(char *format, ...); /* debug level messages */
+void FCEU_printf(char *format, ...);     /* normal messages */
+>>>>>>> 5926d713 (Update libretro.c)
 
 <<<<<<< HEAD
 void SetNESDeemph(uint8_t d, int force);
@@ -148,6 +203,7 @@ void DrawTextTrans(uint8_t *dest, uint32_t width, uint8_t *textmsg, uint8_t fgco
 void FCEU_PutImage(void);
 =======
 void SetNESDeemph(uint8 d, int force);
+<<<<<<< HEAD
 >>>>>>> 476ce7c3 (Refactors)
 
 <<<<<<< HEAD
@@ -155,6 +211,15 @@ extern uint8_t Exit;
 extern uint8_t default_palette_selected;
 extern uint8_t vsdip;
 =======
+=======
+void DrawTextTrans(uint8 *dest, uint32 width, uint8 *textmsg, uint8 fgcolor);
+void FCEU_PutImage(void);
+#ifdef FRAMESKIP
+void FCEU_PutImageDummy(void);
+#endif
+
+<<<<<<< HEAD
+>>>>>>> 5926d713 (Update libretro.c)
 <<<<<<< HEAD
 extern uint8 Exit;
 extern uint8 default_palette_selected;
@@ -162,15 +227,24 @@ extern uint8 default_palette_selected;
 extern uint8 pale;
 >>>>>>> aac3228 (Update libretro.c)
 extern uint8 vsdip;
+<<<<<<< HEAD
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+=======
+#define JOY_A      0x01
+#define JOY_B      0x02
+#define JOY_SELECT 0x04
+#define JOY_START  0x08
+#define JOY_UP     0x10
+#define JOY_DOWN   0x20
+#define JOY_LEFT   0x40
+#define JOY_RIGHT  0x80
+>>>>>>> d194c3a (Update libretro.c)
+>>>>>>> 5926d713 (Update libretro.c)
 
-#define JOY_A        0x01
-#define JOY_B        0x02
-#define JOY_SELECT   0x04
-#define JOY_START    0x08
-#define JOY_UP       0x10
-#define JOY_DOWN     0x20
-#define JOY_LEFT     0x40
-#define JOY_RIGHT    0x80
+int UNIFLoad(const char *name, FCEUFILE *fp);
+int iNESLoad(const char *name, FCEUFILE *fp);
+int FDSLoad(const char *name, FCEUFILE *fp);
+int NSFLoad(FCEUFILE *fp);
 
 #endif

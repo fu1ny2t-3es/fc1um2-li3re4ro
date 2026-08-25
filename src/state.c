@@ -41,10 +41,15 @@
 #include "fceu-memory.h"
 #include "ppu.h"
 #include "video.h"
+#include "gamegenie.h"
+
+#define SFMDATA_SIZE 128
+#define RLSB         FCEUSTATE_RLSB
 
 static void (*SPreSave)(void);
 static void (*SPostSave)(void);
 
+<<<<<<< HEAD
 /* static int SaveStateStatus[10]; */
 
 static SFORMAT SFMDATA[64];
@@ -216,6 +221,10 @@ static INLINE void sf_flip(void *v, uint32_t s)
  * was rejected. */
 static int state_legacy_hostorder;
 #endif
+=======
+static SFORMAT SFMDATA[SFMDATA_SIZE];
+static int SFEXINDEX;
+>>>>>>> 5926d713 (Update libretro.c)
 
 extern SFORMAT FCEUPPU_STATEINFO[];
 extern SFORMAT FCEUSND_STATEINFO[];
@@ -228,8 +237,8 @@ SFORMAT SFCPU[] = {
    { &cpu.Y, 1, "Y\0\0" },
    { &cpu.S, 1, "S\0\0" },
    { &cpu.P, 1, "P\0\0" },
-   { &cpu.openbus, 1, "DB"},
-   { RAM, 0x800, "RAM" },
+   { &cpu.openbus, 1, "DB\0"},
+   { &RAM, RAM_SIZE | FCEUSTATE_INDIRECT, "RAM" },
    { 0 }
 };
 
@@ -242,27 +251,6 @@ SFORMAT SFCPUC[] = {
    { &cpu.mooPI, 1, "MooP"},
    { 0 }
 };
-
-#ifdef MSB_FIRST
-static void FlipByteOrder(uint8 *src, uint32 count)
-{
-   uint8 *start = src;
-   uint8 *end = src + count - 1;
-
-   if ((count & 1) || !count)
-      return;     /* This shouldn't happen. */
-
-   while (count--)
-   {
-      uint8 tmp = *end;
-      *end = *start;
-      *start = tmp;
-      end--;
-      start++;
-   }
-}
-
-#endif
 
 static int SubWrite(memstream_t *mem, SFORMAT *sf)
 {
@@ -282,11 +270,16 @@ static int SubWrite(memstream_t *mem, SFORMAT *sf)
       }
 
       acc += 8; /* Description + size */
+<<<<<<< HEAD
       acc += sf_size(sf->s);
+=======
+      acc += sf->s & (~FCEUSTATE_FLAGS);
+>>>>>>> 5926d713 (Update libretro.c)
 
       if(mem) /* Are we writing or calculating the size of this block? */
       {
          memstream_write(mem, sf->desc, 4);
+<<<<<<< HEAD
          write32le_mem(sf_size(sf->s), mem);
 
 #ifdef MSB_FIRST
@@ -294,11 +287,28 @@ static int SubWrite(memstream_t *mem, SFORMAT *sf)
             sf_flip(sf->v, sf->s);
 #endif
          memstream_write(mem, (char *)sf->v, sf_size(sf->s));
+=======
+         write32le_mem(sf->s & (~FCEUSTATE_FLAGS), mem);
+
+#ifdef MSB_FIRST
+         if(sf->s & RLSB)
+            FlipByteOrder((uint8 *)sf->v, sf->s & (~FCEUSTATE_FLAGS));
+#endif
+         if (sf->s & FCEUSTATE_INDIRECT) {
+            memstream_write(mem, *(char **)sf->v, sf->s & (~FCEUSTATE_FLAGS));
+         } else {
+            memstream_write(mem, (char *)sf->v, sf->s & (~FCEUSTATE_FLAGS));
+         }
+>>>>>>> 5926d713 (Update libretro.c)
 
          /* Now restore the original byte order. */
 #ifdef MSB_FIRST
          if(sf->s & RLSB)
+<<<<<<< HEAD
             sf_flip(sf->v, sf->s);
+=======
+            FlipByteOrder((uint8 *)sf->v, sf->s & (~FCEUSTATE_FLAGS));
+>>>>>>> 5926d713 (Update libretro.c)
 #endif
       }
       sf++;
@@ -335,7 +345,11 @@ static SFORMAT *CheckS(SFORMAT *sf, uint32_t tsize, char *desc)
       }
       if (!strncmp(desc, sf->desc, 4))
       {
+<<<<<<< HEAD
          if (tsize != sf_size(sf->s))
+=======
+         if (tsize != (sf->s & (~FCEUSTATE_FLAGS)))
+>>>>>>> 5926d713 (Update libretro.c)
             return(0);
          return(sf);
       }
@@ -365,6 +379,7 @@ static int ReadStateChunk(memstream_t *mem, SFORMAT *sf, int size)
 
       if((tmp = CheckS(sf, tsize, toa)))
       {
+<<<<<<< HEAD
          /* sf_size(tmp->s) was already validated to equal tsize by
           * CheckS, and tmp->v points at the fixed-size in-memory buffer
           * for this state field, so the read is bounded. Still treat a
@@ -379,6 +394,17 @@ static int ReadStateChunk(memstream_t *mem, SFORMAT *sf, int size)
           * multi-byte field. */
          if ((tmp->s & RLSB) && !state_legacy_hostorder)
             sf_flip(tmp->v, tmp->s);
+=======
+         if (tmp->s & FCEUSTATE_INDIRECT) {
+            memstream_read(mem, *(char **)tmp->v, tmp->s & (~FCEUSTATE_FLAGS));
+         } else {
+            memstream_read(mem, (char *)tmp->v, tmp->s & (~FCEUSTATE_FLAGS));
+         }
+
+#ifdef MSB_FIRST
+         if(tmp->s & RLSB)
+            FlipByteOrder((uint8 *)tmp->v, tmp->s & (~FCEUSTATE_FLAGS));
+>>>>>>> 5926d713 (Update libretro.c)
 #endif
       }
       else
@@ -476,14 +502,25 @@ endo:
    return ret && totalsize == 0;
 }
 
+<<<<<<< HEAD
 extern int geniestage;
 
 size_t FCEUSS_Save_Mem(void *buf, size_t size)
 {
    memstream_t *mem = memstream_open((uint8_t*)buf, size, 1);
+=======
+void FCEUSS_Save_Mem(void)
+{
+   memstream_t *mem = memstream_open(1);
+<<<<<<< HEAD
+>>>>>>> 8f520b50 (Update libretro.c)
 
    uint32_t totalsize;
    uint8_t header[16] = {0};
+=======
+   uint8 header[16] = {0};
+   size_t totalsize = 0;
+>>>>>>> 5926d713 (Update libretro.c)
 
    if (!mem)
       return 0;
@@ -491,25 +528,29 @@ size_t FCEUSS_Save_Mem(void *buf, size_t size)
    header[0] = 'F';
    header[1] = 'C';
    header[2] = 'S';
-   header[3] = 0xFF;
+   header[3] = 'M';
 
    FCEU_en32lsb(header + 8, FCEU_VERSION_NUMERIC);
    memstream_write(mem, header, 16);
 
    FCEUPPU_SaveState();
+   FCEUSND_SaveState();
+
    totalsize  = WriteStateChunk(mem, 1, SFCPU);
    totalsize += WriteStateChunk(mem, 2, SFCPUC);
    totalsize += WriteStateChunk(mem, 3, FCEUPPU_STATEINFO);
    totalsize += WriteStateChunk(mem, 4, FCEUCTRL_STATEINFO);
    totalsize += WriteStateChunk(mem, 5, FCEUSND_STATEINFO);
 
-   if (SPreSave)
-      SPreSave();
-
+   if (SPreSave) SPreSave();
    totalsize += WriteStateChunk(mem, 0x10, SFMDATA);
+<<<<<<< HEAD
 
    if (SPostSave)
       SPostSave();
+=======
+   if (SPostSave) SPostSave();
+>>>>>>> 5926d713 (Update libretro.c)
 
    memstream_seek(mem, 4, SEEK_SET);
    write32le_mem(totalsize, mem);
@@ -522,13 +563,24 @@ size_t FCEUSS_Save_Mem(void *buf, size_t size)
 
 int FCEUSS_Load_Mem(const void *buf, size_t size)
 {
+<<<<<<< HEAD
    memstream_t *mem = memstream_open((uint8_t*)buf, size, 0);
+=======
+   memstream_t *mem = memstream_open(0);
+<<<<<<< HEAD
+>>>>>>> 8f520b50 (Update libretro.c)
 
    uint8_t header[16] = {0};
    int stateversion;
    uint32_t totalsize_u;
    int32_t totalsize;
    int x;
+=======
+   uint8 header[16] = {0};
+   size_t totalsize = 0;
+   int stateversion = 0;
+   int x = 0;
+>>>>>>> 5926d713 (Update libretro.c)
 
    /* memstream_open only returns NULL on allocation failure now that the
     * buffer is supplied directly by retro_unserialize; treat NULL
@@ -546,12 +598,21 @@ int FCEUSS_Load_Mem(const void *buf, size_t size)
       return 0;
    }
 
+<<<<<<< HEAD
    if (memcmp(header, "FCS", 3) != 0)
    {
       memstream_close(mem);
+<<<<<<< HEAD
       return 0;
+=======
+=======
+   if (memcmp(header, "FCSM", 4) != 0)
+>>>>>>> 5926d713 (Update libretro.c)
+      return;
+>>>>>>> 41321646 (Update libretro.c)
    }
 
+<<<<<<< HEAD
    if (header[3] == 0xFF)
       stateversion = FCEU_de32lsb(header + 8);
    else
@@ -579,9 +640,14 @@ int FCEUSS_Load_Mem(const void *buf, size_t size)
       return 0;
    }
    totalsize = (int32_t)totalsize_u;
+=======
+   totalsize = FCEU_de32lsb(header + 4);
+   stateversion = FCEU_de32lsb(header + 8);
+>>>>>>> 5926d713 (Update libretro.c)
 
    x = ReadStateChunks(mem, totalsize);
 
+<<<<<<< HEAD
    if (!x)
    {
       memstream_close(mem);
@@ -591,6 +657,8 @@ int FCEUSS_Load_Mem(const void *buf, size_t size)
    if (stateversion < 9500)
       cpu.IRQlow = 0;
 
+=======
+>>>>>>> 41321646 (Update libretro.c)
    if (GameStateRestore)
       GameStateRestore(stateversion);
 
@@ -636,7 +704,21 @@ void AddExState(void *v, uint32_t s, int type, char *desc)
    SFMDATA[SFEXINDEX].s = s;
    if (type)
       SFMDATA[SFEXINDEX].s |= RLSB;
+<<<<<<< HEAD
    SFEXINDEX++;
+=======
+   if (SFEXINDEX < (SFMDATA_SIZE - 1)) {
+      SFEXINDEX++;
+   } else {
+      static int warn_once = 1;
+      if (warn_once) {
+         FCEU_printf("\n");
+         FCEU_PrintError(" Error in AddExState: SFEINDEX overflow. SFMDATA_SIZE too small.\n");
+         FCEU_printf("\n");
+         warn_once = 0;
+      }
+   }
+>>>>>>> 5926d713 (Update libretro.c)
    SFMDATA[SFEXINDEX].v = 0;   /* End marker. */
 }
 <<<<<<< HEAD
