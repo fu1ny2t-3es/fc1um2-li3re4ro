@@ -29,11 +29,19 @@ static uint8_t FP_FASTAPASS(2) MJ_Read(int w, uint8_t ret) {
 static uint8 MJ_Read(int w, uint8 ret) {
 >>>>>>> d5085b8d (Update libretro_core_options.h)
 	if (w) {
+/*  ret|=(MRet&1)<<1; */
 		ret |= ((MRet & 0x80) >> 6) & 2;
+<<<<<<< HEAD
 <<<<<<< HEAD
 /*  MRet>>=1; */
 =======
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+/*  MRet>>=1; */
+  #ifdef FCEUDEF_DEBUGGER
+		if (!fceuindbg)
+  #endif
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 		MRet <<= 1;
 	}
 	return(ret);
@@ -62,12 +70,18 @@ static void MJ_Write(uint8 v) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) MJ_Update(void *data, int arg) {
 	MReal = *(uint32_t*)data;
 }
 =======
 static void MJ_Update(void *data, int arg) { MReal = *(uint32*)data; }
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+static void MJ_Update(void *data, int arg) {
+	MReal = *(uint32*)data;
+}
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 static INPUTCFC Mahjong = { MJ_Read, MJ_Write, 0, MJ_Update, 0, 0 };
 
