@@ -1,7 +1,7 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2005 CaH4e3
+  *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,9 @@
  */
 
 #include "mapinc.h"
+#include "n118.h"
 
+<<<<<<< HEAD
 static uint8_t reg[8];
 static uint8_t mirror, cmd, is154;
 
@@ -81,4 +83,18 @@ void Mapper154_Init(CartInfo *info) {
 	info->Power = M88Power;
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
+=======
+static void M088FixCHR(void) {
+	setchr2(0x0000, (n118.reg[0] & 0x3F) >> 1);
+	setchr2(0x0800, (n118.reg[1] & 0x3F) >> 1);
+	setchr1(0x1000, 0x40 | (n118.reg[2] & 0x3F));
+	setchr1(0x1400, 0x40 | (n118.reg[3] & 0x3F));
+	setchr1(0x1800, 0x40 | (n118.reg[4] & 0x3F));
+	setchr1(0x1C00, 0x40 | (n118.reg[5] & 0x3F));
+}
+
+void Mapper088_Init(CartInfo *info) {
+	N118_Init(info, 0, 0);
+	N118_FixCHR = M088FixCHR;
+>>>>>>> e98261e5 (Update ppu.c)
 }
