@@ -25,8 +25,24 @@
 
 #include "fceu-memory.h"
 
+<<<<<<< HEAD
 int FCEUSS_Load_Mem(const void *buf, size_t size);
+=======
+<<<<<<< HEAD
+void FCEUSS_Load_Mem(const void *buf, size_t size);
+>>>>>>> 2c2ad51f (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 size_t FCEUSS_Save_Mem(void *buf, size_t size);
+=======
+/* last known fceu-mm version */
+#define FCEU_VERSION_MAJOR 0
+#define FCEU_VERSION_MINOR 98
+#define FCEU_VERSION_PATCH 13
+
+#define FCEU_VERSION_NUMERIC ((FCEU_VERSION_MAJOR * 10000) + (FCEU_VERSION_MINOR * 100) + (FCEU_VERSION_PATCH))
+
+void FCEUSS_Load_Mem(void);
+void FCEUSS_Save_Mem(void);
+>>>>>>> 7a698134 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 typedef struct {
 	void *v;
