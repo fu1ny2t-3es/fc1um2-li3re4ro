@@ -30,9 +30,14 @@ static uint8_t FP_FASTAPASS(2) OK_Read(int w, uint8_t ret) {
 	if (w) {
 =======
 static uint8 OK_Read(int w, uint8 ret) {
+<<<<<<< HEAD
 	if (w)
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+	if (w) {
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 		ret |= OKValR;
+	}
 	return(ret);
 }
 

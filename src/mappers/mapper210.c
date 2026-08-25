@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +19,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/* NES 2.0 Mapper 210 - simplified version of Mapper 19 
+ * Namco 175 - submapper 1 - optional wram, hard-wired mirroring
+ * Namco 340 - submapper 2 - selectable H/V/0 mirroring
+ */
+
 #include "mapinc.h"
 
+<<<<<<< HEAD
 static uint16_t IRQCount;
 static uint8_t IRQa;
 
@@ -57,36 +64,45 @@ static SFORMAT N106_StateRegs[] = {
 	{ &dopol, 1, "GORF" },
 	{ &gorfus, 1, "DOPO" },
 	{ &gorko, 1, "GORK" },
+=======
+static uint8 prg[4];
+static uint8 chr[8];
+static uint8 wram_enable;
+
+static SFORMAT StateRegs[] = {
+	{ prg, 3, "PRG" },
+	{ chr, 8, "CHR" },
+    { &wram_enable, 1, "WREN" },
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	{ 0 }
 };
 
-static void SyncPRG(void) {
-	setprg8(0x8000, PRG[0]);
-	setprg8(0xa000, PRG[1]);
-	setprg8(0xc000, PRG[2]);
-	setprg8(0xe000, 0x3F);
-}
+static void Sync(void) {
+	setprg8(0x8000, prg[0] & 0x3F);
+	setprg8(0xA000, prg[1] & 0x3F);
+	setprg8(0xC000, prg[2] & 0x3F);
+	setprg8(0xE000, prg[3] & 0x3F);
 
-static void SyncMirror(void) {
-	switch(gorko) {
-	case 0: setmirror(MI_0); break;
-	case 1: setmirror(MI_V); break;
-	case 2: setmirror(MI_H); break;
-	case 3: setmirror(MI_0); break;
-	}
-}
+	setchr1(0x0000, chr[0]);
+	setchr1(0x0400, chr[1]);
+	setchr1(0x0800, chr[2]);
+	setchr1(0x0C00, chr[3]);
+	setchr1(0x1000, chr[4]);
+	setchr1(0x1400, chr[5]);
+	setchr1(0x1800, chr[6]);
+	setchr1(0x1C00, chr[7]);
 
-static void NamcoIRQHook(int a) {
-	if (IRQa) {
-		IRQCount += a;
-		if (IRQCount >= 0x7FFF) {
-			X6502_IRQBegin(FCEU_IQEXT);
-			IRQa = 0;
-			IRQCount = 0x7FFF;
+	if (iNESCart.submapper != 1) {
+		switch((prg[0] >> 6) & 0x03) {
+		case 0: setmirror(MI_0); break;
+		case 1: setmirror(MI_V); break;
+		case 2: setmirror(MI_H); break;
+		case 3: setmirror(MI_0); break;
 		}
 	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static DECLFR(Namco_Read4800) {
 	uint8_t ret = IRAM[dopol & 0x7f];
@@ -163,65 +179,61 @@ static void FixCache(int a, int V) {
 		/* LengthCache[w] = (8 - ((V >> 2) & 7)) << 2; */
 		/* fix be like in https://github.com/SourMesen/Mesen/blob/cda0a0bdcb5525480784f4b8c71de6fc7273b570/Core/Namco163Audio.h#L61 */
 		LengthCache[w] = 256 - (V & 0xFC);
+=======
+static DECLFR(AWRAM) {
+    A = ((A - 0x6000) & (WRAMSIZE -1));
+	return WRAM[A];
+}
+
+static DECLFW(BWRAM) {
+    if (wram_enable) {
+        A = ((A - 0x6000) & (WRAMSIZE -1));
+	    WRAM[A] = V;
+    }
+}
+
+static DECLFW(M210Write) {
+	switch (A & 0xF800) {
+	case 0x8000:
+	case 0x8800:
+	case 0x9000:
+	case 0x9800:
+	case 0xA000:
+	case 0xA800:
+	case 0xB000:
+	case 0xB800:
+		chr[(A - 0x8000) >> 11] = V;
+		Sync();
 		break;
+	case 0xC000:
+		wram_enable = V & 0x01;
+		break;
+	case 0xE000:
+	case 0xE800:
+	case 0xF000:
+		prg[(A - 0xE000) >> 11] = V;
+		Sync();
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+		break;
+<<<<<<< HEAD
 	/* (V & 0xF) is 0..15; 15 * 576716 = 8650740 fits an int32 exactly, so
 	 * the old (double) multiply produced an integer result anyway - compute
 	 * it directly to keep this audio TU free of floating point. */
 	case 0x07: EnvCache[w] = (uint32_t)(V & 0xF) * 576716; break;
+=======
+>>>>>>> f4f72e36 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	}
 }
 
-static void Mapper19_write(uint32 A, uint8 V) {
-	A &= 0xF800;
-	if (A >= 0x8000 && A <= 0xb800)
-		DoCHRRAMROM((A - 0x8000) >> 11, V);
-	else
-		switch (A) {
-		case 0x4800:
-			if (dopol & 0x40) {
-				if (FSettings.SndRate) {
-					NamcoSoundHack();
-					GameExpSound.Fill = NamcoSound;
-					GameExpSound.HiFill = DoNamcoSoundHQ;
-					GameExpSound.HiSync = SyncHQ;
-				}
-				FixCache(dopol, V);
-			}
-			IRAM[dopol & 0x7f] = V;
-			if (dopol & 0x80)
-				dopol = (dopol & 0x80) | ((dopol + 1) & 0x7f);
-			break;
-		case 0xf800:
-			dopol = V; break;
-		case 0x5000:
-			IRQCount &= 0xFF00; IRQCount |= V; X6502_IRQEnd(FCEU_IQEXT); break;
-		case 0x5800:
-			IRQCount &= 0x00ff; IRQCount |= (V & 0x7F) << 8;
-			IRQa = V & 0x80;
-			X6502_IRQEnd(FCEU_IQEXT);
-			break;
-		case 0xE000:
-			gorko = V & 0xC0;
-			PRG[0] = V & 0x3F;
-			SyncPRG();
-			if (is210) {
-				gorko = V >> 6;
-				SyncMirror();
-			}
-			break;
-		case 0xE800:
-			gorfus = V & 0xC0;
-			FixCRR();
-			PRG[1] = V & 0x3F;
-			SyncPRG();
-			break;
-		case 0xF000:
-			PRG[2] = V & 0x3F;
-			SyncPRG();
-			break;
-		}
-}
+static void M210Power(void) {
+	int i;
+	for (i = 0; i < 4; i++) prg[i] = 0xFC | i;
+	for (i = 0; i < 4; i++) chr[0 | i] = 0 | i;
+	for (i = 0; i < 4; i++) chr[4 | i] = 4 | i;
+	wram_enable = 0;
+	Sync();
 
+<<<<<<< HEAD
 static int dwave = 0;
 
 static void NamcoSoundHack(void) {
@@ -449,68 +461,42 @@ static int battery = 0;
 
 static void N106_Power(void) {
 	int x;
+=======
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
-	SetWriteHandler(0x8000, 0xffff, Mapper19_write);
-	SetWriteHandler(0x4020, 0x5fff, Mapper19_write);
-	if (!is210) {
-		SetWriteHandler(0xc000, 0xdfff, Mapper19C0D8_write);
-		SetReadHandler(0x4800, 0x4fff, Namco_Read4800);
-		SetReadHandler(0x5000, 0x57ff, Namco_Read5000);
-		SetReadHandler(0x5800, 0x5fff, Namco_Read5800);
-		NTAPage[0] = NTAPage[1] = NTAPage[2] = NTAPage[3] = 0xFF;
-		FixNTAR();
-	}
+	SetWriteHandler(0x8000, 0xffff, M210Write);
 
-	SetReadHandler(0x6000, 0x7FFF, AWRAM);
-	SetWriteHandler(0x6000, 0x7FFF, BWRAM);
-	FCEU_CheatAddRAM(8, 0x6000, WRAM);
+	if (WRAM) {
+        SetReadHandler(0x6000, 0x7FFF, AWRAM);
+	    SetWriteHandler(0x6000, 0x7FFF, BWRAM);
+	    FCEU_CheatAddRAM(8, 0x6000, WRAM);
+    }
 
-	gorfus = 0xFF;
-	SyncPRG();
-	FixCRR();
-
-	if (!battery) {
-		FCEU_dwmemset(WRAM, 0, 8192);
-		FCEU_dwmemset(IRAM, 0, 128);
-	}
-	for (x = 0x40; x < 0x80; x++)
-		FixCache(x, IRAM[x]);
-}
-
-void Mapper19_Init(CartInfo *info) {
-	is210 = 0;
-	battery = info->battery;
-	info->Power = N106_Power;
-
-	MapIRQHook = NamcoIRQHook;
-	GameStateRestore = Mapper19_StateRestore;
-	GameExpSound.RChange = M19SC;
-
-	if (FSettings.SndRate)
-		Mapper19_ESI();
-
-	AddExState(WRAM, 8192, 0, "WRAM");
-	AddExState(IRAM, 128, 0, "IRAM");
-	AddExState(N106_StateRegs, ~0, 0, 0);
-	AddExState(N106_SStateRegs, ~0, 0, 0);
-
-	if (info->battery) {
-		info->SaveGame[0] = WRAM;
-		info->SaveGameLen[0] = 8192;
-		info->SaveGame[1] = IRAM;
-		info->SaveGameLen[1] = 128;
+	if (WRAM && !iNESCart.battery) {
+		FCEU_MemoryRand(WRAM, sizeof(WRAM));
 	}
 }
 
-static void Mapper210_StateRestore(int version) {
-	SyncPRG();
-	FixCRR();
+static void StateRestore(int version) {
+	Sync();
 }
 
 void Mapper210_Init(CartInfo *info) {
-	is210 = 1;
-	GameStateRestore = Mapper210_StateRestore;
-	info->Power = N106_Power;
-	AddExState(WRAM, 8192, 0, "WRAM");
-	AddExState(N106_StateRegs, ~0, 0, 0);
+	GameStateRestore = StateRestore;
+	info->Power = M210Power;
+    AddExState(StateRegs, ~0, 0, NULL);
+
+    WRAMSIZE = 8192;
+    if (info->iNES2) {
+        WRAMSIZE = info->PRGRamSize + info->PRGRamSaveSize;
+    }
+
+    if (WRAMSIZE) {
+        WRAM = (uint8 *)FCEU_gmalloc(WRAMSIZE);
+	    AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+        if (info->battery) {
+            info->SaveGame[0] = WRAM;
+            info->SaveGameLen[0] = WRAMSIZE;
+        }
+    }
 }

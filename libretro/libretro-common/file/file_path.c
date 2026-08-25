@@ -73,10 +73,20 @@
 size_t strftime_am_pm(char *s, size_t len, const char* format,
       const void *ptr)
 {
+<<<<<<< HEAD
    size_t _len              = 0;
 #if !(defined(__linux__) && !defined(ANDROID))
    char *local              = NULL;
 #endif
+=======
+<<<<<<< HEAD
+   char *local = NULL;
+=======
+#if !(defined(__linux__) && !defined(ANDROID))
+   char *local = NULL;
+#endif
+>>>>>>> dfa05f5 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> fc135472 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
    const struct tm *timeptr = (const struct tm*)ptr;
    setlocale(LC_TIME, "");
    _len = strftime(s, len, format, timeptr);

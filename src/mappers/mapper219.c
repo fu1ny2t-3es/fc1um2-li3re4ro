@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2007 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +22,12 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static void UNLA9746PWrap(uint32_t A, uint8_t V) {
+=======
+<<<<<<< HEAD
+static void UNLA9746PWrap(uint32 A, uint8 V) {
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	int prgAND = EXPREGS[0] &0x40? 0x0F: 0x1F;
 	int prgOR = EXPREGS[0] <<4 &0x10 | EXPREGS[1] &0x20;
 	setprg8(A, V &prgAND | prgOR &~prgAND);
@@ -54,33 +60,74 @@ static void UNLA9746WriteASIC(uint32 A, uint8 V) {
 	{ 	/* Register data */
 		if (~EXPREGS[2] &0x20)
 		{	/* Scrambled mode inactive */
-			MMC3_CMDWrite(A, V);
+=======
+static uint8 reg;
+static uint8 extMode;
+
+static SFORMAT StateRegs[] = {
+	{ &reg, 1, "REGS" },
+	{ &extMode, 1, "MODE" },
+	{ 0 }
+};
+
+static void M219PW(uint16 A, uint16 V) {
+	setprg8(A, (reg << 4) | (V & 0x0F));
+}
+
+static void M219CW(uint16 A, uint16 V) {
+	setchr1(A, (reg << 7) | (V & 0x7F));
+}
+
+static DECLFW(M219WriteOuter) {
+	switch (A & 0x01) {
+	case 0:
+		reg = (reg & ~0x01) | ((V >> 3) & 0x01);
+		break;
+	case 1:
+		reg = (reg & ~0x02) | ((V >> 4) & 0x02);
+		break;
+	}
+	MMC3_FixPRG();
+	MMC3_FixCHR();
+}
+
+static DECLFW(M219WriteASIC) {
+	uint8 oldcmd = mmc3.cmd;
+
+	if (!(A & 0x01)) { /* Register index */
+		mmc3.cmd = V;
+		if ((oldcmd & 0x40) != ((V & 0x40))) {
+			MMC3_FixPRG();
 		}
-		else
-		{	/* Scrambled mode active */
-			if (MMC3_cmd >=0x08 && MMC3_cmd <=0x1F)
-			{	/* Scrambled CHR register */
-				index = (MMC3_cmd -8) >>2;
-				if (MMC3_cmd &1)
-				{	/* LSB nibble */
-					DRegBuf[index] &=~0x0F;
-					DRegBuf[index] |=V >>1 &0x0F;
+		if ((oldcmd & 0x80) != ((V & 0x80))) {
+			MMC3_FixPRG();
+		}
+		if (A & 0x02) {
+			extMode = (V & 0x20) != 0;
+		}
+	} else {
+		if (!extMode) { /* Scrambled mode inactive */
+>>>>>>> 15c1ee6c (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+			MMC3_CMDWrite(A, V);
+		} else { /* Scrambled mode active */
+			if ((mmc3.cmd >= 0x08) && (mmc3.cmd <= 0x1F)) { /* Scrambled CHR register */
+				uint8 index = (mmc3.cmd - 8) >> 2;
+				if (mmc3.cmd & 0x01) { /* LSB nibble */
+					mmc3.reg[index] &= ~0x0F;
+					mmc3.reg[index] |= ((V >> 1) & 0x0F);
+				} else { /* MSB nibble */
+					mmc3.reg[index] &= ~0xF0;
+					mmc3.reg[index] |= ((V << 4) & 0xF0);
 				}
-				else
-				{	/* MSB nibble */
-					DRegBuf[index] &=~0xF0;
-					DRegBuf[index] |=V <<4 &0xF0;
-				}
-				FixMMC3CHR(MMC3_cmd);
-			}
-			else
-			if (MMC3_cmd >=0x25 && MMC3_cmd <=0x26)
-			{	/* Scrambled PRG register */
-				DRegBuf[6 | MMC3_cmd &1] =V >>5 &1 | V >>3 &2 | V >>1 &4 | V <<1 &8;
-				FixMMC3PRG(MMC3_cmd);
+				MMC3_FixCHR();
+			} else if ((mmc3.cmd >= 0x25) && (mmc3.cmd <= 0x26)) { /* Scrambled PRG register */
+				V = ((V << 1) & 0x08) | ((V >> 1) & 0x04) | ((V >> 3) & 0x02) | ((V >> 5) & 0x01);
+				mmc3.reg[6 | (mmc3.cmd & 0x01)] = V;
+				MMC3_FixPRG();
 			}
 		}
 	}
+<<<<<<< HEAD
 	else
 	{	/* Register index */
 		MMC3_CMDWrite(A, V);
@@ -112,5 +159,29 @@ void UNLA9746_Init(CartInfo *info) {
 	info->Power = UNLA9746Power;
 	info->Reset = UNLA9746Reset;
 	AddExState(EXPREGS, 3, 0, "EXPR");
+=======
 }
 
+static void M219Power(void) {
+	extMode = FALSE;
+	reg = 3;
+	MMC3_Power();
+	SetWriteHandler(0x5000, 0x5FFF, M219WriteOuter);
+	SetWriteHandler(0x8000, 0x9FFF, M219WriteASIC);
+}
+
+static void M219Reset(void) {
+	extMode = FALSE;
+	reg = ~0;
+	MMC3_Reset();
+}
+
+void Mapper219_Init(CartInfo *info) {
+	MMC3_Init(info, 0, 0);
+	MMC3_pwrap = M219PW;
+	MMC3_cwrap = M219CW;
+	info->Power = M219Power;
+	info->Reset = M219Reset;
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> 15c1ee6c (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+}
