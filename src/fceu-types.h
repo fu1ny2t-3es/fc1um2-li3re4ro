@@ -24,6 +24,7 @@
 
 #include <stdint.h>
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* The custom int8/int16/int32/int64/uint8/uint16/uint32/uint64 typedefs
  * that lived here have been replaced throughout the codebase with the
@@ -39,30 +40,35 @@
 						 */
 #endif
 =======
+=======
+#include <retro_inline.h>
+
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 typedef int8_t int8;
 typedef int16_t int16;
 typedef int32_t int32;
-typedef int64_t int64;
 
 typedef uint8_t uint8;
 typedef uint16_t uint16;
 typedef uint32_t uint32;
+<<<<<<< HEAD
 typedef uint64_t uint64;
 >>>>>>> 1c23e29c (Add new FCEU_gmalloc and cleanup fceu-types.h)
+=======
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 
-#ifndef INLINE
-
-#if defined(_MSC_VER)
-#define INLINE __forceinline
-#elif defined(__GNUC__)
-#define INLINE __inline__
-#elif defined(_MWERKS_)
-#define INLINE inline
+#ifdef __GNUC__
+typedef unsigned long long uint64;
+typedef long long int64;
+#elif MSVC | _MSC_VER
+typedef __int64 int64;
+typedef unsigned __int64 uint64;
 #else
-#define INLINE
-#endif
+typedef unsigned long long uint64;
+typedef long long int64;
 #endif
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 #ifdef __GNUC__
 	#ifdef C80x86
@@ -86,5 +92,28 @@ typedef uint8_t (FP_FASTAPASS(1) *readfunc)(uint32_t A);
 typedef void (*writefunc)(uint32 A, uint8 V);
 typedef uint8 (*readfunc)(uint32 A);
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
+=======
+#define FCEU_UNUSED(x)    (void)(x)
+#define FCEU_MAYBE_UNUSED __attribute__((unused))
+
+#if !defined(FALSE)
+#define FALSE 0
+#endif
+
+#if !defined(TRUE)
+#define TRUE 1
+#endif
+
+#ifndef MAX
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
+
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+typedef void (*writefunc)(uint16 A, uint8 V);
+typedef uint8 (*readfunc)(uint16 A);
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 
 #endif
