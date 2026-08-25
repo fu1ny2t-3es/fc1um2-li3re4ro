@@ -24,6 +24,7 @@
  * 
  */
 
+<<<<<<< HEAD
 #include "mapinc.h"
 
 <<<<<<< HEAD
@@ -59,25 +60,44 @@ static DECLFR(UNLRT01Read) {
 static uint8 UNLRT01Read(uint32 A) {
 	if(((A >= 0xCE80) && (A < 0xCF00)) ||
 	   ((A >= 0xFE80) && (A < 0xFF00)))
+=======
+/* NES 2.0 Mapper 328 - UNL-RT-01 */
+
+#include <stdlib.h>
+#include "mapinc.h"
+
+static DECLFR(M328Read) {
+	if (((A >= 0xCE80) && (A < 0xCF00)) || ((A >= 0xFE80) && (A < 0xFF00))) {
+>>>>>>> e98261e5 (Update ppu.c)
 		return 0xF2 | (rand() & 0x0D);
+	}
 	return CartBR(A);
 >>>>>>> f9553c43 (Update ppu.c)
 }
 
+<<<<<<< HEAD
 static void UNLRT01Power(void) {
 	weakbits_state = 0x13371337;	/* deterministic at every power-on */
+=======
+static void M328Power(void) {
+>>>>>>> e98261e5 (Update ppu.c)
 	setprg16(0x8000, 0);
 	setprg16(0xC000, 0);
 	setchr2(0x0000,0);
 	setchr2(0x0800,0);
 	setchr2(0x1000,0);
 	setchr2(0x1800,0);
-	SetReadHandler(0x8000, 0xFFFF, UNLRT01Read);
+	SetReadHandler(0x8000, 0xFFFF, M328Read);
 }
 
+<<<<<<< HEAD
 void UNLRT01_Init(CartInfo *info) {
 	info->Power = UNLRT01Power;
 	/* Save weak-bits PRNG state so savestate/rewind/netplay round-trips
 	 * stay deterministic. */
 	AddExState(&weakbits_state, 4 | FCEUSTATE_RLSB, 0, "WBKS");
+=======
+void Mapper328_Init(CartInfo *info) {
+	info->Power = M328Power;
+>>>>>>> e98261e5 (Update ppu.c)
 }

@@ -27,6 +27,7 @@
 #include "general.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 void *FCEU_gmalloc(uint32_t size)
 {
    void *ret = malloc(size);
@@ -61,13 +62,48 @@ void *FCEU_malloc(uint32 size)
 >>>>>>> a9752267 (Refactors)
    memset(ret, 0, size);
    return ret;
+=======
+#include "memalign.h"
+
+void *FCEU_amalloc(uint32 size) {
+	void *ret = memalign_alloc(256, size);
+	if (!ret) {
+		FCEU_PrintError("Error allocating memory!  Doing a hard exit.");
+		exit(1);
+	}
+	return ret;
+>>>>>>> e98261e5 (Update ppu.c)
 }
 
-void *FCEU_gmalloc(uint32 size)
-{
-   void *ret = (void*)malloc(size);
-   if (!ret)
-      ret = 0;
-   FCEU_MemoryRand((uint8 *)ret, size);
-   return ret;
+void *FCEU_gmalloc(uint32 size) {
+	void *ret = malloc(size);
+	if (!ret) {
+		FCEU_PrintError("Error allocating memory!  Doing a hard exit.");
+		exit(1);
+	}
+	FCEU_MemoryRand((uint8 *)ret, size);
+	return ret;
+}
+
+void *FCEU_malloc(uint32 size) {
+	void *ret = (void *)malloc(size);
+
+	if (!ret) {
+		FCEU_PrintError("Error allocating memory!");
+		ret = 0;
+	}
+	memset(ret, 0, size);
+	return ret;
+}
+
+void FCEU_afree(void *ptr) {
+	memalign_free(ptr);
+}
+
+void FCEU_free(void *ptr) {
+	free(ptr);
+}
+
+void FCEU_gfree(void *ptr) {
+	free(ptr);
 }

@@ -30,9 +30,14 @@ static uint8_t FP_FASTAPASS(2) OK_Read(int w, uint8_t ret) {
 	if (w) {
 =======
 static uint8 OK_Read(int w, uint8 ret) {
+<<<<<<< HEAD
 	if (w)
 >>>>>>> f9553c43 (Update ppu.c)
+=======
+	if (w) {
+>>>>>>> e98261e5 (Update ppu.c)
 		ret |= OKValR;
+	}
 	return(ret);
 }
 

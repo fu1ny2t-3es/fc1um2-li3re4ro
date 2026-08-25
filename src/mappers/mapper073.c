@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2012 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,12 +18,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * VRC-3
+ * Konami VRC-3
  *
  */
 
 #include "mapinc.h"
 
+<<<<<<< HEAD
 static uint8_t preg;
 static uint8_t IRQx;	/* autoenable */
 static uint8_t IRQm;	/* mode */
@@ -30,49 +32,75 @@ static uint8_t IRQa;
 static uint16_t IRQReload, IRQCount;
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 prg;
+static uint8 IRQx;	/* autoenable */
+static uint8 IRQm;	/* mode */
+static uint8 IRQa;
+static uint16 IRQLatch, IRQCount;
+>>>>>>> e98261e5 (Update ppu.c)
 
-static SFORMAT StateRegs[] =
-{
-	{ &preg, 1, "PREG" },
+static SFORMAT StateRegs[] = {
+	{ &prg, 1, "PREG" },
 	{ &IRQa, 1, "IRQA" },
 	{ &IRQx, 1, "IRQX" },
 	{ &IRQm, 1, "IRQM" },
+<<<<<<< HEAD
 	{ &IRQReload, 2 | FCEUSTATE_RLSB, "IRQR" },
 	{ &IRQCount, 2 | FCEUSTATE_RLSB, "IRQC" },
+=======
+	{ &IRQLatch, 2, "IRQL" },
+	{ &IRQCount, 2, "IRQC" },
+>>>>>>> e98261e5 (Update ppu.c)
 	{ 0 }
 };
 
-static void M73Sync(void) {
+static void Sync(void) {
 	setprg8r(0x10, 0x6000, 0);
-	setprg16(0x8000, preg);
+	setprg16(0x8000, prg);
 	setprg16(0xC000, ~0);
 	setchr8(0);
 }
 
-static void M73Write(uint32 A, uint8 V) {
+static DECLFW(M073Write) {
 	switch (A & 0xF000) {
-	case 0x8000: IRQReload &= 0xFFF0; IRQReload |= (V & 0xF) << 0;  break;
-	case 0x9000: IRQReload &= 0xFF0F; IRQReload |= (V & 0xF) << 4;  break;
-	case 0xA000: IRQReload &= 0xF0FF; IRQReload |= (V & 0xF) << 8;  break;
-	case 0xB000: IRQReload &= 0x0FFF; IRQReload |= (V & 0xF) << 12; break;
+	case 0x8000:
+		IRQLatch &= 0xFFF0;
+		IRQLatch |= (V & 0x0F) << 0;
+		break;
+	case 0x9000:
+		IRQLatch &= 0xFF0F;
+		IRQLatch |= (V & 0x0F) << 4;
+		break;
+	case 0xA000:
+		IRQLatch &= 0xF0FF;
+		IRQLatch |= (V & 0x0F) << 8;
+		break;
+	case 0xB000:
+		IRQLatch &= 0x0FFF;
+		IRQLatch |= (V & 0x0F) << 12;
+		break;
 	case 0xC000:
-		IRQm = V & 4;
-		IRQx = V & 1;
-		IRQa = V & 2;
+		IRQm = V & 0x04;
+		IRQx = V & 0x01;
+		IRQa = V & 0x02;
 		if (IRQa) {
-			if (IRQm) {
-				IRQCount &= 0xFFFF;
-				IRQCount |= (IRQReload & 0xFF);
-			} else
-				IRQCount = IRQReload;
+			IRQCount = IRQLatch;
 		}
 		X6502_IRQEnd(FCEU_IQEXT);
 		break;
-	case 0xD000: X6502_IRQEnd(FCEU_IQEXT); IRQa = IRQx; break;
-	case 0xF000: preg = V; M73Sync(); break;
+	case 0xD000:
+		X6502_IRQEnd(FCEU_IQEXT);
+		IRQa = IRQx;
+		break;
+	case 0xF000:
+		prg = V;
+		Sync();
+		break;
 	}
 }
 
+<<<<<<< HEAD
 static void M73IRQHook(int a) {
 	int32_t i;
 	if (!IRQa) return;
@@ -84,51 +112,53 @@ static void M73IRQHook(int a) {
 			if (temp == 0xFF) {
 				IRQCount = IRQReload;
 				IRQCount |= (uint16_t)(IRQReload & 0xFF);
+=======
+static void M073IRQHook(int a) {
+	int32 i;
+
+	if (IRQa) {
+		for (i = 0; i < a; i++) {
+			uint32 IRQCountMask = IRQm ? 0xFF : 0xFFFF;
+			if ((IRQCount & IRQCountMask) == IRQCountMask) {
+				IRQCount = IRQLatch;
+>>>>>>> e98261e5 (Update ppu.c)
 				X6502_IRQBegin(FCEU_IQEXT);
 			} else {
-				temp++;
-				IRQCount |= temp;
-			}
-		} else {
-			/* 16 bit mode */
-			if (IRQCount == 0xFFFF) {
-				IRQCount = IRQReload;
-				X6502_IRQBegin(FCEU_IQEXT);
-			} else
 				IRQCount++;
+			}
 		}
 	}
 }
 
-static void M73Power(void) {
-	IRQReload = IRQm = IRQx = 0;
-	M73Sync();
+static void M073Power(void) {
+	IRQLatch = IRQm = IRQx = 0;
+	Sync();
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
 	SetWriteHandler(0x6000, 0x7FFF, CartBW);
-	SetWriteHandler(0x8000, 0xFFFF, M73Write);
+	SetWriteHandler(0x8000, 0xFFFF, M073Write);
 	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
 }
 
-static void M73Close(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
+static void M073Close(void) {
 }
 
-static void M73StateRestore(int version) {
-	M73Sync();
+static void StateRestore(int version) {
+	Sync();
 }
 
-void Mapper73_Init(CartInfo *info) {
-	info->Power = M73Power;
-	info->Close = M73Close;
-	MapIRQHook = M73IRQHook;
+void Mapper073_Init(CartInfo *info) {
+	info->Power = M073Power;
+	info->Close = M073Close;
+	MapIRQHook = M073IRQHook;
+	AddExState(StateRegs, ~0, 0, NULL);
+	GameStateRestore = StateRestore;
 
 	WRAMSIZE = 8192;
+<<<<<<< HEAD
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
+=======
+	WRAM = (uint8 *)FCEU_gmalloc(WRAMSIZE);
+>>>>>>> e98261e5 (Update ppu.c)
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
-
-	AddExState(&StateRegs, ~0, 0, 0);
-	GameStateRestore = M73StateRestore;
 }
