@@ -1,7 +1,7 @@
 /* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2022
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,9 @@
  */
 
 #include "mapinc.h"
+#include "latch.h"
 
+<<<<<<< HEAD
 static uint16_t latchAddr;
 static uint8_t  latchData;
 
@@ -52,34 +54,44 @@ static void Mapper465_Sync(void)
    }
    setchr8(0);
    setmirror(latchAddr &0x002? MI_H: MI_V);
+=======
+static void Sync(void) {
+	uint8 prg = ((latch.addr >> 2) & 0x1F) | ((latch.addr >> 5) & 0x20);
+
+	if (latch.addr & 0x200) {
+		/* unrom */
+		setprg16(0x8000, (prg & ~0x07) | (latch.data & 0x07));
+		setprg16(0xC000, prg | 0x07);
+	} else {
+		if (latch.addr & 0x01) {
+			setprg32(0x8000, prg >> 1);
+		} else {
+			setprg16(0x8000, prg);
+			setprg16(0xC000, prg);
+		}
+	}
+	setchr8(0);
+	setmirror(((latch.addr >> 1) & 0x01) ^ 0x01);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 }
 
-static void Mapper465_WriteLatch(uint32 A, uint8 V)
-{
-   if (latchAddr &0x200)
-      latchData =V;
-   else
-      latchAddr =A &0xFFFF;
-   Mapper465_Sync();
+static DECLFW(M465WriteLatch) {
+	if (latch.addr & 0x200) {
+		/* unrom latch */
+		latch.data = V;
+	} else {
+		latch.addr = A & 0xFFFF;
+	}
+	Sync();
 }
 
-static void Mapper465_Reset(void)
-{
-   latchAddr =latchData =0;
-   Mapper465_Sync();
+static void M465Power(void) {
+	Latch_Power();
+	SetWriteHandler(0x8000, 0xFFFF, M465WriteLatch);
 }
 
-static void Mapper465_Power(void)
-{
-   latchAddr =latchData =0;
-   Mapper465_Sync();
-   SetWriteHandler(0x8000, 0xFFFF, Mapper465_WriteLatch);
-   SetReadHandler(0x6000, 0xFFFF, CartBR);
-}
-
-void Mapper465_Init(CartInfo *info)
-{
-   info->Power       = Mapper465_Power;
-   info->Reset       = Mapper465_Reset;
-   AddExState(StateRegs, ~0, 0, 0);
+void Mapper465_Init(CartInfo *info) {
+	Latch_Init(info, Sync, NULL, FALSE, FALSE);
+	info->Power = M465Power;
+	info->Reset = Latch_RegReset;
 }

@@ -1,4 +1,4 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2022
@@ -23,7 +23,9 @@
  */
 
 #include "mapinc.h"
+#include "n163sound.h"
 
+<<<<<<< HEAD
 static uint8_t *WRAM;
 
 static uint8_t PRG[3], CHR[8], NTAPage[4];
@@ -37,16 +39,32 @@ static SFORMAT StateRegs[] =
 	{ NTAPage, 4, "NT" },
 	{ &IRQa, 1, "IRQA" },
 	{ &IRQCount, 2 | FCEUSTATE_RLSB, "IRQC" },
+=======
+static uint8 IRQa;
+static uint16 IRQCount;
+
+static uint8 prg[4], chr[8], nt[4];
+
+static SFORMAT StateRegs[] = {
+	{ prg, 4, "PREG" },
+	{ chr, 8, "CREG" },
+	{ nt, 4, "NTAR" },
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	{ 0 }
 };
 
-static void SyncPRG(void) {
-	setprg8(0x8000, PRG[0]);
-	setprg8(0xA000, PRG[1]);
-	setprg8(0xC000, PRG[2]);
+static void Sync(void) {
+	int i;
+
+	setprg8r(0x10, 0x6000, 0);
 	setprg8(0xE000, ~0);
+
+	for (i = 0; i < 3; i++) setprg8(0x8000 + (i << 13), prg[i]);
+	for (i = 0; i < 8; i++) setchr1(i << 10, chr[i]);
+	for (i = 0; i < 3; i++) setntamem(NTARAM + 0x400 * (nt[i] & 0x01), 1, i);
 }
 
+<<<<<<< HEAD
 static void DoCHR(int x, uint8_t V) {
 	CHR[x] = V;
 	setchr1(x << 10, V);
@@ -84,6 +102,10 @@ static void M330Write(uint32 A, uint8 V) {
 			SyncPRG();
 		}
 	} else if ((A < 0xC000) && !(A & 0x4000)) {
+=======
+static DECLFW(M330WriteCHR) {
+	if ((A & 0x400) && !(A & 0x4000)) {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 		if (A & 0x2000) {
 			IRQCount &= 0x00FF;
 			IRQCount |= (V & 0x7F) << 8;
@@ -93,11 +115,34 @@ static void M330Write(uint32 A, uint8 V) {
 			IRQCount &= 0xFF00;
 			IRQCount |= V;
 		}
+	} else {
+		int index = (A >> 11) & 0x07;
+		chr[index] = V;
+		Sync();
+	}
+}
+
+static DECLFW(M330WriteNT) {
+	if (!(A & 0x400)) {
+		int index = (A >> 11) & 0x03;
+		nt[index] = V;
+		Sync();
+	}
+}
+
+static DECLFW(M330WritePRG) {
+	if ((A >= 0xF000) && (A & 0x800)) {
+		N163Sound_Write(A, V);
+	} else if (!(A & 0x400)) {
+		int index = (A >> 11) & 0x03;
+		prg[index] = V;
+		Sync();
 	}
 }
 
 static void M330Power(void) {
 	int i;
+<<<<<<< HEAD
 	PRG[0] = 0;
 	PRG[1] = 0;
 	PRG[2] = 0;
@@ -110,8 +155,26 @@ static void M330Power(void) {
 	SyncPRG();
 	FixCHR();
 	FixNTAR();
+=======
+	
+	for (i = 0; i < 4; i++) prg[i] = i;
+	for (i = 0; i < 8; i++) chr[i] = i;
+	for (i = 0; i < 4; i++) nt[i] = (i >> 1) & 0x01;
+
+	IRQa = IRQCount = 0;
+
+	Sync();
+
+	SetReadHandler(0x4800, 0x4FFF, N163Sound_Read);
+	SetWriteHandler(0x4800, 0x4FFF, N163Sound_Write);
+
+>>>>>>> d4a45f9 (Update libretro.c)
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
-	SetWriteHandler(0x8000, 0xFFFF, M330Write);
+	SetWriteHandler(0x6000, 0x7FFF, CartBW);
+
+	SetWriteHandler(0x8000, 0xBFFF, M330WriteCHR);
+	SetWriteHandler(0xC000, 0xDFFF, M330WriteNT);
+	SetWriteHandler(0xE000, 0xFFFF, M330WritePRG);
 }
 
 static void M330IRQHook(int a) {
@@ -126,9 +189,7 @@ static void M330IRQHook(int a) {
 }
 
 static void StateRestore(int version) {
-	SyncPRG();
-	FixCHR();
-	FixNTAR();
+	Sync();
 }
 
 static void M330Close(void) {
@@ -142,8 +203,16 @@ void Mapper330_Init(CartInfo *info) {
 	info->Close = M330Close;
 	MapIRQHook = M330IRQHook;
 	GameStateRestore = StateRestore;
+<<<<<<< HEAD
 	AddExState(&StateRegs, ~0, 0, 0);
 	WRAM = (uint8_t *)FCEU_gmalloc(8192);
+=======
+	AddExState(StateRegs, ~0, 0, NULL);
+
+	WRAM = (uint8 *)FCEU_gmalloc(8192);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	SetupCartPRGMapping(0x10, WRAM, 8192, 1);
 	AddExState(WRAM, 8192, 0, "WRAM");
+
+	N163Sound_ESI();
 }

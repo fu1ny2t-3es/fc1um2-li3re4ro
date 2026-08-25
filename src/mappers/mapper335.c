@@ -1,6 +1,8 @@
 /* FCEUmm - NES/Famicom Emulator
  *
- * Copyright (C) 2019 Libretro Team
+ * Copyright notice for this file:
+ *  Copyright (C) 2019 Libretro Team
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,41 +26,59 @@
 
 #include "mapinc.h"
 
-#define PRG 0
-#define CHR 1
+static uint8 reg[2];
 
+<<<<<<< HEAD
 static uint8_t regs[2];
 
 static SFORMAT StateRegs[] =
 {
 	{ regs, 2, "REGS" },
+=======
+static SFORMAT StateRegs[] = {
+	{ reg, 2, "REGS" },
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	{ 0 }
 };
 
 static void Sync(void) {
-	if (regs[PRG] & 0x10) {
-		setprg16(0x8000, ((regs[PRG] & 0x07) << 1) | ((regs[PRG] >> 3) & 1));
-		setprg16(0xC000, ((regs[PRG] & 0x07) << 1) | ((regs[PRG] >> 3) & 1));
-	} else
-		setprg32(0x8000, regs[PRG] & 0x07);
-
-	setchr8(regs[CHR] & 0x0F);
-	setmirror(((regs[PRG] >> 5) & 1) ^ 1);
+	if (reg[1] & 0x10) {
+		setprg16(0x8000, ((reg[1] & 0x07) << 1) | ((reg[1] >> 3) & 0x01));
+		setprg16(0xC000, ((reg[1] & 0x07) << 1) | ((reg[1] >> 3) & 0x01));
+	} else {
+		setprg32(0x8000, reg[1] & 0x07);
+	}
+	setchr8(reg[0] & 0x0F);
+	setmirror(((reg[1] >> 5) & 0x01) ^ 0x01);
 }
 
-static void WritePRG(uint32 A, uint8 V) {
-	regs[PRG] = V;
-	Sync();
+static DECLFW(M335Write) {
+	switch (A & 0xE000) {
+	case 0x8000:
+	case 0xA000:
+		reg[0] = V;
+		Sync();
+		break;
+	case 0xC000:
+	case 0xE000:
+		reg[1] = V;
+		Sync();
+		break;
+	}
 }
 
+<<<<<<< HEAD
 static void WriteCHR(uint32 A, uint8 V) { regs[CHR] = V; Sync(); }
 
 static void BMCCTC09Power(void) {
 	regs[0] =regs[1] =0;
+=======
+static void M335Power(void) {
+	reg[0] = reg[1] = 0;
+>>>>>>> 705919c (Update libretro.c)
 	Sync();
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
-	SetWriteHandler(0x8000, 0xBFFF, WriteCHR);
-	SetWriteHandler(0xC000, 0xFFFF, WritePRG);
+	SetWriteHandler(0x8000, 0xFFFF, M335Write);
 }
 
 static void BMCCTC09Reset(void) {
@@ -70,9 +90,14 @@ static void StateRestore(int version) {
 	Sync();
 }
 
+<<<<<<< HEAD
 void BMCCTC09_Init(CartInfo *info) {
 	info->Power = BMCCTC09Power;
 	info->Reset = BMCCTC09Reset;
+=======
+void Mapper335_Init(CartInfo *info) {
+	info->Power = M335Power;
+>>>>>>> 705919c (Update libretro.c)
 	GameStateRestore = StateRestore;
-	AddExState(&StateRegs, ~0, 0, 0);
+	AddExState(StateRegs, ~0, 0, NULL);
 }
