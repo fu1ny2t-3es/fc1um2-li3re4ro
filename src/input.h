@@ -37,10 +37,18 @@ typedef struct {
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 } INPUTCFC;
 
+<<<<<<< HEAD
 void FCEU_DrawInput(uint8_t *buf);
+=======
+uint8 FCEU_GetJoyJoy(void);
+
+void FCEU_DrawInput(uint8 *buf);
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 void FCEU_UpdateInput(void);
-void InitializeInput(void);
+void FCEUINPUT_Power(void);
+
 extern void (*PStrobe[2])(void);
+<<<<<<< HEAD
 extern void (*InputScanlineHook)(uint8_t *bg, uint8_t *spr, uint32_t linets, int final);
 
 void FCEU_DoSimpleCommand(int cmd);
@@ -75,5 +83,15 @@ INPUTCFC *FCEU_InitFTrainerA(void);
 INPUTCFC *FCEU_InitFTrainerB(void);
 
 void FCEU_ZapperSetTolerance(int x);
+=======
+void InputScanlineHook(uint8 *bg, uint8 *spr, uint32 linets, int final);
+
+void FCEU_DoSimpleCommand(int cmd);
+
+void FCEU_ZapperSetTolerance(int t);
+void FCEU_ZapperSetSTMode(int mode);
+void FCEU_ZapperInvertTrigger(int invert);
+void FCEU_ZapperInvertSensor(int invert);
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 
 #endif

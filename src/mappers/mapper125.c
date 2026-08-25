@@ -1,4 +1,4 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2007 CaH4e3
@@ -17,13 +17,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * FDS Conversion - Monty no Doki Doki Daisassō, Monty on the Run, cartridge code LH32
+ * NES 2.0 Mapper 125 - UNL-M125
+ * FDS Conversion - Monty no Doki Doki Daisassō, Monty on the Run, cartridge code M125
  *
  */
 
 #include "mapinc.h"
-#include "sound/fdssound.h"
+#include "fdssound.h"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static uint8_t reg;
 static uint8_t *WRAM = NULL;
@@ -40,42 +42,47 @@ static uint8 *WRAM = NULL;
 static SFORMAT StateRegs[] =
 {
 	{ &reg, 1, "REG" },
+=======
+static uint8 prg;
+
+static SFORMAT StateRegs[] = {
+	{ &prg, 1, "PREG" },
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 	{ 0 }
 };
 
 static void Sync(void) {
-	setprg8(0x6000, reg);
+	setprg8(0x6000, prg);
 	setprg8(0x8000, ~3);
 	setprg8(0xa000, ~2);
-	setprg8r(0x10, 0xc000, 0);
-	setprg8(0xe000, ~0);
+	setprg8r(0x10, 0xC000, 0);
+	setprg8(0xE000, ~0);
 	setchr8(0);
 }
 
-static void LH32Write(uint32 A, uint8 V) {
-	reg = V;
+static DECLFW(M125WritePRG) {
+	prg = V;
 	Sync();
 }
 
-static void LH32Power(void) {
-	FDSSoundPower();
+static void M125Power(void) {
+	prg = 0;
 	Sync();
+	FDSSound_Power();
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
+	SetWriteHandler(0x6000, 0x6000, M125WritePRG);
 	SetWriteHandler(0xC000, 0xDFFF, CartBW);
-	SetWriteHandler(0x6000, 0x6000, LH32Write);
-	FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
 }
 
-static void LH32Close(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
+static void M125Close(void) {
 }
 
 static void StateRestore(int version) {
 	Sync();
 }
 
+<<<<<<< HEAD
 void LH32_Init(CartInfo *info) {
 	info->Power = LH32Power;
 	info->Close = LH32Close;
@@ -91,6 +98,16 @@ void LH32_Init(CartInfo *info) {
 	AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
 >>>>>>> 0daf5c03 (Update libretro_core_options.h)
 
+=======
+void Mapper125_Init(CartInfo *info) {
+	info->Power = M125Power;
+	info->Close = M125Close;
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 	GameStateRestore = StateRestore;
-	AddExState(&StateRegs, ~0, 0, 0);
+	AddExState(StateRegs, ~0, 0, NULL);
+
+	WRAMSIZE = 8192;
+	WRAM = (uint8*)FCEU_gmalloc(WRAMSIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
+	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
 }
