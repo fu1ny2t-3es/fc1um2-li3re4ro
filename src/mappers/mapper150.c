@@ -1,8 +1,7 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2002 Xodnizel
- *  Copyright (C) 2020
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +18,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+<<<<<<< HEAD
 /* 2020-2-3 - updated mapper 150/243 */
 
 #include "mapinc.h"
@@ -252,20 +252,41 @@ void TCA01_Init(CartInfo *info) {
 /* ------------------ Mapper 150 --------------------- */
 /* ------------------ Mapper 243 --------------------- */
 
+=======
+>>>>>>> dffcc139 (Update libretro.c)
 /* Mapper 150 - SA-015 / SA-630 / Unif UNL-Sachen-74LS374N */
 /* Mapper 243 - SA-020A */
 
+<<<<<<< HEAD
 static void S74LS374NSynco(void) {
 	uint32_t chrBank;
 	if (mapperNum == 150)
 		chrBank = (latch[6] & 3) | ((latch[4] << 2) & 4) | (latch[2] << 3);
 	else
 		chrBank = (latch[2] & 1) | ((latch[4] << 1) & 2) | (latch[6] << 2);
+=======
+#include "mapinc.h"
+>>>>>>> 5926d713 (Update libretro.c)
 
-	setprg32(0x8000, (latch[2] & 1) | latch[5]);
-	setchr8(chrBank);
+static uint8 dipsw;
+static uint8 cmd;
+static uint8 reg[8];
 
-	switch ((latch[7] >> 1) & 3) {
+static SFORMAT StateRegs[] = {
+	{ reg, 8, "REGS" },
+	{ &dipsw, 1, "DPSW" },
+	{ &cmd, 1, "CMD0" },
+	{ 0 }
+};
+
+static void Sync(void) {
+	setprg32(0x8000, (reg[2] & 0x01) | reg[5]);
+	if (iNESCart.mapper == 243) {
+        setchr8((reg[2] & 0x01) | ((reg[4] << 1) & 0x02) | (reg[6] << 2));
+    } else {
+        setchr8((reg[6] & 0x03) | ((reg[4] << 2) & 0x04) | (reg[2] << 3));
+    }
+	switch ((reg[7] >> 1) & 0x03) {
 	case 0: setmirrorw(0, 1, 1, 1); break;
 	case 1: setmirror(MI_H); break;
 	case 2: setmirror(MI_V); break;
@@ -273,6 +294,7 @@ static void S74LS374NSynco(void) {
 	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static DECLFR(S74LS374NRead) {
 	uint8_t ret;
@@ -283,65 +305,62 @@ static uint8 S74LS374NRead(uint32 A) {
 		if (dip & 1)
 			return (latch[cmd] & 3) | (cpu.openbus & 0xFC);
 		return (latch[cmd] & 7) | (cpu.openbus & 0xF8);
+=======
+static DECLFR(M150Read) {
+	if ((A & 0x101) == 0x101) {
+		if (dipsw & 1)
+			return (reg[cmd] & 0x03) | (cpu.openbus & 0xFC);
+		else
+			return (reg[cmd] & 0x07) | (cpu.openbus & 0xF8);
+>>>>>>> 5926d713 (Update libretro.c)
 	}
 	return cpu.openbus;
 }
 
-static void S74LS374NWrite(uint32 A, uint8 V) {
-	if (dip & 1)
-		V |= 4;
-	switch (A & 0xC101) {
-	case 0x4100:
-		cmd = V & 7;
+static DECLFW(M150Write) {
+	if (dipsw & 0x01)
+		V |= 0x04;
+	switch (A & 0x101) {
+	case 0x100:
+		cmd = V & 0x07;
 		break;
-	case 0x4101:
-		latch[cmd] = V & 7;
-		S74LS374NSynco();
+	case 0x101:
+		reg[cmd] = V & 0x07;
+		Sync();
 		break;
 	}
 }
 
+<<<<<<< HEAD
 static void S74LS374NRestore(int version) {
 	cmd &= 7;	/* latch[] has 8 entries; clamp savestate value */
 	S74LS374NSynco();
+=======
+static void M150Restore(int version) {
+	Sync();
+>>>>>>> 5926d713 (Update libretro.c)
 }
 
-static void S74LS374NReset(void) {
-	dip ^= 1;
-	latch[0] = latch[1] = latch[2] = latch[3] = 0;
-	latch[4] = latch[5] = latch[6] = latch[7] = 0;
-	S74LS374NSynco();
+static void M150Reset(void) {
+	dipsw ^= 0x01;
+	reg[0] = reg[1] = reg[2] = reg[3] = 0;
+	reg[4] = reg[5] = reg[6] = reg[7] = 0;
+	Sync();
 }
 
-static void S74LS374NPower(void) {
-	dip = 0;
-	latch[0] = latch[1] = latch[2] = latch[3] = 0;
-	latch[4] = latch[5] = latch[6] = latch[7] = 0;
-	S74LS374NSynco();
+static void M150Power(void) {
+	dipsw = 0;
+	reg[0] = reg[1] = reg[2] = reg[3] = 0;
+	reg[4] = reg[5] = reg[6] = reg[7] = 0;
+	Sync();
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
-	SetWriteHandler(0x4100, 0x7FFF, S74LS374NWrite);
-	if (mapperNum == 150)
-		SetReadHandler(0x4100, 0x7FFF, S74LS374NRead);
+    SetReadHandler(0x4100, 0x5FFF, M150Read);
+	SetWriteHandler(0x4100, 0x5FFF, M150Write);
 }
 
-void S74LS374N_Init(CartInfo *info) {
-	mapperNum = info->mapper;
-	info->Power = S74LS374NPower;
-	info->Reset = S74LS374NReset;
-	GameStateRestore = S74LS374NRestore;
-	AddExState(latch, 8, 0, "LATC");
-	AddExState(&cmd, 1, 0, "CMD");
-}
-
-static uint8 Mapper553Read(uint32 A) { return 0x3A; }
-
-static void Mapper553Power(void) {
-	setprg16(0xC000, 0);
-	setchr8(0);
-	SetReadHandler(0x8000, 0xBFFF, Mapper553Read);
-	SetReadHandler(0xC000, 0xFFFF, CartBR);
-}
-
-void Mapper553_Init(CartInfo *info) {
-	info->Power = Mapper553Power;
+void Mapper150_Init(CartInfo *info) {
+	info->Power = M150Power;
+	info->Reset = M150Reset;
+	GameStateRestore = M150Restore;
+	AddExState(StateRegs, ~0, 0, NULL);
 }

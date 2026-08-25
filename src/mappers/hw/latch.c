@@ -1,7 +1,7 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,8 +19,9 @@
  */
 
 #include "mapinc.h"
-#include "sound/fdssound.h"
+#include "latch.h"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static uint8_t latche, latcheinit, bus_conflict;
 static uint16_t addrreg0, addrreg1;
@@ -33,53 +34,74 @@ static uint8 *WRAM = NULL;
 >>>>>>> 78532036 (Update libretro.c)
 static void (*WSync)(void);
 static uint8_t submapper;
+=======
+static uint8 bus_conflict;
+static void (*WSync)(void);
+<<<<<<< HEAD
+static uint8 submapper;
+=======
+static readfunc defread;
+>>>>>>> 5d22892 (Update libretro.c)
+>>>>>>> 5926d713 (Update libretro.c)
 
-#ifndef WRAM_SIZE
-#define WRAM_SIZE 8192
-#endif
+LATCH latch;
 
-static void LatchWrite(uint32 A, uint8 V) {
-	if (bus_conflict)
+DECLFW(Latch_Write) {
+	/*	FCEU_printf("bs %04x %02x\n",A,V); */
+	if (bus_conflict) {
 		V &= CartBR(A);
-	latche = V;
+	}
+    latch.addr = A;
+    latch.data = V;
 	WSync();
 }
 
-static void Latch_RegReset(void) {
-	latche = latcheinit;
+void Latch_RegReset(void) {
+	latch.addr = 0;
+	latch.data = 0;
 	WSync();
 }
 
-static void LatchPower(void) {
+void Latch_Power(void) {
 	Latch_RegReset();
 	if (WRAM) {
-		SetReadHandler(0x6000, 0xFFFF, CartBR);
+		SetReadHandler(0x6000, 0x7FFF, CartBR);
 		SetWriteHandler(0x6000, 0x7FFF, CartBW);
-		FCEU_CheatAddRAM(WRAM_SIZE >> 10, 0x6000, WRAM);
-	} else {
-		SetReadHandler(0x8000, 0xFFFF, CartBR);
+		FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
 	}
-	SetWriteHandler(addrreg0, addrreg1, LatchWrite);
+	SetReadHandler(0x8000, 0xFFFF, defread);
+	SetWriteHandler(0x8000, 0xFFFF, Latch_Write);
 }
 
-static void LatchClose(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
+void Latch_Close(void) {
 }
 
-static void StateRestore(int version) { WSync(); }
+static void LatchReset(void) {
+	WSync();
+}
 
+<<<<<<< HEAD
 static void Latch_Init(CartInfo *info, void (*proc)(void), uint8_t init, uint16_t adr0, uint16_t adr1, uint8_t wram, uint8_t busc) {
+=======
+static void StateRestore(int version) {
+	WSync();
+}
+
+void Latch_Init(CartInfo *info, void (*proc)(void), readfunc func,
+    uint8 wram, uint8 busc) {
+>>>>>>> 5926d713 (Update libretro.c)
 	bus_conflict = busc;
-	latcheinit = init;
-	addrreg0 = adr0;
-	addrreg1 = adr1;
-	WSync = proc;
-	info->Power = LatchPower;
-	info->Close = LatchClose;
+	WSync        = proc;
+	if (func != NULL)
+		defread = func;
+	else
+		defread = CartBROB;
+	info->Power = Latch_Power;
+	info->Close = Latch_Close;
+	info->Reset = LatchReset;
 	GameStateRestore = StateRestore;
 	if (wram) {
+<<<<<<< HEAD
 <<<<<<< HEAD
 		WRAMSIZE = 8192;
 		WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
@@ -88,12 +110,18 @@ static void Latch_Init(CartInfo *info, void (*proc)(void), uint8_t init, uint16_
 		WRAM = (uint8*)FCEU_gmalloc(WRAM_SIZE);
 		SetupCartPRGMapping(0x10, WRAM, WRAM_SIZE, 1);
 >>>>>>> 78532036 (Update libretro.c)
+=======
+		WRAMSIZE = 8192;
+		WRAM     = (uint8 *)FCEU_gmalloc(WRAMSIZE);
+		SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
+>>>>>>> 5926d713 (Update libretro.c)
 		if (info->battery) {
 			info->SaveGame[0]    = WRAM;
-			info->SaveGameLen[0] = WRAM_SIZE;
+			info->SaveGameLen[0] = WRAMSIZE;
 		}
-		AddExState(WRAM, WRAM_SIZE, 0, "WRAM");
+		AddExState(WRAM, WRAMSIZE, 0, "WRAM");
 	}
+<<<<<<< HEAD
 	AddExState(&latche, 1, 0, "LATC");
 	AddExState(&bus_conflict, 1, 0, "BUSC");
 }
@@ -601,6 +629,10 @@ static void M415Power(void) {
 void Mapper415_Init(CartInfo *info) {
 	Latch_Init(info, Mapper415_Sync, 0, 0x8000, 0xFFFF, 0, 0);
 	info->Power = M415Power;
+=======
+	AddExState(&latch.addr, 2, 0, "ADDR");
+	AddExState(&latch.data, 1, 0, "DATA");
+>>>>>>> 5d22892 (Update libretro.c)
 }
 
 /*------------------ Mapper 462 ---------------------------*/

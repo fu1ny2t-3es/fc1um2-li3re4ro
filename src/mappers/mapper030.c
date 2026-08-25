@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2014 CaitSith2
+ *  Copyright (C) 2014 CaitSith2, 2022 Cluster
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,23 +20,25 @@
  */
 
 /*
- * Roms still using NES 1.0 format should be loaded as 32K CHR RAM.
- * Roms defined under NES 2.0 should use the VRAM size field, defining 7, 8 or 9, based on how much VRAM should be present.
- * UNIF doesn't have this problem, because unique board names can define this information.
- * The UNIF names are UNROM-512-8K, UNROM-512-16K and UNROM-512-32K
+ * Roms still using NES 1.0 format should be loaded as 8K CHR RAM.
+ * Roms defined under NES 2.0 should use the VRAM size field, defining 7, 8 or 9, based on how much VRAM should be
+ * present. UNIF doesn't have this problem, because unique board names can define this information. The UNIF names are
+ * UNROM-512-8K, UNROM-512-16K and UNROM-512-32K
  *
  * The battery flag in the NES header enables flash,  Mirrror mode 2 Enables MI_0 and MI_1 mode.
  * Known games to use this board are:
  *    Battle Kid 2: Mountain of Torment (512K PRG, 8K CHR RAM, Horizontal Mirroring, Flash disabled)
  *    Study Hall (128K PRG (in 512K flash chip), 8K CHR RAM, Horizontal Mirroring, Flash enabled)
+ *    Nix: The Paradox Relic (512 PRG, 8K CHR RAM, Vertical Mirroring, Flash enabled)
  * Although Xmas 2013 uses a different board, where LEDs can be controlled (with writes to the $8000-BFFF space),
  * it otherwise functions identically.
- *
- * 17-10-20 - Works with Mystic Origins (Demo)
-*/
+  */
 
 #include "mapinc.h"
+#include "latch.h"
+#include "flashrom.h"
 
+<<<<<<< HEAD
 /* Workaround for Libretro API compatibility */
 #define ROM_size_max                32
 #define flashdata_size          (ROM_size_max * 0x4000)
@@ -155,19 +158,76 @@ static uint8 UNROM512LatchRead(uint32 A) {
 		if (A & 1)
 			return flash_id[ROM_size >> 4];
 		return 0xBF;
+=======
+#define ROM_CHIP   0x00
+#define FLASH_CHIP 0x10
+
+<<<<<<< HEAD
+static uint8 submapper;
+static uint8 latche, latcheinit, bus_conflict, chrram_mask, software_id=0;
+static uint16 latcha;
+static uint8 *flashdata = fceumm_flash_buf + flash_write_count_size;
+static uint32 *flash_write_count = (uint32*)fceumm_flash_buf;
+static uint8 *FlashPage[32];
+/* static uint32 *FlashWriteCountPage[32]; */
+/* static uint8 flashloaded = 0; */
+=======
+static uint8 flash_save;
+static uint8 *flash_data;
+>>>>>>> abbaf97 (Update libretro.c)
+
+static void M030Sync(void) {
+	int chip = flash_save ? FLASH_CHIP : ROM_CHIP;
+
+	setprg16r(chip, 0x8000, latch.data & 0x1F);
+	setprg16r(chip, 0xC000, ~0);
+	setchr8((latch.data >> 5) & 0x03);
+	switch (iNESCart.submapper) {
+	case 1:
+		/* Mega Man II (30th Anniversary Edition) */
+		setmirror((latch.data >> 7) & 0x01);	
+		break;
+	default:
+		setmirror(MI_0 + ((latch.data >> 7) & 0x01));
+		break;
 	}
-	if (flash_save) {
-		if (A < 0xC000) {
-			if (GetFlashWriteCount(flash_bank, A))
-				return FlashPage[A >> 11][A];
-		} else {
-			if (GetFlashWriteCount(ROM_size - 1, A))
-				return FlashPage[A >> 11][A];
-		}
-	}
-	return Page[A >> 11][A];
 }
 
+static void M030CPUHook(int a) {
+	FlashROM_CPUCyle(a);
+}
+
+static DECLFR(M030Read) {
+	if ((A < 0xC000) && flash_save) {
+		return FlashROM_Read(A);
+	}
+	return CartBR(A);
+}
+
+static DECLFW(M030Write) {
+	if ((A < 0xC000) && flash_save) {
+		FlashROM_Write(A, V);
+	} else {
+		Latch_Write(A, V);
+	}
+}
+
+static void M030Power(void) {
+	Latch_Power();
+	SetReadHandler(0x8000, 0xFFFF, M030Read);
+	SetWriteHandler(0x8000, 0xBFFF, M030Write);
+}
+
+static void M030Close(void) {
+	Latch_Close();
+	if (flash_data) {
+		FCEU_gfree(flash_data);
+>>>>>>> 5926d713 (Update libretro.c)
+	}
+	flash_data = NULL;
+}
+
+<<<<<<< HEAD
 static void UNROM512LatchPower(void) {
 	latche = latcheinit;
 	WHSync();
@@ -252,15 +312,17 @@ void UNROM512_Init(CartInfo *info) {
 	memset(fceumm_flash_buf, 0x00, fceumm_flash_buf_size);
 	flash_state = 0;
 	flash_bank = 0;
+=======
+void Mapper030_Init(CartInfo *info) {
+>>>>>>> abbaf97 (Update libretro.c)
 	flash_save = info->battery;
+	Latch_Init(info, M030Sync, NULL, 0, !flash_save);
 
-	if (info->CHRRamSize == 8192)
-		chrram_mask = 0;
-	else if (info->CHRRamSize == 16384)
-		chrram_mask = 0x20;
-	else
-		chrram_mask = 0x60;
+	if (!info->submapper && (info->PRGCRC32 == 0x891C14BC)) {
+		info->submapper = 0x01;
+	}
 
+<<<<<<< HEAD
 	mirror = (head.ROM_type & 1) | ((head.ROM_type & 8) >> 2);
 	if (submapper == 3) /* Mega Man II (30th Anniversary Edition): switchable H/V */
 		SetupCartMirroring(MI_V, 0, NULL);
@@ -295,8 +357,48 @@ void UNROM512_Init(CartInfo *info) {
 		AddExState(&flash_state, 1, 0, "FLASH_STATE");
 		AddExState(&flash_mode, 1, 0, "FLASH_MODE");
 		AddExState(&flash_bank, 1, 0, "FLASH_BANK");
+<<<<<<< HEAD
 		AddExState(&latcha, 2, 1, "LATA");
+=======
+		AddExState(&latcha, 2, 0, "LATA");
+=======
+	if (!(info->submapper & 1)) {
+		switch (info->mirror2bits) {
+		case 0: /* hard horizontal, internal */
+			SetupCartMirroring(MI_H, 1, NULL);
+			break;
+		case 1: /* hard vertical, internal */
+			SetupCartMirroring(MI_V, 1, NULL);
+			break;
+		case 2: /* switchable 1-screen, internal (flags: 4-screen + horizontal) */
+			SetupCartMirroring(MI_0, 0, NULL);
+			break;
+		case 3: /* hard four screen, last 8k of 32k RAM (flags: 4-screen + vertical) */
+			SetupCartMirroring(4, 1, ROM.chr.data + (info->CHRRamSize - 8192));
+			break;
+		}
 	}
-	AddExState(&latche, 1, 0, "LATC");
-	AddExState(&bus_conflict, 1, 0, "BUSC");
+
+	info->Power = M030Power;
+	info->Close = M030Close;
+
+	if (flash_save) {
+		uint32 i, ssize;
+		/* Allocate memory for flash */
+		ssize = PRGsize[0];
+		flash_data = (uint8 *)FCEU_gmalloc(ssize);
+		/* Copy ROM to flash data */
+		for (i = 0; i < ssize; i++) {
+			flash_data[i] = PRGptr[ROM_CHIP][i % ssize];
+		}
+		SetupCartPRGMapping(FLASH_CHIP, flash_data, ssize, 1);
+		AddExState(flash_data, ssize, 0, "FLSH");
+		info->SaveGame[0] = flash_data;
+		info->SaveGameLen[0] = ssize;
+
+		FlashROM_Init(flash_data, ssize, 0xBF, 0xB7, 4096, 0x5555, 0x2AAA);
+		MapIRQHook = M030CPUHook;
+>>>>>>> abbaf97 (Update libretro.c)
+>>>>>>> 5926d713 (Update libretro.c)
+	}
 }
