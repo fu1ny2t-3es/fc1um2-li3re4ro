@@ -40,8 +40,6 @@ size_t FCEUSS_Save_Mem(void *buf, size_t size);
 
 #define FCEU_VERSION_NUMERIC ((FCEU_VERSION_MAJOR * 10000) + (FCEU_VERSION_MINOR * 100) + (FCEU_VERSION_PATCH))
 
-#define FCEUSTATE_RLSB      0x80000000
-
 void FCEUSS_Load_Mem(void);
 void FCEUSS_Save_Mem(void);
 >>>>>>> 7a698134 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
@@ -55,6 +53,7 @@ typedef struct {
 void ResetExState(void (*PreSave)(void), void (*PostSave)(void));
 void AddExState(void *v, uint32_t s, int type, char *desc);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 /* SFORMAT 's' field encoding:
  *   bit 31     (0x80000000): FCEUSTATE_RLSB - byte-swap on save/load when
@@ -89,4 +88,15 @@ void FCEU_DrawSaveStates(uint8_t *XBuf);
 
 =======
 >>>>>>> 375cdd10 (Remove FCEU_DrawSaveStates)
+=======
+/* indicates that the value is a multibyte integer that needs to be put in the correct byte order */
+#define FCEUSTATE_RLSB 0x80000000
+
+/* void*v is actually a void** which will be indirected before reading */
+#define FCEUSTATE_INDIRECT 0x40000000
+
+/* all FCEUSTATE flags together so that we can mask them out and get the size */
+#define FCEUSTATE_FLAGS (FCEUSTATE_RLSB | FCEUSTATE_INDIRECT)
+
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 #endif

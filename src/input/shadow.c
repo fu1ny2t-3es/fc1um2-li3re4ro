@@ -22,7 +22,9 @@
 #include        <stdlib.h>
 
 #include        "share.h"
+#include        "zapper.h"
 
+<<<<<<< HEAD
 typedef struct {
 	uint32_t mzx, mzy, mzb;
 	int zap_readbit;
@@ -32,6 +34,9 @@ typedef struct {
 } ZAPPER;
 
 static ZAPPER ZD;
+=======
+#define ZD ZD[0]
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 <<<<<<< HEAD
 static void FP_FASTAPASS(3) ZapperFrapper(uint8_t * bg, uint8_t * spr, uint32_t linets, int final) {
@@ -143,7 +148,9 @@ static void UpdateZapper(void *data, int arg) {
 	ZD.mzb = ptr[2];
 }
 
-static void StrobeShadow(void) { ZD.zap_readbit = 0; }
+static void StrobeShadow(void) {
+	ZD.zap_readbit = 0;
+}
 
 static INPUTCFC SHADOWC = { ReadZapper, 0, StrobeShadow, UpdateZapper, ZapperFrapper, DrawZapper };
 
