@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2006 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +20,10 @@
  *
  */
 
+/* NES 2.0 Mapper 329 - UNL-EDU2000 */
+
 #include "mapinc.h"
+<<<<<<< HEAD
 
 static uint8_t *WRAM = NULL;
 static uint8_t reg;
@@ -29,13 +33,18 @@ static SFORMAT StateRegs[] =
 	{ &reg, 1, "REG" },
 	{ 0 }
 };
+=======
+#include "latch.h"
+>>>>>>> ae14339e (Update Makefile.libretro)
 
 static void Sync(void) {
+	setprg8r(0x10, 0x6000, latch.data >> 6);
+	setprg32(0x8000, latch.data & 0x1F);
 	setchr8(0);
-	setprg8r(0x10, 0x6000, (reg & 0xC0) >> 6);
-	setprg32(0x8000, reg & 0x1F);
+	setmirror(((latch.data >> 5) & 0x01) ^ 0x01);
 }
 
+<<<<<<< HEAD
 static void UNLEDU2000HiWrite(uint32 A, uint8 V) { reg = V; Sync(); }
 
 static void UNLEDU2000Power(void) {
@@ -68,4 +77,8 @@ void UNLEDU2000_Init(CartInfo *info) {
 	}
 	AddExState(WRAM, 32768, 0, "WRAM");
 	AddExState(StateRegs, ~0, 0, 0);
+=======
+void Mapper329_Init(CartInfo *info) {
+	Latch_Init(info, Sync, NULL, FALSE, FALSE);
+>>>>>>> ae14339e (Update Makefile.libretro)
 }

@@ -1,8 +1,7 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2012 CaH4e3
- *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +20,9 @@
  */
 
 #include "mapinc.h"
+#include "mmc2.h"
 
+<<<<<<< HEAD
 <<<<<<< HEAD:src/mappers/mmc2and4.c
 static uint8_t is10, isPC10;
 static uint8_t creg[4], latch0, latch1, preg, mirr;
@@ -159,6 +160,21 @@ void Mapper9_Init(CartInfo *info) {
 	}
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
+=======
+static void M009PW(uint16 A, uint16 V) {
+    setprg8(A, V & 0x0F);
+}
+
+static void M009CW(uint16 A, uint16 V) {
+    setchr4(A, V & 0x1F);
+}
+
+void Mapper009_Init(CartInfo *info) {
+	int ws = info->iNES2 ? ((info->PRGRamSize + info->PRGRamSaveSize) / 1024) : (info->battery ? 8 : 0);
+	MMC2_Init(info, ws, info->battery);
+    MMC2_pwrap = M009PW;
+    MMC2_cwrap = M009CW;
+>>>>>>> ae14339e (Update Makefile.libretro)
 }
 <<<<<<< HEAD:src/mappers/mmc2and4.c
 
