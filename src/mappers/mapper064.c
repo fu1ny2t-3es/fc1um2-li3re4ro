@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,29 +25,146 @@
 
 #include "mapinc.h"
 
+<<<<<<< HEAD
 static uint8_t cmd, mirr, regs[11];
 static uint8_t rmode, IRQmode, IRQCount, IRQa, IRQLatch;
 
 static void (*cwrap)(uint32_t A, uint8_t V);
 static int _isM158;
+=======
+static uint8 cmd, mirr, reg[16];
+static uint8 IRQReload, IRQmode, IRQCount, IRQa, IRQLatch;
+static uint8 IRQPrescaler;
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 static SFORMAT StateRegs[] = {
-	{ regs, 11, "REGS" },
+	{ reg, 16, "REGS" },
 	{ &cmd, 1, "CMDR" },
 	{ &mirr, 1, "MIRR" },
-	{ &rmode, 1, "RMOD" },
+	{ &IRQReload, 1, "IRQR" },
 	{ &IRQmode, 1, "IRQM" },
 	{ &IRQCount, 1, "IRQC" },
 	{ &IRQa, 1, "IRQA" },
 	{ &IRQLatch, 1, "IRQL" },
+	{ &IRQPrescaler, 1, "IRQP" },
 	{ 0 }
 };
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static void FP_FASTAPASS(1) RAMBO1IRQHook(int a) {
 	static int32_t smallcount;
 =======
 static void RAMBO1IRQHook(int a) {
+=======
+static void Sync(void) {
+	/*
+	0000: R0: Select 2 (K=0) or 1 (K=1) KiB CHR bank at PPU $0000 (or $1000)
+	0001: R1: Select 2 (K=0) or 1 (K=1) KiB CHR bank at PPU $0800 (or $1800)
+	0010: R2: Select 1 KiB CHR bank at PPU $1000-$13FF (or $0000-$03FF)
+	0011: R3: Select 1 KiB CHR bank at PPU $1400-$17FF (or $0400-$07FF)
+	0100: R4: Select 1 KiB CHR bank at PPU $1800-$1BFF (or $0800-$0BFF)
+	0101: R5: Select 1 KiB CHR bank at PPU $1C00-$1FFF (or $0C00-$0FFF)
+	0110: R6: Select 8 KiB PRG ROM bank at $8000-$9FFF (or $C000-$DFFF)
+	0111: R7: Select 8 KiB PRG ROM bank at $A000-$BFFF
+	1000: R8: If K=1, Select 1 KiB CHR bank at PPU $0400 (or $1400)
+	1001: R9: If K=1, Select 1 KiB CHR bank at PPU $0C00 (or $1C00)
+	1111: RF: Select 8 KiB PRG ROM bank at $C000-$DFFF (or $8000-$9FFF)
+	*/
+	setprg8(0x8000, reg[6]);
+	setprg8(0xA000, reg[7]);
+	setprg8(0xC000, reg[15]);
+	setprg8(0xE000, ~0);
+
+	if (cmd & 0x20) {
+		setchr1(0x0000, reg[0]);
+		setchr1(0x0400, reg[8]);
+		setchr1(0x0800, reg[1]);
+		setchr1(0x0C00, reg[9]);
+	} else {
+		setchr1(0x0000, (reg[0] & 0xFE));
+		setchr1(0x0400, (reg[0] & 0xFE) | 1);
+		setchr1(0x0800, (reg[1] & 0xFE));
+		setchr1(0x0C00, (reg[1] & 0xFE) | 1);
+	}
+
+	setchr1(0x1000, reg[2]);
+	setchr1(0x1400, reg[3]);
+	setchr1(0x1800, reg[4]);
+	setchr1(0x1C00, reg[5]);
+
+	if (iNESCart.mapper == 158) {
+		if (cmd & 0x20) {
+			setntamem(NTARAM + ((reg[0] >> 7) << 10), 1, 0);
+			setntamem(NTARAM + ((reg[8] >> 7) << 10), 1, 1);
+			setntamem(NTARAM + ((reg[1] >> 7) << 10), 1, 2);
+			setntamem(NTARAM + ((reg[9] >> 7) << 10), 1, 3);
+		} else {
+			setntamem(NTARAM + ((reg[0] >> 7) << 10), 1, 0);
+			setntamem(NTARAM + ((reg[0] >> 7) << 10), 1, 1);
+			setntamem(NTARAM + ((reg[1] >> 7) << 10), 1, 2);
+			setntamem(NTARAM + ((reg[1] >> 7) << 10), 1, 3);
+		}
+	} else {
+		setmirror((mirr & 1) ^ 1);
+	}
+}
+
+static DECLFW(M064Write) {
+	switch (A & 0xF001) {
+	case 0xA000:
+		mirr = V;
+		Sync();
+		break;
+	case 0x8000:
+		cmd = V;
+		break;
+	case 0x8001:
+		reg[cmd & 0x0F] = V;
+		Sync();
+		break;
+	case 0xC000:
+		IRQLatch = V;
+		if (IRQReload) {
+			IRQCount = IRQLatch;
+		}
+		break;
+	case 0xC001:
+		IRQReload = TRUE;
+		IRQCount = IRQLatch;
+		IRQmode = V & 1;
+		break;
+	case 0xE000:
+		IRQa = FALSE;
+		X6502_IRQEnd(FCEU_IQEXT);
+		if (IRQReload) {
+			IRQCount = IRQLatch;
+		}
+		break;
+	case 0xE001:
+		IRQa = TRUE;
+		if (IRQReload) {
+			IRQCount = IRQLatch;
+		}
+		break;
+	}
+}
+
+static void M064Power(void) {
+	cmd = mirr = 0;
+	reg[0] = reg[1] = reg[2] = reg[3] = reg[4] = reg[5] = ~0;
+	reg[6] = reg[7] = reg[8] = reg[9] = reg[10] = ~0;
+	Sync();
+	SetReadHandler(0x8000, 0xFFFF, CartBR);
+	SetWriteHandler(0x8000, 0xFFFF, M064Write);
+}
+
+static void StateRestore(int version) {
+	Sync();
+}
+
+static void M064CPUHook(int a) {
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	static int32 smallcount;
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if (IRQmode) {
@@ -79,8 +197,9 @@ static void RAMBO1IRQHook(int a) {
 	}
 }
 
-static void RAMBO1HBHook(void) {
+static void M064HBHook(void) {
 	if ((!IRQmode) && (scanline != 240)) {
+<<<<<<< HEAD
 		rmode = 0;
 		/* See comment in RAMBO1IRQHook above for the auto-reload /
 		 * trigger-on-reach-0 model.  Same change applies here for the
@@ -97,96 +216,25 @@ static void RAMBO1HBHook(void) {
 			IRQCount--;
 			if (IRQCount == 0 && IRQa) {
 				rmode = 1;
+=======
+		IRQReload = 0;
+		IRQCount--;
+		if (IRQCount == 0xFF) {
+			if (IRQa) {
+				IRQReload = 1;
+>>>>>>> b490c0c5 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 				X6502_IRQBegin(FCEU_IQEXT);
 			}
 		}
 	}
 }
 
-static void Sync(void) {
-	if (cmd & 0x20) {
-		cwrap(0x0000, regs[0]);
-		cwrap(0x0400, regs[8]);
-		cwrap(0x0800, regs[1]);
-		cwrap(0x0C00, regs[9]);
-	} else {
-		cwrap(0x0000, (regs[0] & 0xFE));
-		cwrap(0x0400, (regs[0] & 0xFE) | 1);
-		cwrap(0x0800, (regs[1] & 0xFE));
-		cwrap(0x0C00, (regs[1] & 0xFE) | 1);
-	}
-	cwrap(0x1000, regs[2]);
-	cwrap(0x1400, regs[3]);
-	cwrap(0x1800, regs[4]);
-	cwrap(0x1C00, regs[5]);
-	setprg8(0x8000, regs[6]);
-	setprg8(0xA000, regs[7]);
-	setprg8(0xC000, regs[10]);
-	setprg8(0xE000, ~0);
-	if (!_isM158)
-		setmirror(mirr);
-}
-
-
-static void RAMBO1_Write(uint32 A, uint8 V) {
-	switch (A & 0xF001) {
-	case 0xA000:
-		if (!_isM158) {
-			mirr = (V & 1) ^ 1;
-			Sync();
-		}
-		break;
-	case 0x8000: cmd = V; break;
-	case 0x8001:
-		if ((cmd & 0xF) < 10)
-			regs[cmd & 0xF] = V;
-		else if ((cmd & 0xF) == 0xF)
-			regs[10] = V;
-		Sync();
-		break;
-	case 0xC000:
-		IRQLatch = V;
-		if (rmode == 1)
-			IRQCount = IRQLatch;
-		break;
-	case 0xC001:
-		rmode = 1;
-		IRQCount = IRQLatch;
-		IRQmode = V & 1;
-		break;
-	case 0xE000:
-		IRQa = 0;
-		X6502_IRQEnd(FCEU_IQEXT);
-		if (rmode == 1)
-			IRQCount = IRQLatch;
-		break;
-	case 0xE001:
-		IRQa = 1;
-		if (rmode == 1)
-			IRQCount = IRQLatch;
-		break;
-	}
-}
-
-static void RAMBO1Power(void) {
-	cmd = mirr = 0;
-	regs[0] = regs[1] = regs[2] = regs[3] = regs[4] = regs[5] = ~0;
-	regs[6] = regs[7] = regs[8] = regs[9] = regs[10] = ~0;
-	Sync();
-	if (!_isM158) setmirror(1);
-	SetReadHandler(0x8000, 0xFFFF, CartBR);
-	SetWriteHandler(0x8000, 0xFFFF, RAMBO1_Write);
-}
-
-static void StateRestore(int version) {
-	Sync();
-}
-
-static void RAMBO1_Init(CartInfo *info) {
-	info->Power = RAMBO1Power;
-	GameHBIRQHook = RAMBO1HBHook;
-	MapIRQHook = RAMBO1IRQHook;
+void Mapper064_Init(CartInfo *info) {
+	info->Power = M064Power;
+	GameHBIRQHook = M064HBHook;
+	MapIRQHook = M064CPUHook;
 	GameStateRestore = StateRestore;
+<<<<<<< HEAD
 	AddExState(&StateRegs, ~0, 0, 0);
 }
 
@@ -227,4 +275,7 @@ void Mapper158_Init(CartInfo *info) {
 	PPU_hook = M158PPU;
 	RAMBO1_Init(info);
 	AddExState(&PPUCHRBus, 1, 0, "PPUC");
+=======
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
