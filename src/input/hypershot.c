@@ -24,20 +24,29 @@
 static uint8_t HSVal, HSValR;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 static uint8_t FP_FASTAPASS(2) HS_Read(int w, uint8_t ret) {
 =======
+=======
+
+>>>>>>> e98261e5 (Update ppu.c)
 static uint8 HS_Read(int w, uint8 ret) {
 >>>>>>> f9553c43 (Update ppu.c)
 	if (w) ret |= HSValR;
+
 	return(ret);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> e98261e5 (Update ppu.c)
 static void HS_Strobe(void) {
 	HSValR = HSVal << 1;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) HS_Update(void *data, int arg) {
 	HSVal = *(uint8_t*)data;
 }
@@ -45,6 +54,11 @@ static void FP_FASTAPASS(2) HS_Update(void *data, int arg) {
 static void HS_Strobe(void) { HSValR = HSVal << 1; }
 static void HS_Update(void *data, int arg) { HSVal = *(uint8*)data; }
 >>>>>>> f9553c43 (Update ppu.c)
+=======
+static void HS_Update(void *data, int arg) {
+	HSVal = *(uint8*)data;
+}
+>>>>>>> e98261e5 (Update ppu.c)
 
 static INPUTCFC HyperShot = { HS_Read, 0, HS_Strobe, HS_Update, 0, 0 };
 

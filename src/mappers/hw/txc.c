@@ -3,7 +3,7 @@
  * Copyright notice for this file:
  *  Copyright (C) 2012 CaH4e3
  *  Copyright (C) 2019 Libretro Team
- *  Copyright (C) 2020
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,9 @@
  */
 
 #include "mapinc.h"
+#include "txc.h"
 
+<<<<<<< HEAD
 typedef struct {
 	uint8_t mask;
 	uint8_t isJV001;
@@ -64,6 +66,9 @@ typedef struct {
 } TXC;
 
 static TXC txc;
+=======
+TXC txc;
+>>>>>>> e98261e5 (Update ppu.c)
 
 static void Dummyfunc(void) { }
 static void (*WSync)(void) = Dummyfunc;
@@ -75,62 +80,73 @@ static SFORMAT StateRegs[] =
 	{ &txc.staging,     1, "STG0" },
 	{ &txc.output,      1, "OUT0" },
 	{ &txc.increase,    1, "INC0" },
-	{ &txc.Y,        1, "YFLG" },
+	{ &txc.X,           1, "XFLG" },
+	{ &txc.Y,           1, "YFLG" },
 	{ &txc.invert,      1, "INVT" },
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static uint8_t TXC_CMDRead(void) {
 	uint8_t ret = ((txc.accumulator & txc.mask) | ((txc.inverter ^ txc.invert) & ~txc.mask));
 	txc.Y = !txc.invert || ((ret & 0x10) != 0);
 	WSync();
+=======
+DECLFR(TXC_Read) {
+	uint8 ret = cpu.openbus;
+	if ((A & 0x103) == 0x100) {
+		ret = ((txc.accumulator & 0x07) | ((txc.inverter ^ txc.invert) & ~0x07));
+		txc.Y = txc.X || ((ret & 0x10) != 0);
+		WSync();
+	}
+>>>>>>> e98261e5 (Update ppu.c)
 	return ret;
 }
 
-static void TXC_CMDWrite(uint32 A, uint8 V) {
+DECLFW(TXC_Write) {
 	if (A & 0x8000) {
-	  if (txc.isJV001)
-		 txc.output = (txc.accumulator & 0x0F) | (txc.inverter & 0xF0);
-	  else
-		 txc.output = (txc.accumulator & 0x0F) | ((txc.inverter << 1) & 0x10);
+		txc.output = (txc.accumulator & 0x0F) | ((txc.inverter << 1) & 0x10);
 	} else {
-	  switch (A & 0x103) {
-	  case 0x100:
-		 if (txc.increase)
-			txc.accumulator++;
-		 else
-			txc.accumulator = ((txc.accumulator & ~txc.mask) | ((txc.staging ^ txc.invert) & txc.mask));
-		 break;
-	  case 0x101:
-		 txc.invert = (V & 0x01) ? 0xFF : 0x00;
-		 break;
-	  case 0x102:
-		 txc.staging = V & txc.mask;
-		 txc.inverter = V & ~txc.mask;
-		 break;
-	  case 0x103:
-		 txc.increase = ((V & 0x01) != 0);
-		 break;
-	  }
+		switch (A & 0x103) {
+		case 0x100:
+			if (txc.increase) {
+				txc.accumulator++;
+			} else {
+				txc.accumulator = ((txc.accumulator & ~0x07) | ((txc.staging ^ txc.invert) & 0x07));
+			}
+			break;
+		case 0x101:
+			txc.invert = (V & 0x01) ? 0xFF : 0x00;
+			break;
+		case 0x102:
+			txc.staging  = V & 0x07;
+			txc.inverter = V & ~0x07;
+			break;
+		case 0x103:
+			txc.increase = ((V & 0x01) != 0);
+			break;
+		}
 	}
-	txc.Y = !txc.invert || ((V & 0x10) != 0);
+    txc.X = txc.invert ? txc.A : txc.B;
+	txc.Y = txc.X || ((V & 0x10) != 0);
 	WSync();
 }
 
 static void TXCRegReset(void) {
+	WSync();
+}
+
+void TXC_Power(void) {
 	txc.output      = 0;
 	txc.accumulator = 0;
 	txc.inverter    = 0;
 	txc.staging     = 0;
 	txc.increase    = 0;
-	txc.Y       = 0;
-	txc.mask        = txc.isJV001 ? 0x0F : 0x07;
-	txc.invert      = txc.isJV001 ? 0xFF : 0x00;
-
-	WSync();
-}
-
-static void GenTXCPower(void) {
+    txc.invert      = 0;
+	txc.X           = 0;
+	txc.Y           = 0;
+	txc.A           = 0;
+	txc.B           = 1;
 	TXCRegReset();
 }
 
@@ -138,6 +154,7 @@ static void StateRestore(int version) {
 	WSync();
 }
 
+<<<<<<< HEAD
 static void GenTXC_Init(CartInfo *info, void (*proc)(void), uint32_t jv001) {
 	txc.isJV001 = jv001;
 	WSync   = proc;
@@ -507,4 +524,10 @@ void UNL22211_Init(CartInfo *info) {
 	info->Power = UNL22211Power;
 	GameStateRestore = UNL22211StateRestore;
 	AddExState(&UNL22211StateRegs, ~0, 0, 0);
+=======
+void TXC_Init(CartInfo *info, void (*proc)(void)) {
+	WSync = proc;
+	GameStateRestore = StateRestore;
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> e98261e5 (Update ppu.c)
 }
