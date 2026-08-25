@@ -86,9 +86,13 @@ static uint16_t *CheatComp = 0;
 static int savecheats;
 =======
 static uint16 *CheatComp = 0;
+<<<<<<< HEAD
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+static int savecheats;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
-static uint8 SubCheatsRead(uint32 A) {
+static DECLFR(SubCheatsRead) {
 	CHEATF_SUBFAST *s = SubCheats;
 	int x = numsubcheats;
 
@@ -147,18 +151,25 @@ void FCEU_PowerCheats(void) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int AddCheatEntry(char *name, uint32_t addr, uint8_t val, int compare, int status, int type);
+=======
+static int AddCheatEntry(char *name, uint32 addr, uint8 val, int compare, int status, int type);
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 static void CheatMemErr(void) {
 	FCEUD_PrintError("Error allocating memory for cheat data.");
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 /* This function doesn't allocate any memory for "name" */
 static int AddCheatEntry(char *name, uint32_t addr, uint8_t val, int compare, int status, int type) {
 	struct CHEATF *temp;
 	if (!(temp = (struct CHEATF*)malloc(sizeof(struct CHEATF)))) {
-		FCEUD_PrintError("Error allocating memory for cheat data.");
+		CheatMemErr();
 		return(0);
 	}
 	temp->name = name;
@@ -180,7 +191,7 @@ static int AddCheatEntry(char *name, uint32_t addr, uint8_t val, int compare, in
 
 void FCEU_LoadGameCheats(void)
 {
-   numsubcheats = 0;
+   numsubcheats = savecheats = 0;
    RebuildSubCheats();
 }
 
@@ -219,10 +230,16 @@ void FCEU_ResetCheats(void)
 
 int FCEUI_AddCheat(const char *name, uint32_t addr, uint8_t val, int compare, int type) {
 	char *t;
+<<<<<<< HEAD
 	size_t n = strlen(name) + 1;
 	if (!(t = (char*)malloc(n)))
 	{
 		FCEUD_PrintError("Error allocating memory for cheat data.");
+=======
+
+	if (!(t = (char*)malloc(strlen(name) + 1))) {
+		CheatMemErr();
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 		return(0);
 	}
 	strlcpy(t, name, n);
@@ -230,15 +247,23 @@ int FCEUI_AddCheat(const char *name, uint32_t addr, uint8_t val, int compare, in
 		free(t);
 		return(0);
 	}
+	savecheats = 1;
 	RebuildSubCheats();
 	return(1);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 int FCEUI_DelCheat(uint32_t which) {
 	struct CHEATF *prev;
 	struct CHEATF *cur;
 	uint32_t x = 0;
+=======
+int FCEUI_DelCheat(uint32 which) {
+	struct CHEATF *prev;
+	struct CHEATF *cur;
+	uint32 x = 0;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	for (prev = 0, cur = cheats;; ) {
 		if (x == which) {	/* Remove this cheat. */
@@ -274,8 +299,11 @@ int FCEUI_DelCheat(uint32_t which) {
 	return(1);
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 void FCEU_ApplyPeriodicCheats(void) {
 	struct CHEATF *cur = cheats;
 	if (!cur) return;
@@ -292,8 +320,13 @@ void FCEU_ApplyPeriodicCheats(void) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 void FCEUI_ListCheats(int (*callb)(char *name, uint32_t a, uint8_t v, int compare, int s, int type, void *data), void *data) {
+=======
+
+void FCEUI_ListCheats(int (*callb)(char *name, uint32 a, uint8 v, int compare, int s, int type, void *data), void *data) {
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	struct CHEATF *next = cheats;
 
 	while (next) {
@@ -302,9 +335,15 @@ void FCEUI_ListCheats(int (*callb)(char *name, uint32_t a, uint8_t v, int compar
 	}
 }
 
+<<<<<<< HEAD
 int FCEUI_GetCheat(uint32_t which, char **name, uint32_t *a, uint8_t *v, int *compare, int *s, int *type) {
 	struct CHEATF *next = cheats;
 	uint32_t x = 0;
+=======
+int FCEUI_GetCheat(uint32 which, char **name, uint32 *a, uint8 *v, int *compare, int *s, int *type) {
+	struct CHEATF *next = cheats;
+	uint32 x = 0;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	while (next) {
 		if (x == which) {
@@ -328,8 +367,11 @@ int FCEUI_GetCheat(uint32_t which, char **name, uint32_t *a, uint8_t *v, int *co
 	return(0);
 }
 
+<<<<<<< HEAD
 =======
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 static int GGtobin(char c) {
 	static char lets[16] = { 'A', 'P', 'Z', 'L', 'G', 'I', 'T', 'Y', 'E', 'O', 'X', 'U', 'K', 'S', 'V', 'N' };
 	int x;
@@ -340,12 +382,26 @@ static int GGtobin(char c) {
 }
 
 /* Returns 1 on success, 0 on failure. Sets *a,*v,*c. */
+<<<<<<< HEAD
 int FCEUI_DecodeGG(const char *str, uint16_t *a, uint8_t *v, int *c) {
 	uint8_t t;
 	uint16_t A = 0x8000;
 	uint8_t V = 0;
 	uint8_t C = 0;
 	int s = strlen(str);
+=======
+int FCEUI_DecodeGG(const char *str, uint16 *a, uint8 *v, int *c) {
+	uint16 A;
+	uint8 V, C;
+	uint8 t;
+	int s;
+
+	A = 0x8000;
+	V = 0;
+	C = 0;
+
+	s = strlen(str);
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	if (s != 6 && s != 8) return(0);
 
 	t = GGtobin(*str++);
@@ -397,13 +453,31 @@ int FCEUI_DecodeGG(const char *str, uint16_t *a, uint8_t *v, int *c) {
 	return(0);
 }
 
+<<<<<<< HEAD
 int FCEUI_DecodePAR(const char *str, uint16_t *a, uint8_t *v, int *c, int *type) {
 	int boo[4];
+=======
+int FCEUI_DecodePAR(const char *str, uint16 *a, uint8 *v, int *c, int *type) {
+	uint32 boo[4];
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	if (strlen(str) != 8) return(0);
 
 	sscanf(str, "%02x%02x%02x%02x", boo, boo + 1, boo + 2, boo + 3);
 
 	*c = -1;
+
+	/* 2020-08-31
+	 * Why is the top code set as default on non-debug runtime when
+	 * bottom code is what works for PAR?
+	 */
+	/* if (1) {
+		*a = (boo[3] << 8) | (boo[2] + 0x7F);
+		*v = 0;
+	} else {
+		*v = boo[3];
+		*a = boo[2] | (boo[1] << 8);
+	} */
+
 	*v = boo[3];
 	*a = boo[2] | (boo[1] << 8);
 
@@ -417,23 +491,39 @@ int FCEUI_DecodePAR(const char *str, uint16_t *a, uint8_t *v, int *c, int *type)
 	return(1);
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 /* name can be NULL if the name isn't going to be changed. */
 /* same goes for a, v, and s(except the values of each one must be <0) */
 
+<<<<<<< HEAD
 int FCEUI_SetCheat(uint32_t which, const char *name, int32_t a, int32_t v, int compare, int s, int type) {
 	struct CHEATF *next = cheats;
 	uint32_t x = 0;
+=======
+int FCEUI_SetCheat(uint32 which, const char *name, int32 a, int32 v, int compare, int s, int type) {
+	struct CHEATF *next = cheats;
+	uint32 x = 0;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	while (next) {
 		if (x == which) {
 			if (name) {
 				char *t;
+<<<<<<< HEAD
 				size_t n = strlen(name) + 1;
 
 				if ((t = (char*)realloc(next->name, n))) {
 					next->name = t;
 					strlcpy(next->name, name, n);
+=======
+
+				if ((t = (char*)realloc(next->name, strlen(name) + 1))) {
+					next->name = t;
+					strcpy(next->name, name);
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 				} else
 					return(0);
 			}
@@ -459,9 +549,15 @@ int FCEUI_SetCheat(uint32_t which, const char *name, int32_t a, int32_t v, int c
 }
 
 /* Convenience function. */
+<<<<<<< HEAD
 int FCEUI_ToggleCheat(uint32_t which) {
 	struct CHEATF *next = cheats;
 	uint32_t x = 0;
+=======
+int FCEUI_ToggleCheat(uint32 which) {
+	struct CHEATF *next = cheats;
+	uint32 x = 0;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	while (next) {
 		if (x == which) {
@@ -478,9 +574,15 @@ int FCEUI_ToggleCheat(uint32_t which) {
 }
 
 static int InitCheatComp(void) {
+<<<<<<< HEAD
 	uint32_t x;
 
 	CheatComp = (uint16_t*)malloc(65536 * sizeof(uint16_t));
+=======
+	uint32 x;
+
+	CheatComp = (uint16*)malloc(65536 * sizeof(uint16));
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	if (!CheatComp) {
 		CheatMemErr();
 		return(0);
@@ -492,7 +594,11 @@ static int InitCheatComp(void) {
 }
 
 void FCEUI_CheatSearchSetCurrentAsOriginal(void) {
+<<<<<<< HEAD
 	uint32_t x;
+=======
+	uint32 x;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	for (x = 0x000; x < 0x10000; x++)
 		if (!(CheatComp[x] & CHEATC_NOSHOW)) {
 			if (CheatRPtrs[x >> 10])
@@ -503,15 +609,24 @@ void FCEUI_CheatSearchSetCurrentAsOriginal(void) {
 }
 
 void FCEUI_CheatSearchShowExcluded(void) {
+<<<<<<< HEAD
 	uint32_t x;
+=======
+	uint32 x;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	for (x = 0x000; x < 0x10000; x++)
 		CheatComp[x] &= ~CHEATC_EXCLUDED;
 }
 
 
+<<<<<<< HEAD
 int32_t FCEUI_CheatSearchGetCount(void) {
 	uint32_t x, c = 0;
+=======
+int32 FCEUI_CheatSearchGetCount(void) {
+	uint32 x, c = 0;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	if (CheatComp) {
 		for (x = 0x0000; x < 0x10000; x++)
@@ -523,8 +638,13 @@ int32_t FCEUI_CheatSearchGetCount(void) {
 }
 /* This function will give the initial value of the search and the current value at a location. */
 
+<<<<<<< HEAD
 void FCEUI_CheatSearchGet(int (*callb)(uint32_t a, uint8_t last, uint8_t current, void *data), void *data) {
 	uint32_t x;
+=======
+void FCEUI_CheatSearchGet(int (*callb)(uint32 a, uint8 last, uint8 current, void *data), void *data) {
+	uint32 x;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	if (!CheatComp) {
 		if (!InitCheatComp())
@@ -538,9 +658,15 @@ void FCEUI_CheatSearchGet(int (*callb)(uint32_t a, uint8_t last, uint8_t current
 				break;
 }
 
+<<<<<<< HEAD
 void FCEUI_CheatSearchGetRange(uint32_t first, uint32_t last, int (*callb)(uint32_t a, uint8_t last, uint8_t current)) {
 	uint32_t x;
 	uint32_t in = 0;
+=======
+void FCEUI_CheatSearchGetRange(uint32 first, uint32 last, int (*callb)(uint32 a, uint8 last, uint8 current)) {
+	uint32 x;
+	uint32 in = 0;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	if (!CheatComp) {
 		if (!InitCheatComp())
@@ -559,7 +685,11 @@ void FCEUI_CheatSearchGetRange(uint32_t first, uint32_t last, int (*callb)(uint3
 }
 
 void FCEUI_CheatSearchBegin(void) {
+<<<<<<< HEAD
 	uint32_t x;
+=======
+	uint32 x;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	if (!CheatComp) {
 		if (!InitCheatComp()) {
@@ -582,8 +712,13 @@ static INLINE int CAbs(int x) {
 	return x;
 }
 
+<<<<<<< HEAD
 void FCEUI_CheatSearchEnd(int type, uint8_t v1, uint8_t v2) {
 	uint32_t x;
+=======
+void FCEUI_CheatSearchEnd(int type, uint8 v1, uint8 v2) {
+	uint32 x;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	if (!CheatComp) {
 		if (!InitCheatComp()) {
@@ -637,5 +772,8 @@ void FCEUI_CheatSearchEnd(int type, uint8_t v1, uint8_t v2) {
 	if (type > 4)
 		FCEUI_CheatSearchSetCurrentAsOriginal();
 }
+<<<<<<< HEAD
 =======
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
