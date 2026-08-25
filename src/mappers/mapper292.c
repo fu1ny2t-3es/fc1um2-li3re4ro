@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2015 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,15 +18,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
+ * NES 2.0 Mapper 292 - PCB BMW8544
+ * UNIF UNL-DRAGONFIGHTER
  * "Dragon Fighter" protected MMC3 based custom mapper board
  * mostly hacky implementation, I can't verify if this mapper can read a RAM of the
  * console or watches the bus writes somehow.
+ *
+ * TODO: needs updating
  *
  */
 
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static void UNLBMW8544PW(uint32_t A, uint8_t V) {
 	if(A == 0x8000)
 		setprg8(A,EXPREGS[0] & 0x1F);	/* the real hardware has this bank overrided with it's own register,
@@ -43,15 +49,42 @@ static void UNLBMW8544CW(uint32_t A, uint8_t V) {
 	else if (A == 0x1000)
 		setchr4(0x1000, EXPREGS[2] & 0x3F);
 
+=======
+static uint8 reg[3];
+
+static SFORMAT StateRegs[] = {
+	{ reg, 3, "REGS" },
+	{ 0 }
+};
+
+static void M292PW(uint16 A, uint16 V) {
+	setprg8(A, V);
+	setprg8(0x8000, reg[0] & 0x1F);
 }
 
-static void UNLBMW8544ProtWrite(uint32 A, uint8 V) {
-	if(!(A & 1)) {
-		EXPREGS[0] = V;
-		FixMMC3PRG(MMC3_cmd);
+static void M292CW(uint16 A, uint16 V) {
+	setchr2(0x0000, (mmc3.reg[0] >> 1) ^ reg[1]);
+	setchr2(0x0800, (mmc3.reg[1] >> 1) ^ ((reg[2] & 0x40) << 1));
+	setchr4(0x1000, reg[2] & 0x3F);
+>>>>>>> 5926d713 (Update libretro.c)
+}
+
+static DECLFW(M292ProtWrite) {
+	reg[0] = V;
+	MMC3_FixPRG();
+}
+
+static DECLFR(M292ProtRead) {
+	if ((reg[0] & 0xE0) == 0xC0) {
+		reg[1] = ARead[0x6A](0x6A);
+	} else {
+		reg[2] = ARead[0xFF](0xFF);
 	}
+	MMC3_FixCHR();
+	return cpu.openbus;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static DECLFR(UNLBMW8544ProtRead) {
 	if(!(A & 1)) {
@@ -76,18 +109,19 @@ static uint8 UNLBMW8544ProtRead(uint32 A) {
 	}
 >>>>>>> b8aebecd (Update libretro.c)
 	return 0;
+=======
+static void M292Power(void) {
+	reg[0] = reg[1] = reg[2] = 0;
+	MMC3_Power();
+	SetWriteHandler(0x6000, 0x7FFF, M292ProtWrite);
+	SetReadHandler(0x6000, 0x7FFF, M292ProtRead);
+>>>>>>> 5926d713 (Update libretro.c)
 }
 
-static void UNLBMW8544Power(void) {
-	GenMMC3Power();
-	SetWriteHandler(0x6000, 0x6FFF, UNLBMW8544ProtWrite);
-	SetReadHandler(0x6000, 0x6FFF, UNLBMW8544ProtRead);
-}
-
-void UNLBMW8544_Init(CartInfo *info) {
-	GenMMC3_Init(info, 128, 256, 0, 0);
-	pwrap = UNLBMW8544PW;
-	cwrap = UNLBMW8544CW;
-	info->Power = UNLBMW8544Power;
-	AddExState(EXPREGS, 3, 0, "EXPR");
+void Mapper292_Init(CartInfo *info) {
+	MMC3_Init(info, 0, 0);
+	MMC3_pwrap  = M292PW;
+	MMC3_cwrap  = M292CW;
+	info->Power = M292Power;
+	AddExState(StateRegs, ~0, 0, NULL);
 }

@@ -1,7 +1,13 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
+<<<<<<< HEAD
  *  Copyright (C) 2025 NewRisingSun
+=======
+ *  Copyright (C) 2012 CaH4e3
+ *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
+>>>>>>> dffcc139 (Update libretro.c)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +24,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+<<<<<<< HEAD
 #include "mapinc.h"
 #include "asic_latch.h"
 #include "cartram.h"
@@ -91,6 +98,34 @@ void Mapper438_Init (CartInfo *info) {
 		Latch_init(info, sync0, 0x8000, 0xFFFF, NULL);
 		AddExState(&pad, 1, 0, "DIPS");
 	}
+<<<<<<< HEAD
 	info->Power = power;
 	info->Reset = reset;
+=======
+=======
+/* K-3071 */
+
+#include "mapinc.h"
+#include "latch.h"
+
+static void Sync(void) {
+	uint16 prg = latch.addr >> 1;
+	uint16 chr = latch.data >> 1;
+	uint16 mirr = (latch.data & 0x01) ^ 0x01;
+
+	if (latch.addr & 1)
+		setprg32(0x8000, prg >> 1);
+	else {
+		setprg16(0x8000, prg);
+		setprg16(0xC000, prg);
+	}
+	setchr8(chr);
+	setmirror(mirr);
+}
+
+void Mapper438_Init(CartInfo *info) {
+	Latch_Init(info, Sync, NULL, FALSE, FALSE);
+	info->Reset = Latch_RegReset;
+>>>>>>> dffcc139 (Update libretro.c)
+>>>>>>> 236c54e2 (Update libretro.c)
 }
