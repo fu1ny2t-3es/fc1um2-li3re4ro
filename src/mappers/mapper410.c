@@ -2,6 +2,7 @@
  *
  * Copyright notice for this file:
  *  Copyright (C) 2022
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +28,7 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static uint8_t *CHRRAM;
 
 static void M410CW(uint32_t A, uint8_t V) {
@@ -36,9 +38,38 @@ static void M410CW(uint32_t A, uint8_t V) {
 		NV |= EXPREGS[0] | ((EXPREGS[2] & 0xF0) << 4);
 		setchr1(A, NV);
 	} else
-		setchr8r(0x10, 0);
+=======
+static uint8 reg[4];
+static uint8 cmd;
+
+static uint8 *CHRRAM;
+
+static SFORMAT StateRegs[] = {
+	{ reg, 4, "REGS" },
+	{ &cmd, 1, "CMD0" },
+	{ 0 }
+};
+
+static void M410PW(uint16 A, uint16 V) {
+	uint32 mask = ~reg[3] & 0x3F;
+	uint32 base = ((reg[2] << 2) & 0x300) | reg[1];
+
+	setprg8(A, (base & ~mask) | (V & mask));
 }
 
+static void M410CW(uint16 A, uint16 V) {
+	if (!(reg[2] & 0x40)) {
+		uint32 mask = 0xFF >> (~reg[2] & 0x0F);
+		uint32 base = ((reg[2] << 4) & 0xF00) | reg[0];
+
+		setchr1(A, (base & ~mask) | (V & mask));
+	} else {
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
+		setchr8r(0x10, 0);
+	}
+}
+
+<<<<<<< HEAD
 static void M410PW(uint32_t A, uint8_t V) {
 	uint32_t MV = V & ((EXPREGS[3] & 0x3F) ^ 0x3F);
 	MV |= EXPREGS[1];
@@ -51,38 +82,52 @@ static void M410Write(uint32 A, uint8 V) {
 	EXPREGS[4] = (EXPREGS[4] + 1) & 3;
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
+=======
+static DECLFW(M410Write) {
+	if (!(reg[3] & 0x40)) {
+		reg[cmd] = V;
+		cmd = (cmd + 1) & 0x03;
+		MMC3_FixPRG();
+		MMC3_FixCHR();
+	}
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 }
 
 static void M410Close(void) {
-	GenMMC3Close();
-	if (CHRRAM)
+	MMC3_Close();
+	if (CHRRAM) {
 		FCEU_free(CHRRAM);
+	}
 	CHRRAM = NULL;
 }
 
 static void M410Reset(void) {
-	EXPREGS[0] = EXPREGS[1] = EXPREGS[3] = EXPREGS[4] = 0;
-	EXPREGS[2] = 0x0F;
-	MMC3RegReset();
+	reg[0] = reg[1] = reg[3] = cmd = 0;
+	reg[2] = 0x0F;
+	MMC3_Reset();
 }
 
 static void M410Power(void) {
-	GenMMC3Power();
-	EXPREGS[0] = EXPREGS[1] = EXPREGS[3] = EXPREGS[4] = 0;
-	EXPREGS[2] = 0x0F;
+	MMC3_Power();
+	reg[0] = reg[1] = reg[3] = cmd = 0;
+	reg[2] = 0x0F;
 	SetWriteHandler(0x6000, 0x7FFF, M410Write);
 }
 
 void Mapper410_Init(CartInfo *info) {
-	GenMMC3_Init(info, 512, 256, 8, info->battery);
-	cwrap = M410CW;
-	pwrap = M410PW;
+	MMC3_Init(info, 0, 0);
+	MMC3_cwrap = M410CW;
+	MMC3_pwrap = M410PW;
 	info->Reset = M410Reset;
 	info->Power = M410Power;
 	info->Close = M410Close;
-	AddExState(EXPREGS, 5, 0, "EXPR");
+	AddExState(StateRegs, ~0, 0, NULL);
 
+<<<<<<< HEAD
 	CHRRAM = (uint8_t*)FCEU_gmalloc(8192);
+=======
+	CHRRAM = (uint8 *)FCEU_gmalloc(8192);
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 	SetupCartCHRMapping(0x10, CHRRAM, 8192, 1);
 	AddExState(CHRRAM, 8192, 0, "CRAM");
 }

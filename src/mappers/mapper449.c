@@ -1,7 +1,11 @@
 /* FCE Ultra - NES/Famicom Emulator
  *
  * Copyright notice for this file:
+<<<<<<< HEAD
  *  Copyright (C) 2025 NewRisingSun
+=======
+ *  Copyright (C) 2023-2024 negativeExponent
+>>>>>>> 46df7ab (Update libretro_core_options.h)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +23,7 @@
  */
 
 #include "mapinc.h"
+<<<<<<< HEAD
 #include "asic_latch.h"
 
 static uint8_t submapper;
@@ -123,4 +128,43 @@ void Mapper449_Init(CartInfo *info)
    info->Reset       = Mapper449_Reset;
    AddExState(StateRegs, ~0, 0, 0);
 >>>>>>> e94122c (Update libretro_core_options.h)
+=======
+#include "latch.h"
+
+static uint8 dipsw;
+
+static SFORMAT StateRegs[] = {
+    { &dipsw,  1, "DPSW" },
+    { 0 }
+};
+
+static void Sync(void) {
+	uint32 prg = ((latch.addr >> 3) & 0x20) | ((latch.addr >> 2) & 0x1F);
+	uint32 cpuA14 = latch.addr & 0x01;
+	uint32 nrom = (latch.addr >> 7) & 0x01;
+
+	setprg16(0x8000, prg & ~(cpuA14 * nrom));
+	setprg16(0xC000, prg | (cpuA14 * nrom) | (0x07 * !nrom));
+
+	setchr8(latch.data);
+    setmirror((((latch.addr >> 1) & 0x01) ^ 0x01));
+}
+
+static DECLFR(M449Read) {
+	if (latch.addr & 0x200) {
+		A |= dipsw;
+	}
+	return CartBR(A);
+}
+
+static void M449Reset(void) {
+	dipsw  = (dipsw + 1) & 0xF;
+	Latch_RegReset();
+}
+
+void Mapper449_Init(CartInfo *info) {
+	Latch_Init(info, Sync, M449Read, FALSE, FALSE);
+	info->Reset = M449Reset;
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> 46df7ab (Update libretro_core_options.h)
 }

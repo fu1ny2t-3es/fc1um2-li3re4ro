@@ -73,10 +73,20 @@
 size_t strftime_am_pm(char *s, size_t len, const char* format,
       const void *ptr)
 {
+<<<<<<< HEAD
    size_t _len              = 0;
 #if !(defined(__linux__) && !defined(ANDROID))
    char *local              = NULL;
 #endif
+=======
+<<<<<<< HEAD
+   char *local = NULL;
+=======
+#if !(defined(__linux__) && !defined(ANDROID))
+   char *local = NULL;
+#endif
+>>>>>>> 95b25f9 (Update libretro_core_options.h)
+>>>>>>> 10657cc2 (Update libretro_core_options.h)
    const struct tm *timeptr = (const struct tm*)ptr;
    setlocale(LC_TIME, "");
    _len = strftime(s, len, format, timeptr);
