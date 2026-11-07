@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2007 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +19,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/* Mapper 177 - Oversized BNROM without bus conflict */
+
 #include "mapinc.h"
+<<<<<<< HEAD
 
 static uint8_t reg;
 
@@ -30,45 +34,19 @@ static SFORMAT StateRegs[] =
 	{ &reg, 1, "REG" },
 	{ 0 }
 };
+=======
+#include "latch.h"
+>>>>>>> e98261e5 (Update ppu.c)
 
 static void Sync(void) {
-	setchr8(0);
 	setprg8r(0x10, 0x6000, 0);
-	setprg32(0x8000, reg & 0x1f);
-	setmirror(((reg & 0x20) >> 5) ^ 1);
-}
-
-static void M177Write(uint32 A, uint8 V) {
-	reg = V;
-	Sync();
-}
-
-static void M177Power(void) {
-	reg = 0;
-	Sync();
-	SetReadHandler(0x6000, 0x7fff, CartBR);
-	SetWriteHandler(0x6000, 0x7fff, CartBW);
-	SetReadHandler(0x8000, 0xFFFF, CartBR);
-	SetWriteHandler(0x8000, 0xFFFF, M177Write);
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
-}
-
-static void M177Close(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
-}
-
-static void M177Reset(void) {
-	reg = 0;
-	Sync();
-}
-
-static void StateRestore(int version) {
-	Sync();
+	setprg32(0x8000, latch.data & 0x1F);
+	setchr8(0);
+	setmirror(((latch.data & 0x20) >> 5) ^ 1);
 }
 
 void Mapper177_Init(CartInfo *info) {
+<<<<<<< HEAD
 	info->Power = M177Power;
 	info->Close = M177Close;
 	info->Reset = M177Reset;
@@ -84,4 +62,8 @@ void Mapper177_Init(CartInfo *info) {
 	}
 
 	AddExState(&StateRegs, ~0, 0, 0);
+=======
+	Latch_Init(info, Sync, NULL, TRUE, FALSE);
+	info->Reset = Latch_RegReset;
+>>>>>>> e98261e5 (Update ppu.c)
 }

@@ -1,17 +1,27 @@
 #ifndef _FCEU_FILE_H
 #define _FCEU_FILE_H
 
+#include <stdlib.h>
+
 typedef struct {
+<<<<<<< HEAD
    uint8_t *data_int;
    const uint8_t *data;
    uint32_t size;
    uint32_t location;
+=======
+	uint8 *data_int;
+	const uint8 *data;
+	uint32 size;
+	uint32 location;
+>>>>>>> e98261e5 (Update ppu.c)
 } MEMWRAP;
 
 typedef struct {
-   MEMWRAP *fp;
+	MEMWRAP *fp;
 } FCEUFILE;
 
+<<<<<<< HEAD
 FCEUFILE *FCEU_fopen(const char *path, const uint8_t *buffer, size_t bufsize);
 int FCEU_fclose(FCEUFILE*);
 uint64_t FCEU_fread(void *ptr, size_t size, size_t nmemb, FCEUFILE*);
@@ -24,5 +34,15 @@ int FCEU_read32le(uint32 *Bufo, FCEUFILE*);
 >>>>>>> f9553c43 (Update ppu.c)
 int FCEU_fgetc(FCEUFILE*);
 uint64_t FCEU_fgetsize(FCEUFILE*);
+=======
+FCEUFILE *FCEU_fopen(const char *path, const uint8 *buffer, size_t bufsize);
+int FCEU_fclose(FCEUFILE *);
+uint64 FCEU_fread(void *ptr, size_t size, size_t nmemb, FCEUFILE *);
+int FCEU_fseek(FCEUFILE *, long offset, int whence);
+uint64 FCEU_ftell(FCEUFILE *);
+int FCEU_read32le(uint32 *Bufo, FCEUFILE *);
+int FCEU_fgetc(FCEUFILE *);
+uint64 FCEU_fgetsize(FCEUFILE *);
+>>>>>>> e98261e5 (Update ppu.c)
 
 #endif
