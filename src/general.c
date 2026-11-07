@@ -41,8 +41,9 @@
 
 #include "driver.h"
 
-static char BaseDirectory[2048] = {0};
+#include "md5.h"
 
+<<<<<<< HEAD
 void FCEUI_SetBaseDirectory(const char *dir)
 {
 	strlcpy(BaseDirectory, dir, sizeof(BaseDirectory));
@@ -53,24 +54,56 @@ char *FCEU_MakeFName(int type, int id1, const char *cd1)
    char tmp[4096 + 512] = {0}; /* +512 for no reason :D */
    char *ret      = 0;
    size_t len;
+=======
+static char BaseDirectory[2048] = { 0 };
 
-   switch (type)
-   {
-      case FCEUMKF_GGROM:
-         fill_pathname_join(tmp, BaseDirectory,
-               "gamegenie.nes", sizeof(tmp));
-         break;
-      case FCEUMKF_FDSROM:
-         fill_pathname_join(tmp, BaseDirectory,
-               "disksys.rom", sizeof(tmp));
-         break;
-      case FCEUMKF_PALETTE:
-         fill_pathname_join(tmp, BaseDirectory,
-               "nes.pal", sizeof(tmp));
-         break;
-      default:
-         break;
+void FCEUI_SetBaseDirectory(const char *dir) {
+	strncpy(BaseDirectory, dir, 2047);
+	BaseDirectory[2047] = 0;
+}
+
+char *FCEU_MakeFName(int type, int id1, char *cd1) {
+	char tmp[4096 + 512] = { 0 }; /* +512 for no reason :D */
+	char *ret = 0;
+>>>>>>> ae14339e (Update Makefile.libretro)
+
+	switch (type) {
+	case FCEUMKF_GGROM:
+		fill_pathname_join(tmp, BaseDirectory, "gamegenie.nes", sizeof(tmp));
+		break;
+	case FCEUMKF_FDSROM:
+		fill_pathname_join(tmp, BaseDirectory, "disksys.rom", sizeof(tmp));
+		break;
+	case FCEUMKF_PALETTE:
+		fill_pathname_join(tmp, BaseDirectory, "nes.pal", sizeof(tmp));
+		break;
+   case FCEUMKF_PALETTE_512:
+		fill_pathname_join(tmp, BaseDirectory, "nes512.pal", sizeof(tmp));
+		break;
+	default:
+		break;
+	}
+
+	FCEU_printf(" FCEU_MakeFName: %s\n", tmp);
+
+	ret = (char *)malloc(strlen(tmp) * sizeof(char) + 1);
+	strcpy(ret, tmp);
+
+	return (ret);
+}
+
+uint32 uppow2(uint32 n) {
+	int x;
+
+	for (x = 31; x >= 0; x--) {
+		if (n & (1 << x)) {
+			if ((uint32)(1 << x) != n) {
+				return (1 << (x + 1));
+         }
+			break;
+		}
    }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
    FCEU_printf(" FCEU_MakeFName: %s\n", tmp);
@@ -109,4 +142,7 @@ uint32_t uppow2(uint32_t n)
          break;
       }
    return n;
+=======
+	return n;
+>>>>>>> ae14339e (Update Makefile.libretro)
 }

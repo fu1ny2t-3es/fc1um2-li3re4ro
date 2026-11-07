@@ -30,9 +30,14 @@ static uint8_t FP_FASTAPASS(2) FT_Read(int w, uint8_t ret) {
 	if (w) {
 =======
 static uint8 FT_Read(int w, uint8 ret) {
+<<<<<<< HEAD
 	if (w)
 >>>>>>> f6efdc94 (Update Makefile.libretro)
+=======
+	if (w) {
+>>>>>>> ae14339e (Update Makefile.libretro)
 		ret |= FTValR;
+	}
 	return(ret);
 }
 
@@ -57,12 +62,18 @@ static void FT_Write(uint8 V) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) FT_Update(void *data, int arg) {
 	FTVal = *(uint32_t*)data;
 }
 =======
 static void FT_Update(void *data, int arg) { FTVal = *(uint32*)data; }
 >>>>>>> f6efdc94 (Update Makefile.libretro)
+=======
+static void FT_Update(void *data, int arg) {
+	FTVal = *(uint32*)data;
+}
+>>>>>>> ae14339e (Update Makefile.libretro)
 
 static INPUTCFC FamilyTrainer = { FT_Read, FT_Write, 0, FT_Update, 0, 0 };
 
