@@ -92,6 +92,7 @@ static void setPins(uint8_t select, uint8_t newClock, uint8_t newData) { /* Seri
 	eep_clock = newClock;
 }
 
+<<<<<<< HEAD
 /* Mapper syncs */
 static void sync () {
 	if (mapperSync) mapperSync(reg[submapper == 1? 2: 3] <<9 &0x2000 | reg[1] <<5 &0x1FE0 | reg[0] <<4 &0x0010);
@@ -172,6 +173,27 @@ static void FP_FASTAPASS(1) LF36_cpuCycle (int a) {
 			Custom_reg[2] = Custom_reg[3] = 0;
 			X6502_IRQEnd(FCEU_IQEXT);
 		}
+=======
+static uint8 readReg(uint32 A) {
+	switch(A) {
+	case 0x5301:
+	case 0x5601:
+		return output? 0x80: 0x00;
+	default:
+		break;
+	}
+	return 0xFF;
+}
+
+static void writeReg(uint32 A, uint8 V); /* forward declaration */
+
+static void setMapper(uint8 clearRegs) {
+	int i;
+	if (clearRegs) {
+		for (i =0; i <16; i++) regByte[i] =0;
+		for (i =0; i < 8; i++) regWord[i] =0;
+		X6502_IRQEnd(FCEU_IQEXT);
+>>>>>>> 7af8d8d (Update libretro.c)
 	}
 }
 
@@ -389,6 +411,7 @@ static void applyMode (uint8_t clear) {
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
 	SetWriteHandler(0x5000, 0x5FFF, writeReg);
 	SetWriteHandler(0x6000, 0xFFFF, CartBW);
+<<<<<<< HEAD
 	switch(submapper <<8 | reg[0] >>4) {
 		case 0x000: case 0x302:
 			mapperSync = sync_SxROM;
@@ -427,6 +450,45 @@ static void applyMode (uint8_t clear) {
 				mapperSync = sync_IF12; /* Not Irem's actual IF-12 mapper, but something custom by BlazePro */
 				SetWriteHandler(0x8000, 0xFFFF, IF12_writeReg);
 				if (clear) Custom_reg[0] = Custom_reg[1] = Custom_reg[2] = Custom_reg[3] = 0;
+=======
+	MapIRQHook = NULL;
+	PPU_hook = NULL;
+	GameHBIRQHook = NULL;
+	setprg8r(0x10, 0x6000, 0);
+
+	switch(mapper) { /* 5700 MSB >>4 OR'd with submapper <<4 */
+	case 0x00: case 0x01: case 0x32:            MMC1_reset(clearRegs); break;
+	case 0x0A:                                  MMC2_reset(clearRegs); break;
+	case 0x10: case 0x11: case 0x12:            MMC3_reset(clearRegs); break;
+	case 0x08:                                  MMC4_reset(clearRegs); break;
+	case 0x40:                                  VRC1_reset(clearRegs); break;
+	case 0x20: case 0x21: case 0x22: case 0x23: VRC24_reset(clearRegs); break;
+	case 0x44:                                  VRC3_reset(clearRegs); break;
+	case 0x30: case 0x31:                       VRC6_reset(clearRegs); break;
+	case 0x41:                                  VRC7_reset(clearRegs); break;
+	case 0x07:                                  LF36_reset(clearRegs); break;
+	case 0x50:                                  FME7_reset(clearRegs); break;
+	case 0x0E: case 0x1E:                       NANJING_reset(clearRegs); break;
+	case 0x09: case 0x0B: case 0x17: case 0x37: UNROM_IF12_reset(clearRegs); break;
+	case 0x04: case 0x06: case 0x14: case 0x16: ANROM_BNROM_reset(clearRegs); break;
+	case 0x05: case 0x15:                       CNROM_BF9097_reset(clearRegs); break;
+	case 0x0C: case 0x0D: case 0x1C: case 0x1D: GNROM_reset(clearRegs); break;
+	default:                                    break;
+	}
+	sync();
+}
+
+static void writeReg(uint32 A, uint8 V) {
+	switch(A) {
+	case 0x5301:
+		if (submapper ==0) setPins(!!(V &0x04), !!(V &0x02), !!(V &0x01));
+		break;
+	case 0x5601:
+		if (~misc &0x80) {
+			misc =V;
+			if (submapper !=1) {
+				prgOR =prgOR &~0x2000 | V <<9 &0x2000;
+>>>>>>> 7af8d8d (Update libretro.c)
 				sync();
 			}
 			break;

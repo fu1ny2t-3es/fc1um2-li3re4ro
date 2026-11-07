@@ -49,7 +49,11 @@ static const uint16_t matrix[9][2][4] =
 	  { AK(DOWN), AK(SPACE), AK(DELETE), AK(INSERT) } },
 };
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) FKB_Write(uint8_t v) {
+=======
+static void FKB_Write(uint8 v) {
+>>>>>>> b8aebecd (Update libretro.c)
 	v >>= 1;
 	if (v & 2) {
 		if ((ksmode & 1) && !(v & 1))
@@ -58,7 +62,11 @@ static void FP_FASTAPASS(1) FKB_Write(uint8_t v) {
 	ksmode = v;
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) FKB_Read(int w, uint8_t ret) {
+=======
+static uint8 FKB_Read(int w, uint8 ret) {
+>>>>>>> b8aebecd (Update libretro.c)
 	if (w) {
 		int x;
 
@@ -76,7 +84,7 @@ static void FKB_Strobe(void) {
 	ksindex = 0;
 }
 
-static void FP_FASTAPASS(2) FKB_Update(void *data, int arg) {
+static void FKB_Update(void *data, int arg) {
 	memcpy(bufit + 1, data, sizeof(bufit) - 1);
 }
 

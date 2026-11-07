@@ -20,11 +20,20 @@
 
 #include "mapinc.h"
 
+<<<<<<< HEAD
 static uint8_t preg[4], creg[8];
 static uint8_t IRQa, mirr;
 static int32_t IRQCount, IRQLatch;
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
+=======
+static uint8 preg[4], creg[8];
+static uint8 IRQa, mirr;
+static int32 IRQCount, IRQLatch;
+static uint8 *WRAM = NULL;
+
+#define M18_WRAMSIZE 8192
+>>>>>>> b8aebecd (Update libretro.c)
 
 static SFORMAT StateRegs[] =
 {
@@ -37,7 +46,7 @@ static SFORMAT StateRegs[] =
 	{ 0 }
 };
 
-static void Sync(void) {
+static void M18Sync(void) {
 	int i;
 	for (i = 0; i < 8; i++) setchr1(i << 10, creg[i]);
 	setprg8r(0x10, 0x6000, 0);
@@ -51,7 +60,7 @@ static void Sync(void) {
 		setmirror(mirr & 1);
 }
 
-static DECLFW(M18WriteIRQ) {
+static void M18WriteIRQ(uint32 A, uint8 V) {
 	switch (A & 0xF003) {
 	case 0xE000: IRQLatch &= 0xFFF0; IRQLatch |= (V & 0x0f) << 0x0; break;
 	case 0xE001: IRQLatch &= 0xFF0F; IRQLatch |= (V & 0x0f) << 0x4; break;
@@ -59,22 +68,32 @@ static DECLFW(M18WriteIRQ) {
 	case 0xE003: IRQLatch &= 0x0FFF; IRQLatch |= (V & 0x0f) << 0xC; break;
 	case 0xF000: IRQCount = IRQLatch; break;
 	case 0xF001: IRQa = V & 1; X6502_IRQEnd(FCEU_IQEXT); break;
-	case 0xF002: mirr = V & 3; Sync(); break;
+	case 0xF002: mirr = V & 3; M18Sync(); break;
 	}
 }
 
+<<<<<<< HEAD
 static DECLFW(M18WritePrg) {
 	uint32_t i = ((A >> 1) & 1) | ((A - 0x8000) >> 11);
+=======
+static void M18WritePrg(uint32 A, uint8 V) {
+	uint32 i = ((A >> 1) & 1) | ((A - 0x8000) >> 11);
+>>>>>>> b8aebecd (Update libretro.c)
 	preg[i] &= (0xF0) >> ((A & 1) << 2);
 	preg[i] |= (V & 0xF) << ((A & 1) << 2);
-	Sync();
+	M18Sync();
 }
 
+<<<<<<< HEAD
 static DECLFW(M18WriteChr) {
 	uint32_t i = ((A >> 1) & 1) | ((A - 0xA000) >> 11);
+=======
+static void M18WriteChr(uint32 A, uint8 V) {
+	uint32 i = ((A >> 1) & 1) | ((A - 0xA000) >> 11);
+>>>>>>> b8aebecd (Update libretro.c)
 	creg[i] &= (0xF0) >> ((A & 1) << 2);
 	creg[i] |= (V & 0xF) << ((A & 1) << 2);
-	Sync();
+	M18Sync();
 }
 
 static void M18Power(void) {
@@ -83,16 +102,16 @@ static void M18Power(void) {
 	preg[1] = 1;
 	preg[2] = ~1;
 	preg[3] = ~0;
-	Sync();
+	M18Sync();
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
 	SetWriteHandler(0x6000, 0x7FFF, CartBW);
 	SetWriteHandler(0x8000, 0x9FFF, M18WritePrg);
 	SetWriteHandler(0xA000, 0xDFFF, M18WriteChr);
 	SetWriteHandler(0xE000, 0xFFFF, M18WriteIRQ);
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+	FCEU_CheatAddRAM(M18_WRAMSIZE >> 10, 0x6000, WRAM);
 }
 
-static void FP_FASTAPASS(1) M18IRQHook(int a) {
+static void M18IRQHook(int a) {
 	if (IRQa && IRQCount) {
 		IRQCount -= a;
 		if (IRQCount <= 0) {
@@ -109,25 +128,30 @@ static void M18Close(void) {
 	WRAM = NULL;
 }
 
-static void StateRestore(int version) {
-	Sync();
+static void M18StateRestore(int version) {
+	M18Sync();
 }
 
 void Mapper18_Init(CartInfo *info) {
 	info->Power = M18Power;
 	info->Close = M18Close;
 	MapIRQHook = M18IRQHook;
-	GameStateRestore = StateRestore;
+	GameStateRestore = M18StateRestore;
 
+<<<<<<< HEAD
 	WRAMSIZE = 8192;
 	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+=======
+	WRAM = (uint8*)FCEU_gmalloc(M18_WRAMSIZE);
+	SetupCartPRGMapping(0x10, WRAM, M18_WRAMSIZE, 1);
+	AddExState(WRAM, M18_WRAMSIZE, 0, "WRAM");
+>>>>>>> b8aebecd (Update libretro.c)
 	if (info->battery) {
 		info->SaveGame[0] = WRAM;
-		info->SaveGameLen[0] = WRAMSIZE;
+		info->SaveGameLen[0] = M18_WRAMSIZE;
 	}
 
 	AddExState(&StateRegs, ~0, 0, 0);
 }
-
