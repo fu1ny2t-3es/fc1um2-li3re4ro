@@ -185,18 +185,26 @@ static DECLFR(M36Read) {
 =======
 static uint8 M36Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> da22871d (Update Makefile.libretro)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 4c066ec2 (Update Makefile.libretro)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> b315de77 (Update Makefile.libretro)
 	  ret = (X.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
 =======
 	  ret = (cpu.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
 >>>>>>> 611edae8 (Update Makefile.libretro)
+=======
+	  ret = (cpu.openbus & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
+>>>>>>> 411e747a (Update Makefile.libretro)
 	return ret;
 }
 
@@ -234,18 +242,26 @@ static DECLFR(M132Read) {
 =======
 static uint8 M132Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> da22871d (Update Makefile.libretro)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 4c066ec2 (Update Makefile.libretro)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> b315de77 (Update Makefile.libretro)
 	  ret = ((X.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
 =======
 	  ret = ((cpu.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
 >>>>>>> 611edae8 (Update Makefile.libretro)
+=======
+	  ret = ((cpu.openbus & 0xF0) | (TXC_CMDRead() & 0x0F));
+>>>>>>> 411e747a (Update Makefile.libretro)
 	return ret;
 }
 
@@ -299,18 +315,26 @@ static DECLFR(M136Read) {
 =======
 static uint8 M136Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> da22871d (Update Makefile.libretro)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 4c066ec2 (Update Makefile.libretro)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> b315de77 (Update Makefile.libretro)
 	  ret = ((X.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
 =======
 	  ret = ((cpu.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
 >>>>>>> 611edae8 (Update Makefile.libretro)
+=======
+	  ret = ((cpu.openbus & 0xC0) | (TXC_CMDRead() & 0x3F));
+>>>>>>> 411e747a (Update Makefile.libretro)
 	return ret;
 }
 
@@ -346,11 +370,15 @@ static DECLFR(M147Read) {
 =======
 static uint8 M147Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> da22871d (Update Makefile.libretro)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 4c066ec2 (Update Makefile.libretro)
 	if ((A & 0x103) == 0x100) {
 >>>>>>> b315de77 (Update Makefile.libretro)
 	  uint8_t value = TXC_CMDRead();
@@ -395,18 +423,26 @@ static DECLFR(M172Read) {
 =======
 static uint8 M172Read(uint32 A) {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 =======
 	uint8 ret = cpu.DB;
 >>>>>>> da22871d (Update Makefile.libretro)
+=======
+	uint8 ret = cpu.openbus;
+>>>>>>> 4c066ec2 (Update Makefile.libretro)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 <<<<<<< HEAD
 >>>>>>> b315de77 (Update Makefile.libretro)
 	  ret = (X.DB & 0xC0) | GetValue(TXC_CMDRead());
 =======
 	  ret = (cpu.DB & 0xC0) | GetValue(TXC_CMDRead());
 >>>>>>> 611edae8 (Update Makefile.libretro)
+=======
+	  ret = (cpu.openbus & 0xC0) | GetValue(TXC_CMDRead());
+>>>>>>> 411e747a (Update Makefile.libretro)
 	return ret;
 }
 
