@@ -78,6 +78,7 @@ static DECLFR(M411Read5000) {
 	return EXPREGS[2];
 }
 
+<<<<<<< HEAD
 static DECLFW(M411Write5000) {
 	if (submapper ==2 || A &0x800) {
 		EXPREGS[A & 1] = V;
@@ -88,6 +89,12 @@ static DECLFW(M411Write5000) {
 
 static void M411Reset(void) {
 	EXPREGS[2]++;
+=======
+static void M411Write5000(uint32 A, uint8 V) {
+	EXPREGS[A & 1] = V;
+	FixMMC3PRG(MMC3_cmd);
+	FixMMC3CHR(MMC3_cmd);
+>>>>>>> 11b12c0 (Update Makefile.libretro)
 }
 
 static void M411Power(void) {

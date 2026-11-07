@@ -10,7 +10,11 @@ void FCEUPPU_LineUpdate(void);
 void FCEUPPU_SetVideoSystem(int w);
 
 extern void (*GameHBIRQHook)(void), (*GameHBIRQHook2)(void);
+<<<<<<< HEAD
 extern void FP_FASTAPASS(1) (*PPU_hook)(uint32_t A);
+=======
+extern void (*PPU_hook)(uint32 A);
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 
 /* For cart.c and banksw.h, mostly */
 extern uint8_t NTARAM[0x800], *vnapage[4];

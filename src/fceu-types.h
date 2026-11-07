@@ -51,6 +51,7 @@
 #endif
 #endif
 
+<<<<<<< HEAD
 #ifdef __GNUC__
 	#ifdef C80x86
 		#define FASTAPASS(x) __attribute__((regparm(x)))
@@ -69,5 +70,9 @@
 
 typedef void (FP_FASTAPASS(2) *writefunc)(uint32_t A, uint8_t V);
 typedef uint8_t (FP_FASTAPASS(1) *readfunc)(uint32_t A);
+=======
+typedef void (*writefunc)(uint32 A, uint8 V);
+typedef uint8 (*readfunc)(uint32 A);
+>>>>>>> f6efdc94 (Update Makefile.libretro)
 
 #endif
