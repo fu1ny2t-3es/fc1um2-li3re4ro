@@ -228,7 +228,11 @@ static uint8_t flash_buffer_v[10];
 static uint8_t cfi_mode = 0;
 
 /* Micron 4-gbit memory CFI data */
+<<<<<<< HEAD
 const uint8_t cfi_data[] =
+=======
+static const uint8 cfi_data[] =
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x51, 0x52, 0x59, 0x02, 0x00, 0x40, 0x00, 0x00,
@@ -484,7 +488,7 @@ static void COOLGIRL_Sync(void) {
 	COOLGIRL_Sync_Mirroring();
 }
 
-static DECLFW(COOLGIRL_Flash_Write) {
+static void COOLGIRL_Flash_Write(uint32 A, uint8 V) {
 	int sector;
 	uint32_t i, flash_addr;
 	if (flash_state < sizeof(flash_buffer_a) / sizeof(flash_buffer_a[0]))
@@ -549,8 +553,13 @@ static DECLFW(COOLGIRL_Flash_Write) {
 	COOLGIRL_Sync_PRG();
 }
 
+<<<<<<< HEAD
 static DECLFW(COOLGIRL_WRITE) {
 	uint8_t vrc_2b_hi, vrc_2b_low;
+=======
+static void COOLGIRL_WRITE(uint32 A, uint8 V) {
+	uint8 vrc_2b_hi, vrc_2b_low;
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 
 	if (sram_enabled && A >= 0x6000 && A < 0x8000 && !map_rom_on_6000)
 		CartBW(A, V); /* SRAM is enabled and writable */
@@ -1878,7 +1887,7 @@ static DECLFW(COOLGIRL_WRITE) {
 	COOLGIRL_Sync();
 }
 
-static DECLFR(MAFRAM) {
+static uint8 MAFRAM(uint32 A) {
 	int ppuon;
 	uint8_t r, p;
 

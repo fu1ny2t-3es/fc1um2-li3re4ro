@@ -16,8 +16,12 @@ FCEUFILE *FCEU_fopen(const char *path, const uint8_t *buffer, size_t bufsize);
 int FCEU_fclose(FCEUFILE*);
 uint64_t FCEU_fread(void *ptr, size_t size, size_t nmemb, FCEUFILE*);
 int FCEU_fseek(FCEUFILE*, long offset, int whence);
+<<<<<<< HEAD
 uint64_t FCEU_ftell(FCEUFILE*);
 int FCEU_read32le(uint32_t *Bufo, FCEUFILE*);
+=======
+int FCEU_read32le(uint32 *Bufo, FCEUFILE*);
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 int FCEU_fgetc(FCEUFILE*);
 uint64_t FCEU_fgetsize(FCEUFILE*);
 

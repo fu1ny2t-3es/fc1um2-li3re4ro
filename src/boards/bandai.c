@@ -82,7 +82,7 @@ static void Sync(void) {
 	SyncMirror();
 }
 
-static DECLFW(BandaiWrite) {
+static void BandaiWrite(uint32 A, uint8 V) {
 	A &= 0x0F;
 	if (A < 0x0A) {
 		reg[A & 0x0F] = V;
@@ -101,14 +101,13 @@ static DECLFW(BandaiWrite) {
 		}
 }
 
-static DECLFR(BandaiRead) {
+static uint8 BandaiRead(uint32 A) {
 	if (x24c02)
 		return (X.DB & 0xEF) | (x24c02_out << 4);
-	else
-		return (X.DB & 0xEF) | (x24c01_out << 4);
+	return (X.DB & 0xEF) | (x24c01_out << 4);
 }
 
-static void FP_FASTAPASS(1) BandaiIRQHook(int a) {
+static void BandaiIRQHook(int a) {
 	if (IRQa) {
 		IRQCount -= a;
 		if (IRQCount < 0) {
@@ -378,7 +377,7 @@ static void BarcodeSync(void) {
 	SyncMirror();
 }
 
-static DECLFW(BarcodeWrite) {
+static void BarcodeWrite(uint32 A, uint8 V) {
 	A &= 0x0F;
 	switch (A) {
 	case 0x00:
@@ -400,7 +399,7 @@ static DECLFW(BarcodeWrite) {
 	}
 }
 
-static void FP_FASTAPASS(1) BarcodeIRQHook(int a) {
+static void BarcodeIRQHook(int a) {
 	BandaiIRQHook(a);
 
 	BarcodeCycleCount += a;
@@ -416,7 +415,7 @@ static void FP_FASTAPASS(1) BarcodeIRQHook(int a) {
 	}
 }
 
-static DECLFR(BarcodeRead) {
+static uint8 BarcodeRead(uint32 A) {
 	return (X.DB & 0xE7) | ((x24c02_out | x24c01_out) << 4) | BarcodeOut;
 }
 
