@@ -1,7 +1,7 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2011 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,12 +18,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * FDS Conversion - Metroid - Jin Ji Zhi Ling (Kaiser)(KS7037)[U][!]
+ * NES 2.0 Mapper 307 - UNL-KS7037
  *
  */
 
 #include "mapinc.h"
-#include "sound/fdssound.h"
+#include "n118.h"
+#include "fdssound.h"
 
+<<<<<<< HEAD
 static uint8_t reg[8], cmd;
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
@@ -38,27 +41,30 @@ static SFORMAT StateRegs[] =
 };
 
 static void SyncKS7037(void) {
+=======
+static void M307FixPRG(void) {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	setprg4r(0x10, 0x6000, 0);
 	setprg4(0x7000, 15);
-	setprg8(0x8000, reg[6]);
+	setprg8(0x8000, n118.reg[6]);
 	setprg4(0xA000, ~3);
-	setprg4r(0x10, 0xB000, 1);
-	setprg8(0xC000, reg[7]);
+	setprg4r(0x10, 0xB000, 0x01);
+	setprg8(0xC000, n118.reg[7]);
 	setprg8(0xE000, ~0);
-	setchr8(0);
-	setmirrorw(reg[2] & 1, reg[4] & 1, reg[3] & 1, reg[5] & 1);
 }
 
-static void SyncLH10(void) {
-	setprg8(0x6000, ~1);
-	setprg8(0x8000, reg[6]);
-	setprg8(0xA000, reg[7]);
-	setprg8r(0x10, 0xC000, 0);
-	setprg8(0xE000, ~0);
+static void M307FixCHR(void) {
 	setchr8(0);
-	setmirror(0);
+	setmirrorw(n118.reg[2] & 0x01, n118.reg[4] & 0x01, n118.reg[3] & 0x01, n118.reg[5] & 0x01);
 }
 
+static void M307Power(void) {
+	FDSSound_Power();
+	N118_Power();
+	SetWriteHandler(0xB000, 0xBFFF, CartBW);
+}
+
+<<<<<<< HEAD
 static void UNLKS7037Write(uint32 A, uint8 V) {
 	switch (A & 0xE001) {
 	case 0x8000: cmd = V & 7; break;
@@ -126,4 +132,11 @@ void LH10_Init(CartInfo *info) {
 
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
+=======
+void Mapper307_Init(CartInfo *info) {
+	N118_Init(info, 8, info->battery);
+	info->Power = M307Power;
+	N118_FixPRG = M307FixPRG;
+	N118_FixCHR = M307FixCHR;
+>>>>>>> 7b06ddc4 (Update libretro.c)
 }

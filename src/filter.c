@@ -7,6 +7,7 @@
 
 #include "fcoeffs.h"
 
+<<<<<<< HEAD
 /* Reference rate at which SexyFilter2's one-pole reproduces the legacy
  * hardcoded ">>3" coefficient (1/8 == 8192 in Q16).  The coefficient is
  * scaled by SEXYFILTER2_REF_RATE / SndRate so the corner frequency stays
@@ -16,6 +17,9 @@
  * ~955 Hz at 48000). */
 #define SEXYFILTER2_REF_RATE 48000
 
+=======
+<<<<<<< HEAD
+>>>>>>> c1beb1c1 (Update libretro.c)
 static uint32_t mrindex;
 static uint32_t mrratio;
 
@@ -41,9 +45,35 @@ void SexyFilter_Reset(void)
 =======
 =======
 int64 sexyfilter_acc1 = 0, sexyfilter_acc2 = 0;
+=======
+static int32 sq2coeffs[SQ2NCOEFFS];
+static int32 coeffs[NCOEFFS];
+
+static uint32 mrindex;
+static uint32 mrratio;
+
+enum {
+	OUTPUT_MAX = 32767,
+	OUTPUT_MIN = - 32768
+};
+
+static INLINE int32 Clamp(int32 value) {
+	return (value <= OUTPUT_MAX) ? ((value >= OUTPUT_MIN) ? value : OUTPUT_MIN) : OUTPUT_MAX;
+}
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
 >>>>>>> 13f7501c (Refactors)
 void SexyFilter2(int32 *in, int32 count) {
+#ifdef moo
+	static int64 acc = 0;
+	double x, p;
+	int64 c;
+
+	x = 2 * M_PI * 6000 / FSettings.SndRate;
+	p = ((double)2 - cos(x)) - sqrt(pow((double)2 - cos(x), 2) - 1);
+
+	c = p * 0x100000;
+#endif
 	static int64 acc = 0;
 >>>>>>> 74114ad0 (Update libretro.c)
 
@@ -65,7 +95,11 @@ void SexyFilter2(int32_t *in, int32_t count) {
 	if (coeff > 65536) coeff = 65536;
 
 	while (count--) {
+<<<<<<< HEAD
 		int64_t diff;
+=======
+<<<<<<< HEAD
+>>>>>>> c1beb1c1 (Update libretro.c)
 		int64_t dropcurrent;
 
 		diff        = ((int64_t)*in << 16) - sexyfilter2_acc;
@@ -75,11 +109,26 @@ void SexyFilter2(int32_t *in, int32_t count) {
 		dropcurrent = (diff * coeff + (1 << 15)) >> 16;
 
 		sexyfilter2_acc += dropcurrent;
+<<<<<<< HEAD
 		*in = (int32_t)(sexyfilter2_acc >> 16);
+=======
+		*in = sexyfilter2_acc >> 16;
+=======
+		int64 dropcurrent = ((*in << 16) - acc) >> (FSettings.lowpass & 0x03);
+		acc += dropcurrent;
+		*in = acc >> 16;
+>>>>>>> 7b06ddc4 (Update libretro.c)
+>>>>>>> c1beb1c1 (Update libretro.c)
 		in++;
+#if 0
+		 acc=((int64)0x100000-c)* *in + ((c*acc)>>20);
+		*in=acc>>20;
+		in++;
+#endif
 	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 void SexyFilter(int32_t *in, int32_t *out, int32_t count) {
@@ -98,13 +147,25 @@ void SexyFilter(int32 *in, int32 *out, int32 count) {
 	int32 mul2 = (24 << 16) / FSettings.SndRate;
 	int32 vmul = (FSettings.SoundVolume << 16) * 3 / 4 / 100;
 >>>>>>> 74114ad0 (Update libretro.c)
+=======
+int64 sexyfilter_acc1 = 0, sexyfilter_acc2 = 0;
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
-	if (FSettings.soundq)
+void SexyFilter(int32 *in, int32 *out, int32 count) {
+	int32 mul1, mul2, vmul;
+
+	mul1 = (94 << 16) / FSettings.SndRate;
+	mul2 = (24 << 16) / FSettings.SndRate;
+	vmul = (FSettings.volume[SND_MASTER] << 16) * 3 / 4 / 100;
+
+	if (FSettings.soundq) {
 		vmul /= 4;
-	else
-		vmul *= 2;	/* TODO:  Increase volume in low quality sound rendering code itself */
+	} else {
+		vmul *= 2; /* TODO:  Increase volume in low quality sound rendering code itself */
+	}
 
 	while (count) {
+<<<<<<< HEAD
 		int64_t ino = (int64_t) * in * vmul;
 		/* Round to nearest in the recursive updates and in the output
 		 * quantisation rather than truncating toward -inf.  This removes
@@ -127,6 +188,16 @@ void SexyFilter(int32 *in, int32 *out, int32 count) {
 			if (t < -32768) t = -32768;
 			*out = t;
 		}
+=======
+		int64 ino = (int64)*in * vmul;
+		int32 t;
+
+		sexyfilter_acc1 += ((ino - sexyfilter_acc1) * mul1) >> 16;
+		sexyfilter_acc2 += ((ino - sexyfilter_acc1 - sexyfilter_acc2) * mul2) >> 16;
+		*in = 0;
+		t = (sexyfilter_acc1 - ino + sexyfilter_acc2) >> 16;
+		*out = Clamp(t);
+>>>>>>> 7b06ddc4 (Update libretro.c)
 		in++;
 		out++;
 		count--;
@@ -135,14 +206,14 @@ void SexyFilter(int32 *in, int32 *out, int32 count) {
 
 /* Returns number of samples written to out. */
 /* leftover is set to the number of samples that need to be copied
-	from the end of in to the beginning of in.
+    from the end of in to the beginning of in.
 */
 
 /* static uint32_t mva=1000; */
 
 /* This filtering code assumes that almost all input values stay below 32767.
-	Do not adjust the volume in the wlookup tables and the expansion sound
-	code to be higher, or you *might* overflow the FIR code.
+    Do not adjust the volume in the wlookup tables and the expansion sound
+    code to be higher, or you *might* overflow the FIR code.
 */
 
 int32_t NeoFilterSound(int32_t *in, int32_t *out, uint32_t inlen, int32_t *leftover) {
@@ -166,7 +237,7 @@ int32_t NeoFilterSound(int32_t *in, int32_t *out, uint32_t inlen, int32_t *lefto
 			uint32_t c;
 			int32_t *S, *D;
 
-			for (c = SQ2NCOEFFS, S = &in[(x >> 16) - SQ2NCOEFFS], D = sq2coeffs; c; c--, D++) {
+			for (c = SQ2NCOEFFS, S = &in [(x >> 16) - SQ2NCOEFFS], D = sq2coeffs; c; c--, D++) {
 				acc += (S[c] * *D) >> 6;
 				acc2 += (S[1 + c] * *D) >> 6;
 			}
@@ -183,7 +254,7 @@ int32_t NeoFilterSound(int32_t *in, int32_t *out, uint32_t inlen, int32_t *lefto
 			uint32_t c;
 			int32_t *S, *D;
 
-			for (c = NCOEFFS, S = &in[(x >> 16) - NCOEFFS], D = coeffs; c; c--, D++) {
+			for (c = NCOEFFS, S = &in [(x >> 16) - NCOEFFS], D = coeffs; c; c--, D++) {
 				acc += (S[c] * *D) >> 6;
 				acc2 += (S[1 + c] * *D) >> 6;
 			}
@@ -206,15 +277,20 @@ int32_t NeoFilterSound(int32_t *in, int32_t *out, uint32_t inlen, int32_t *lefto
 		*leftover = NCOEFFS + 1;
 	}
 
-	if (GameExpSound.NeoFill)
-		GameExpSound.NeoFill(outsave, count);
+	for (x = 0; x < GAMEEXPSOUND_COUNT; x++) {
+		if (GameExpSound[x].NeoFill) {
+			GameExpSound[x].NeoFill(outsave, count);
+		}
+	}
 
 	SexyFilter(outsave, outsave, count);
-	if (FSettings.lowpass)
+	if (FSettings.lowpass) {
 		SexyFilter2(outsave, count);
-	return(count);
+	}
+	return (count);
 }
 
+<<<<<<< HEAD
 void MakeFilters(int32_t rate) {
 <<<<<<< HEAD
 	int32_t *tabs[8] = { C44100NTSC, C44100PAL, C48000NTSC, C48000PAL, C96000NTSC,
@@ -236,15 +312,23 @@ void MakeFilters(int32_t rate) {
 	uint32_t idx;
 =======
 =======
+=======
+void MakeFilters(int32 rate) {
+	int32 *tabs[6] = { C44100NTSC, C44100PAL, C48000NTSC, C48000PAL, C96000NTSC, C96000PAL };
+	int32 *sq2tabs[6] = { SQ2C44100NTSC, SQ2C44100PAL, SQ2C48000NTSC, SQ2C48000PAL, SQ2C96000NTSC, SQ2C96000PAL };
+
+	int32 *tmp;
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	int32 x;
 	uint32 nco;
 >>>>>>> 74114ad0 (Update libretro.c)
 >>>>>>> d0dea0fb (Update libretro.c)
 
-	if (FSettings.soundq == 2)
+	if (FSettings.soundq == 2) {
 		nco = SQ2NCOEFFS;
-	else
+	} else {
 		nco = NCOEFFS;
+	}
 
 	mrindex = (nco + 1) << 16;
 <<<<<<< HEAD
@@ -253,6 +337,7 @@ void MakeFilters(int32_t rate) {
 	mrratio = (isPAL ? (int64)(PAL_CPU * 65536) : (int64)(NTSC_CPU * 65536)) / rate;
 >>>>>>> 3841c9b0 (Update libretro.c)
 
+<<<<<<< HEAD
 	/* Select the coefficient table matched to the output rate. Bit 0 is
 	 * the PAL/NTSC region; the rate selects the base index. Rates without
 	 * a dedicated table fall back to the 44100 design (index 0/1). */
@@ -283,11 +368,21 @@ void MakeFilters(int32_t rate) {
 >>>>>>> 56dea41e (Update libretro.c)
 		for (x = 0; x < (SQ2NCOEFFS >> 1); x++)
 			sq2coeffs[x] = sq2coeffs[SQ2NCOEFFS - 1 - x] = tmp[x];
+=======
+	if (FSettings.soundq == 2) {
+		tmp = sq2tabs[(isPAL ? 1 : 0) | (rate == 48000 ? 2 : 0) | (rate >= 96000 ? 4 : 0)];
+	} else {
+		tmp = tabs[(isPAL ? 1 : 0) | (rate == 48000 ? 2 : 0) | (rate >= 96000 ? 4 : 0)];
+>>>>>>> 03020f6a (Update libretro.c)
 	}
-	else
-	{
-		int32 *tmp = tabs[(isPAL ? 1 : 0) | (rate == 48000 ? 2 : 0) | (rate == 96000 ? 4 : 0)];
-		for (x = 0; x < (NCOEFFS >> 1); x++)
+
+	if (FSettings.soundq == 2) {
+		for (x = 0; x < (SQ2NCOEFFS >> 1); x++) {
+			sq2coeffs[x] = sq2coeffs[SQ2NCOEFFS - 1 - x] = tmp[x];
+		}
+	} else {
+		for (x = 0; x < (NCOEFFS >> 1); x++) {
 			coeffs[x] = coeffs[NCOEFFS - 1 - x] = tmp[x];
+		}
 	}
 }

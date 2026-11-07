@@ -1,9 +1,10 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2002 Xodnizel
  *  Copyright (C) 2005 CaH4e3
  *  Copyright (C) 2019 Libretro Team
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +24,14 @@
 /* Yancheng YC-03-09/Waixing FS??? PCB */
 
 #include "mapinc.h"
+<<<<<<< HEAD
+#include "eeprom_93Cx6.h"
+=======
+>>>>>>> 8bc4f46 (Update libretro.c)
+
 #include "eeprom_93Cx6.h"
 
+<<<<<<< HEAD
 static uint8_t *WRAM;
 static uint32_t WRAMSIZE;
 static uint8_t reg[4];
@@ -34,8 +41,19 @@ static SFORMAT StateRegs[] =
 {
         { reg, 4, "REGS" },
         { 0 }
+=======
+static uint8 reg[4];
+
+static uint8 haveEEPROM;
+static uint8 eeprom_data[512];
+
+static SFORMAT StateRegs[] = {
+   { reg, 4, "REGS" },
+   { 0 }
+>>>>>>> 7b06ddc4 (Update libretro.c)
 };
 
+<<<<<<< HEAD
 static void M558Sync(void)
 {
    setprg32(0x8000, reg[1] <<4 | reg[0] &0xF | (reg[3] &0x04? 0x00: 0x03));
@@ -45,18 +63,28 @@ static void M558Sync(void)
 
    if (haveEEPROM)
       eeprom_93Cx6_write(reg[2] &0x04, reg[2] &0x02, reg[2] &0x01);
+=======
+static void Sync(void) {
+	setprg32(0x8000, (reg[1] << 4) | (reg[0] & 0xF) | ((reg[3] & 0x04) ? 0x00 : 0x03));
+	setprg8r(0x10, 0x6000, 0);
+	if (!(reg[0] & 0x80)) {
+		setchr8(0);
+	}
+>>>>>>> 8bc4f46 (Update libretro.c)
 }
 
 static void M558HBIRQHook(void) {
-   if (reg[0] &0x80 && scanline <239)
-   {  /* Actual hardware cannot look at the current scanline number, but instead latches PA09 on PA13 rises. This does not seem possible with the current PPU emulation however. */
-      setchr4(0x0000, scanline >=127? 1: 0);
-      setchr4(0x1000, scanline >=127? 1: 0);
-   }
-   else
-      setchr8(0);
+	if ((reg[0] & 0x80) &&
+	    (scanline < 239)) { /* Actual hardware cannot look at the current scanline number, but instead latches PA09 on
+		                     PA13 rises. This does not seem possible with the current PPU emulation however. */
+		setchr4(0x0000, (scanline >= 127) ? 1 : 0);
+		setchr4(0x1000, (scanline >= 127) ? 1 : 0);
+	} else {
+		setchr8(0);
+	}
 }
 
+<<<<<<< HEAD
 static uint8 readReg(uint32 A)
 {
    if (haveEEPROM)
@@ -68,8 +96,16 @@ static uint8 readReg(uint32 A)
       return eeprom_93C66_read()? 0x04: 0x00;
    return reg[2] &0x04;
 >>>>>>> bc0be5f (Update libretro.c)
+=======
+static DECLFR(readReg) {
+	if (haveEEPROM) {
+		return eeprom_93Cx6_read() ? 0x04 : 0x00;
+	}
+	return reg[2] & 0x04;
+>>>>>>> 8bc4f46 (Update libretro.c)
 }
 
+<<<<<<< HEAD
 static void writeReg(uint32 A, uint8 V)
 {
    uint8_t index = A >>8 &3;
@@ -83,8 +119,41 @@ static void writeReg(uint32 A, uint8 V)
    
    reg[index] = V;
    M558Sync();
+=======
+static DECLFW(writeReg) {
+	switch (A & 0xFF00) {
+	case 0x5000:
+		if (!(reg[3] & 0x02)) {
+			V = (V & ~0x03) | ((V >> 1) & 0x01) | ((V << 1) & 0x02);
+		}
+		reg[0] = V;
+		Sync();
+		break;
+	case 0x5100:
+		if (!(reg[3] & 0x02)) {
+			V = (V & ~0x03) | ((V >> 1) & 0x01) | ((V << 1) & 0x02);
+		}
+		reg[1] = V;
+		Sync();
+		break;
+	case 0x5200:
+		if (((ROM.prg.size * 16) != 1024) && !(reg[3] & 0x02)) {
+			V = (V & ~0x03) | ((V >> 1) & 0x01) | ((V << 1) & 0x02);
+		}
+		reg[2] = V;
+		if (haveEEPROM) {
+			eeprom_93Cx6_write((reg[2] & 0x04), (reg[2] & 0x02), (reg[2] & 0x01));
+		}
+		break;
+	case 0x5300:
+		reg[3] = V;
+		Sync();
+		break;
+	}
+>>>>>>> 7b06ddc4 (Update libretro.c)
 }
 
+<<<<<<< HEAD
 static void M558Power(void)
 {
    memset(reg, 0, sizeof(reg));
@@ -100,36 +169,39 @@ static void M558Power(void)
    SetWriteHandler(0x5000, 0x57FF, writeReg);
    SetReadHandler (0x6000, 0xFFFF, CartBR);
    SetWriteHandler(0x6000, 0x7FFF, CartBW);
+=======
+static void M558Power(void) {
+	memset(reg, 0, sizeof(reg));
+	Sync();
+	SetReadHandler(0x5000, 0x57FF, readReg);
+	SetWriteHandler(0x5000, 0x57FF, writeReg);
+	SetReadHandler(0x6000, 0xFFFF, CartBR);
+	SetWriteHandler(0x6000, 0x7FFF, CartBW);
+>>>>>>> 8bc4f46 (Update libretro.c)
 }
 
-static void M558Reset(void)
-{
-   memset(reg, 0, sizeof(reg));
-   M558Sync();
+static void M558Reset(void) {
+	memset(reg, 0, sizeof(reg));
+	Sync();
 }
 
-static void M558Close(void)
-{
-   if (WRAM)
-      FCEU_gfree(WRAM);
-   WRAM = NULL;
+static void M558Close(void) {
 }
 
-static void M558StateRestore(int version)
-{
-   M558Sync();
+static void StateRestore(int version) {
+	Sync();
 }
 
-void Mapper558_Init (CartInfo *info)
-{
-   info->Power   = M558Power;
-   info->Reset   = M558Reset;
-   info->Close   = M558Close;
-   GameHBIRQHook = M558HBIRQHook;
+void Mapper558_Init(CartInfo *info) {
+	info->Power = M558Power;
+	info->Reset = M558Reset;
+	info->Close = M558Close;
+	GameHBIRQHook = M558HBIRQHook;
 
-   GameStateRestore = M558StateRestore;
-   AddExState(StateRegs, ~0, 0, 0);
+	GameStateRestore = StateRestore;
+	AddExState(StateRegs, ~0, 0, NULL);
 
+<<<<<<< HEAD
    WRAMSIZE = info->PRGRamSize + (info->PRGRamSaveSize &~0x7FF);
    WRAM = (uint8_t*) FCEU_gmalloc(WRAMSIZE);
    SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
@@ -149,4 +221,22 @@ void Mapper558_Init (CartInfo *info)
       info->SaveGame[0] = WRAM;
       info->SaveGameLen[0] = (info->PRGRamSaveSize &~0x7FF);
    }
+=======
+	WRAMSIZE = info->PRGRamSize + (info->PRGRamSaveSize & ~0x7FF);
+	WRAM = (uint8 *)FCEU_gmalloc(WRAMSIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
+	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+
+	haveEEPROM = !!(info->PRGRamSaveSize & 0x200);
+	if (haveEEPROM) {
+		eeprom_93Cx6_init(eeprom_data, 512, 8);
+		info->battery = 1;
+		info->SaveGame[0] = eeprom_data;
+		info->SaveGameLen[0] = 512;
+	} else if (info->battery) {
+		info->SaveGame[0] = WRAM;
+		info->SaveGameLen[0] = (info->PRGRamSaveSize & ~0x7FF);
+	}
+>>>>>>> 8bc4f46 (Update libretro.c)
 }
