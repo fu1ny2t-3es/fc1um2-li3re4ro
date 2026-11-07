@@ -35,11 +35,12 @@
 
 #include "general.h"
 
-/*
-		This file contains all code for coordinating the mapping in of the
-		address space external to the NES.
-		It's also (ab)used by the NSF code.
-*/
+romData_t ROM;
+
+/* This file contains all code for coordinating the mapping in of the
+   address space external to the NES.
+   It's also (ab)used by the NSF code.
+ */
 
 <<<<<<< HEAD
 uint8_t *Page[32], *VPage[8];
@@ -51,18 +52,16 @@ uint8_t *MMC5BGVPage[8];
 static uint8_t PRGIsRAM[32];	/* This page is/is not PRG RAM. */
 =======
 uint8 *Page[32], *VPage[8];
+uint8 **VPageR = VPage;
 uint8 *MMC5SPRVPage[8];
 uint8 *MMC5BGVPage[8];
-
-static uint8 **VPageR = VPage;
-static uint8 *VPageG[8];
 
 static uint8 PRGIsRAM[32];	/* This page is/is not PRG RAM. */
 >>>>>>> 39a28502 (Update)
 
 /* 16 are (sort of) reserved for UNIF/iNES and 16 to map other stuff. */
-static int CHRram[32];
-static int PRGram[32];
+static uint8 CHRram[32];
+static uint8 PRGram[32];
 
 uint8_t *PRGptr[32];
 uint8_t *CHRptr[32];
@@ -81,6 +80,7 @@ uint32_t CHRmask2[32];
 uint32_t CHRmask4[32];
 uint32_t CHRmask8[32];
 
+<<<<<<< HEAD
 int geniestage = 0;
 
 static int modcon;
@@ -108,40 +108,52 @@ static readfunc GenieBackup[3];
 static int mirrorhard = 0;
 
 static INLINE void setpageptr(int s, uint32 A, uint8 *p, int ram) {
+=======
+static INLINE void setpageptr(int s, uint16 A, uint8 *p, uint8 ram) {
+>>>>>>> 5926d713 (Update libretro.c)
 	uint32 AB = A >> 11;
 >>>>>>> 5a8f1abf (src/cart.c - turn some functions static)
 	int x;
 
-	if (p)
+	if (p) {
 		for (x = (s >> 1) - 1; x >= 0; x--) {
 			PRGIsRAM[AB + x] = ram;
 			Page[AB + x] = p - A;
 		}
-	else
+	} else {
 		for (x = (s >> 1) - 1; x >= 0; x--) {
 			PRGIsRAM[AB + x] = 0;
 			Page[AB + x] = 0;
 		}
+	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static uint8_t nothing[8192];
 =======
 >>>>>>> 5a8f1abf (src/cart.c - turn some functions static)
+=======
+static uint8 nothing[8192];
+>>>>>>> 5926d713 (Update libretro.c)
 void ResetCartMapping(void) {
 	int x;
-	static uint8 nothing[8192];
 
 	for (x = 0; x < 32; x++) {
 		Page[x] = nothing - x * 2048;
 		PRGptr[x] = CHRptr[x] = 0;
 		PRGsize[x] = CHRsize[x] = 0;
 	}
-	for (x = 0; x < 8; x++)
+	for (x = 0; x < 8; x++) {
 		MMC5SPRVPage[x] = MMC5BGVPage[x] = VPageR[x] = nothing - 0x400 * x;
+	}
 }
 
+<<<<<<< HEAD
 void SetupCartPRGMapping(int chip, uint8_t *p, uint32_t size, int ram) {
+=======
+void SetupCartPRGMapping(int chip, uint8 *p, uint32 size, uint8 ram) {
+>>>>>>> 5926d713 (Update libretro.c)
 	PRGptr[chip] = p;
 	PRGsize[chip] = size;
 
@@ -151,10 +163,14 @@ void SetupCartPRGMapping(int chip, uint8_t *p, uint32_t size, int ram) {
 	PRGmask16[chip] = (size >> 14) - 1;
 	PRGmask32[chip] = (size >> 15) - 1;
 
-	PRGram[chip] = ram ? 1 : 0;
+	PRGram[chip] = ram ? TRUE : FALSE;
 }
 
+<<<<<<< HEAD
 void SetupCartCHRMapping(int chip, uint8_t *p, uint32_t size, int ram) {
+=======
+void SetupCartCHRMapping(int chip, uint8 *p, uint32 size, uint8 ram) {
+>>>>>>> 5926d713 (Update libretro.c)
 	CHRptr[chip] = p;
 	CHRsize[chip] = size;
 
@@ -163,24 +179,27 @@ void SetupCartCHRMapping(int chip, uint8_t *p, uint32_t size, int ram) {
 	CHRmask4[chip] = (size >> 12) - 1;
 	CHRmask8[chip] = (size >> 13) - 1;
 
-	CHRram[chip] = ram;
+	CHRram[chip] = ram ? TRUE : FALSE;
 }
 
-uint8 CartBR(uint32 A) {
+DECLFR(CartBR) {
 	return Page[A >> 11][A];
 }
 
-void CartBW(uint32 A, uint8 V) {
+DECLFW(CartBW) {
 	if (PRGIsRAM[A >> 11] && Page[A >> 11])
 		Page[A >> 11][A] = V;
 }
 
-uint8 CartBROB(uint32 A) {
-	if (!Page[A >> 11])
+DECLFR(CartBROB) {
+	if (!Page[A >> 11]) {
 		return(cpu.openbus);
-	return Page[A >> 11][A];
+	} else {
+		return Page[A >> 11][A];
+	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(3) setprg2r(int r, uint32_t A, uint32_t V) {
 	/* If the registered chip size is < 2KB, PRGmask2[r] underflowed to
@@ -196,10 +215,14 @@ void FASTAPASS(3) setprg2r(int r, uint32_t A, uint32_t V) {
 =======
 void setprg2r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void setprg2r(int r, uint16 A, uint16 V) {
+>>>>>>> 5926d713 (Update libretro.c)
 	V &= PRGmask2[r];
 	setpageptr(2, A, &PRGptr[r][V << 11], PRGram[r]);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(2) setprg2(uint32_t A, uint32_t V) {
 	setprg2r(0, A, V);
@@ -228,10 +251,18 @@ void setprg2(uint32 A, uint32 V) {
 
 void setprg4r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void setprg2(uint16 A, uint16 V) {
+	setprg2r(0, A, V);
+}
+
+void setprg4r(int r, uint16 A, uint16 V) {
+>>>>>>> 5926d713 (Update libretro.c)
 	V &= PRGmask4[r];
 	setpageptr(4, A, &PRGptr[r][V << 12], PRGram[r]);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(2) setprg4(uint32_t A, uint32_t V) {
 	setprg4r(0, A, V);
@@ -245,17 +276,26 @@ void setprg4(uint32 A, uint32 V) {
 
 void setprg8r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void setprg4(uint16 A, uint16 V) {
+	setprg4r(0, A, V);
+}
+
+void setprg8r(int r, uint16 A, uint16 V) {
+>>>>>>> 5926d713 (Update libretro.c)
 	if (PRGsize[r] >= 8192) {
 		V &= PRGmask8[r];
 		setpageptr(8, A, PRGptr[r] ? (&PRGptr[r][V << 13]) : 0, PRGram[r]);
 	} else {
 		uint32_t VA = V << 2;
 		int x;
-		for (x = 0; x < 4; x++)
+		for (x = 0; x < 4; x++) {
 			setpageptr(2, A + (x << 11), PRGptr[r] ? (&PRGptr[r][((VA + x) & PRGmask2[r]) << 11]) : 0, PRGram[r]);
+		}
 	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(2) setprg8(uint32_t A, uint32_t V) {
 	setprg8r(0, A, V);
@@ -269,6 +309,13 @@ void setprg8(uint32 A, uint32 V) {
 
 void setprg16r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void setprg8(uint16 A, uint16 V) {
+	setprg8r(0, A, V);
+}
+
+void setprg16r(int r, uint16 A, uint16 V) {
+>>>>>>> 5926d713 (Update libretro.c)
 	if (PRGsize[r] >= 16384) {
 		V &= PRGmask16[r];
 		setpageptr(16, A, PRGptr[r] ? (&PRGptr[r][V << 14]) : 0, PRGram[r]);
@@ -276,11 +323,13 @@ void setprg16r(int r, uint32 A, uint32 V) {
 		uint32_t VA = V << 3;
 		int x;
 
-		for (x = 0; x < 8; x++)
+		for (x = 0; x < 8; x++) {
 			setpageptr(2, A + (x << 11), PRGptr[r] ? (&PRGptr[r][((VA + x) & PRGmask2[r]) << 11]) : 0, PRGram[r]);
+		}
 	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(2) setprg16(uint32_t A, uint32_t V) {
 	setprg16r(0, A, V);
@@ -292,6 +341,13 @@ void setprg16(uint32 A, uint32 V) { setprg16r(0, A, V); }
 
 void setprg32r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void setprg16(uint16 A, uint16 V) {
+	setprg16r(0, A, V);
+}
+
+void setprg32r(int r, uint16 A, uint16 V) {
+>>>>>>> 5926d713 (Update libretro.c)
 	if (PRGsize[r] >= 32768) {
 		V &= PRGmask32[r];
 		setpageptr(32, A, PRGptr[r] ? (&PRGptr[r][V << 15]) : 0, PRGram[r]);
@@ -299,11 +355,13 @@ void setprg32r(int r, uint32 A, uint32 V) {
 		uint32_t VA = V << 4;
 		int x;
 
-		for (x = 0; x < 16; x++)
+		for (x = 0; x < 16; x++) {
 			setpageptr(2, A + (x << 11), PRGptr[r] ? (&PRGptr[r][((VA + x) & PRGmask2[r]) << 11]) : 0, PRGram[r]);
+		}
 	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(2) setprg32(uint32_t A, uint32_t V) {
 	setprg32r(0, A, V);
@@ -317,15 +375,27 @@ void setchr1r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
 	if (!CHRptr[r]) return;
 	if (CHRsize[r] < 1024) return;	/* mask underflow guard */
+=======
+void setprg32(uint16 A, uint16 V) {
+	setprg32r(0, A, V);
+}
+
+void setchr1r(int r, uint16 A, uint16 V) {
+	if (!CHRptr[r]) {
+		return;
+	}
+>>>>>>> 5926d713 (Update libretro.c)
 	FCEUPPU_LineUpdate();
 	V &= CHRmask1[r];
-	if (CHRram[r])
+	if (CHRram[r]) {
 		PPUCHRRAM |= (1 << (A >> 10));
-	else
+	} else {
 		PPUCHRRAM &= ~(1 << (A >> 10));
+	}
 	VPageR[(A) >> 10] = &CHRptr[r][(V) << 10] - (A);
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(3) setchr2r(int r, uint32_t A, uint32_t V) {
 =======
@@ -333,15 +403,23 @@ void setchr2r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
 	if (!CHRptr[r]) return;
 	if (CHRsize[r] < 2048) return;	/* mask underflow guard */
+=======
+void setchr2r(int r, uint16 A, uint16 V) {
+	if (!CHRptr[r]) {
+		return;
+	}
+>>>>>>> 5926d713 (Update libretro.c)
 	FCEUPPU_LineUpdate();
 	V &= CHRmask2[r];
 	VPageR[(A) >> 10] = VPageR[((A) >> 10) + 1] = &CHRptr[r][(V) << 11] - (A);
-	if (CHRram[r])
+	if (CHRram[r]) {
 		PPUCHRRAM |= (3 << (A >> 10));
-	else
+	} else {
 		PPUCHRRAM &= ~(3 << (A >> 10));
+	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(3) setchr4r(int r, uint32_t A, uint32_t V) {
 =======
@@ -349,25 +427,39 @@ void setchr4r(int r, uint32 A, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
 	if (!CHRptr[r]) return;
 	if (CHRsize[r] < 4096) return;	/* mask underflow guard */
+=======
+void setchr4r(int r, uint16 A, uint16 V) {
+	if (!CHRptr[r]) {
+		return;
+	}
+>>>>>>> 5926d713 (Update libretro.c)
 	FCEUPPU_LineUpdate();
 	V &= CHRmask4[r];
 	VPageR[(A) >> 10] = VPageR[((A) >> 10) + 1] =
-							VPageR[((A) >> 10) + 2] = VPageR[((A) >> 10) + 3] = &CHRptr[r][(V) << 12] - (A);
-	if (CHRram[r])
+	VPageR[((A) >> 10) + 2] = VPageR[((A) >> 10) + 3] = &CHRptr[r][(V) << 12] - (A);
+	if (CHRram[r]) {
 		PPUCHRRAM |= (15 << (A >> 10));
-	else
+	} else {
 		PPUCHRRAM &= ~(15 << (A >> 10));
+	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(2) setchr8r(int r, uint32_t V) {
 =======
 void setchr8r(int r, uint32 V) {
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void setchr8r(int r, uint16 V) {
+>>>>>>> 5926d713 (Update libretro.c)
 	int x;
 
-	if (!CHRptr[r]) return;
+	if (!CHRptr[r]) {
+		return;
+	}
 	FCEUPPU_LineUpdate();
+<<<<<<< HEAD
 	if (CHRsize[r] < 8192) {
 		/* Undersized chip: clamp V to 0 to avoid OOB indexing. The 2KB
 		 * NTARAM-as-CHR pattern in mapper 218 currently relies on this
@@ -378,13 +470,20 @@ void setchr8r(int r, uint32 V) {
 		V &= CHRmask8[r];
 	}
 	for (x = 7; x >= 0; x--)
+=======
+	V &= CHRmask8[r];
+	for (x = 7; x >= 0; x--) {
+>>>>>>> 5926d713 (Update libretro.c)
 		VPageR[x] = &CHRptr[r][V << 13];
-	if (CHRram[r])
-		PPUCHRRAM |= (255);
-	else
+	}
+	if (CHRram[r]) {
+		PPUCHRRAM |= 0xFF;
+	} else {
 		PPUCHRRAM = 0;
+	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 void FASTAPASS(2) setchr1(uint32_t A, uint32_t V) {
 	setchr1r(0, A, V);
@@ -415,13 +514,36 @@ void setchr8(uint32 V) { setchr8r(0, V); }
 
 void setntamem(uint8 * p, int ram, uint32 b) {
 >>>>>>> b8aebecd (Update libretro.c)
+=======
+void setchr1(uint16 A, uint16 V) {
+	setchr1r(0, A, V);
+}
+
+void setchr2(uint16 A, uint16 V) {
+	setchr2r(0, A, V);
+}
+
+void setchr4(uint16 A, uint16 V) {
+	setchr4r(0, A, V);
+}
+
+void setchr8(uint16 V) {
+	setchr8r(0, V);
+}
+
+/* This function can be called without calling SetupCartMirroring(). */
+
+void setntamem(uint8 *p, int ram, int b) {
+>>>>>>> 5926d713 (Update libretro.c)
 	FCEUPPU_LineUpdate();
 	vnapage[b] = p;
 	PPUNTARAM &= ~(1 << b);
-	if (ram)
+	if (ram) {
 		PPUNTARAM |= 1 << b;
+	}
 }
 
+static int mirrorhard = 0;
 void setmirrorw(int a, int b, int c, int d) {
 	FCEUPPU_LineUpdate();
 	vnapage[0] = NTARAM + a * 0x400;
@@ -432,23 +554,34 @@ void setmirrorw(int a, int b, int c, int d) {
 
 void setmirror(int t) {
 	FCEUPPU_LineUpdate();
-	if (!mirrorhard) {
-		switch (t) {
-		case MI_H:
-			vnapage[0] = vnapage[1] = NTARAM; vnapage[2] = vnapage[3] = NTARAM + 0x400;
-			break;
-		case MI_V:
-			vnapage[0] = vnapage[2] = NTARAM; vnapage[1] = vnapage[3] = NTARAM + 0x400;
-			break;
-		case MI_0:
-			vnapage[0] = vnapage[1] = vnapage[2] = vnapage[3] = NTARAM;
-			break;
-		case MI_1:
-			vnapage[0] = vnapage[1] = vnapage[2] = vnapage[3] = NTARAM + 0x400;
-			break;
-		}
-		PPUNTARAM = 0xF;
+
+	if (mirrorhard) {
+		return;
 	}
+
+	switch (t) {
+	case MI_H:
+		vnapage[0] = vnapage[1] = NTARAM;
+		vnapage[2] = vnapage[3] = NTARAM + 0x400;
+		break;
+	case MI_V:
+		vnapage[0] = vnapage[2] = NTARAM;
+		vnapage[1] = vnapage[3] = NTARAM + 0x400;
+		break;
+	case MI_0:
+		vnapage[0] = vnapage[1] = vnapage[2] = vnapage[3] = NTARAM;
+		break;
+	case MI_1:
+		vnapage[0] = vnapage[1] = vnapage[2] = vnapage[3] = NTARAM + 0x400;
+		break;
+	case MI_4:
+		vnapage[0] = NTARAM;
+		vnapage[1] = NTARAM + 0x400;
+		vnapage[2] = NTARAM + 0x800;
+		vnapage[3] = NTARAM + 0xC00;
+		break;
+	}
+	PPUNTARAM = 0xF;
 }
 
 void SetupCartMirroring(int m, int hard, uint8_t *extra) {
@@ -464,6 +597,7 @@ void SetupCartMirroring(int m, int hard, uint8_t *extra) {
 	}
 	mirrorhard = hard;
 }
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 static uint8_t *GENIEROM = 0;
@@ -724,3 +858,5 @@ void FCEU_GeniePower(void) {
 	else
 		geniestage = 2;
 }
+=======
+>>>>>>> 5926d713 (Update libretro.c)

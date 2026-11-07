@@ -1,8 +1,9 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2012 CaH4e3
  *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,7 +23,9 @@
 /* DS-9-27. Absolutely insane PCB that overlays 8 KiB of WRAM into a selectable position between $8000 and $E000. */
 
 #include "mapinc.h"
+#include "latch.h"
 
+<<<<<<< HEAD
 static uint8_t *WRAM;
 static uint32_t WRAMSIZE;
 static uint16_t latch[2];
@@ -90,39 +93,58 @@ static void Mapper452_Sync(void) {
 		SetWRAM(wramBank <<12);
 		setchr8(0);
 		setmirror(latch [1] &1 ^1);
+=======
+static void Sync(void) {
+	uint16 prgbank = latch.addr >> 1;
+	uint16 prgram_addr = 0x8000 | ((latch.data << 9) & 0x6000);
+
+	if (latch.data & 0x02) {
+		setprg8(0x8000, prgbank);
+		setprg8(0xA000, prgbank);
+		setprg8(0xC000, prgbank);
+		setprg8(0xE000, prgbank);
+	} else if (latch.data & 0x08) {
+		setprg8(0x8000, (prgbank & ~0x01) | 0);
+		setprg8(0xA000, (prgbank & ~0x01) | 1);
+		setprg8(0xC000, (prgbank & ~0x01) | 2);
+		setprg8(0xE000, (prgbank & ~0x01) | 3
+			| (latch.data & 0x04)
+			| ((latch.data & 0x04) && (latch.data & 0x40) ? 0x08 : 0x00));
+	} else {
+		setprg16(0x8000, latch.addr >> 2);
+		setprg16(0xC000, 0);
+	}
+
+	setchr8(0);
+	setmirror((latch.data & 0x01) ^ 0x01);
+
+	setprg8r(0x10, prgram_addr, 0);
+	if (latch.data & 0x02) {
+		setprg8r(0x10, prgram_addr ^ 0x4000, 0);
+>>>>>>> 5926d713 (Update libretro.c)
 	}
 }
 
-static void Mapper452_WriteLatch(uint32 A, uint8 V) {
-	CartBW(A, V);
-	latch[0] =A &0xFFFF;
-	latch[1] =V;
-	Mapper452_Sync();
+static DECLFW(M452Write) {
+	switch (A & 0xE000) {
+	case 0x8000:
+	case 0xA000:
+	case 0xC000:
+		Latch_Write(A, V);
+		break;
+	case 0xE000:
+		CartBW(A, V);
+		break;
+	}
 }
 
-static void Mapper452_Reset(void) {
-	latch[0] =latch[1] =0;
-	Mapper452_Sync();
-}
-
-static void Mapper452_Power(void) {
-	latch[0] =latch[1] =0;
-	SetReadHandler(0x6000, 0xFFFF, CartBR);
-	Mapper452_Sync();
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
-}
-
-static void Mapper452_Close(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
-}
-
-static void StateRestore(int version) {
-	Mapper452_Sync();
+static void M452Power(void) {
+	Latch_Power();
+	SetWriteHandler(0x8000, 0xFFFF, M452Write);
 }
 
 void Mapper452_Init(CartInfo *info) {
+<<<<<<< HEAD
 	submapper =info->submapper;
 	info->Reset = Mapper452_Reset;
 	info->Power = Mapper452_Power;
@@ -134,4 +156,9 @@ void Mapper452_Init(CartInfo *info) {
 	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
 	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
 	AddExState(&latch, 4, 0, "LATC");
+=======
+	Latch_Init(info, Sync, NULL, TRUE, FALSE);
+	info->Reset = Latch_RegReset;
+	info->Power = M452Power;
+>>>>>>> 5926d713 (Update libretro.c)
 }

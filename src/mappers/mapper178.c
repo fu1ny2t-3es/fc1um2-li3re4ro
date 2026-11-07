@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 2013 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,6 +32,7 @@ static uint8_t submapper;
 static uint8_t reg[4];
 static uint8_t pad[2];
 
+<<<<<<< HEAD
 static uint8_t *WRAM = NULL;
 static uint32_t WRAMSIZE;
 
@@ -41,10 +43,14 @@ static writefunc pcmwrite;
 
 static SFORMAT StateRegs[] =
 {
+=======
+static SFORMAT StateRegs[] = {
+>>>>>>> 5926d713 (Update libretro.c)
 	{ reg, 4, "REGS" },
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static const int16_t step_size[49] = {
 	16, 17, 19, 21, 23, 25, 28, 31, 34, 37,
 	41, 45, 50, 55, 60, 66, 73, 80, 88, 97,
@@ -66,11 +72,29 @@ static void jedi_table_init() {
 		for (nib = 0; nib < 16; nib++) {
 			int value = (2 * (nib & 0x07) + 1) * step_size[step] / 8;
 			jedi_table[step * 16 + nib] = ((nib & 0x08) != 0) ? -value : value;
+=======
+static void Sync(void) {
+	uint16 base = (reg[1] & 0x07) | (reg[2] << 3);
+
+	if ((reg[0] & 0x02)) {
+		setprg16(0x8000, base);
+		setprg16(0xC000, base | ((reg[0] & 0x04) ? 0x06 : 0x07));
+	} else {
+		if (reg[0] & 0x04) {
+			setprg16(0x8000, base);
+			setprg16(0xC000, base);
+		} else {
+			setprg32(0x8000, base >> 1);
+>>>>>>> 5926d713 (Update libretro.c)
 		}
 	}
-}
 
+<<<<<<< HEAD
 static uint8_t decode(uint8_t code) {
+=======
+<<<<<<< HEAD
+static uint8 decode(uint8 code) {
+>>>>>>> 5926d713 (Update libretro.c)
 	acc += jedi_table[decstep + code];
 	if ((acc & ~0x7ff) != 0)	/* acc is > 2047 */
 		acc |= ~0xfff;
@@ -143,10 +167,25 @@ static DECLFW(M178WriteSnd) {
 	{
 =======
 static void M178Write(uint32 A, uint8 V) {
+=======
+	if (iNESCart.mapper == 551) {
+		setprg8r(0x10, 0x6000, 0);
+		setchr8(reg[3]);
+	} else {
+		setchr8(0);
+		setprg8r(0x10, 0x6000, reg[3] & 3);
+		setmirror((reg[0] & 1) ^ 1);
+	}
+}
+
+static DECLFW(M178Write) {
+>>>>>>> 950f415 (Update libretro.c)
 	reg[A & 3] = V;
+/*	FCEU_printf("cmd %04x:%02x\n", A, V); */
 	Sync();
 }
 
+<<<<<<< HEAD
 static void M178WriteSnd(uint32 A, uint8 V) {
 	if (A == 0x5800) {
 >>>>>>> 83e6770 (Update libretro.c)
@@ -216,7 +255,12 @@ static void M178Power(void) {
 	SetWriteHandler(0x4800, 0x4fff, M178Write);
 	SetWriteHandler(0x5800, 0x5fff, M178WriteSnd);
 	SetReadHandler(0x5800, 0x5fff, M178ReadSnd);
+<<<<<<< HEAD
 	SetReadHandler(0x8000, 0xffff, submapper == 3? interceptPRGRead_submapper3: CartBR);
+=======
+	SetReadHandler(0x8000, 0xffff, CartBR);
+<<<<<<< HEAD
+>>>>>>> 236c54e2 (Update libretro.c)
 	if (submapper == 3)
 		SetWriteHandler(0x6000, 0x7fff, writePad);
 	else {
@@ -225,6 +269,18 @@ static void M178Power(void) {
 		FCEU_CheatAddRAM((WRAMSIZE >> 10) < 8 ? (WRAMSIZE >> 10) : 8, 0x6000, WRAM);
 	}
 	pad[0] = pad[1] = 0;
+=======
+=======
+static void M178Power(void) {
+	reg[0] = reg[1] = reg[2] = reg[3] = 0;
+	Sync();
+	SetWriteHandler(0x4800, 0x4FFF, M178Write);
+	SetReadHandler(0x6000, 0x7FFF, CartBR);
+	SetWriteHandler(0x6000, 0x7FFF, CartBW);
+	SetReadHandler(0x8000, 0xFFFF, CartBR);
+>>>>>>> 950f415 (Update libretro.c)
+	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
+>>>>>>> abbaf97 (Update libretro.c)
 }
 
 static void M551Reset(void) {
@@ -232,6 +288,7 @@ static void M551Reset(void) {
 	reg[0] = reg[1] = reg[2] = reg[3] = 0;
 	M551Sync();
 }
+<<<<<<< HEAD
 
 static void M178Reset(void)
 {
@@ -252,11 +309,10 @@ static void M178SndClk(int a)
 		}
 	}
 }
+=======
+>>>>>>> 950f415 (Update libretro.c)
 
 static void M178Close(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
 }
 
 static void M551StateRestore(int version) {
@@ -272,9 +328,15 @@ void Mapper178_Init(CartInfo *info) {
 	info->Power = M178Power;
 	info->Reset = M178Reset;
 	info->Close = M178Close;
+<<<<<<< HEAD
 	GameStateRestore = M178StateRestore;
 	MapIRQHook = M178SndClk;
+=======
+	GameStateRestore = StateRestore;
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> 950f415 (Update libretro.c)
 
+<<<<<<< HEAD
 	jedi_table_init();
 
 	if (submapper == 3)
@@ -289,6 +351,18 @@ void Mapper178_Init(CartInfo *info) {
 		}
 		AddExState(WRAM, WRAMSIZE, 0, "WRAM");
 	}
+=======
+	WRAMSIZE = 8192;
+	WRAM = (uint8 *)FCEU_gmalloc(WRAMSIZE);
+	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
+	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+	if (info->battery) {
+		info->SaveGame[0] = WRAM;
+		info->SaveGameLen[0] = WRAMSIZE;
+	}
+<<<<<<< HEAD
+	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
+>>>>>>> abbaf97 (Update libretro.c)
 
 	AddExState(&StateRegs, ~0, 0, 0);
 
@@ -298,4 +372,6 @@ void Mapper178_Init(CartInfo *info) {
 		info->Reset      = M551Reset;
 		GameStateRestore = M551StateRestore;
 	}
+=======
+>>>>>>> 950f415 (Update libretro.c)
 }

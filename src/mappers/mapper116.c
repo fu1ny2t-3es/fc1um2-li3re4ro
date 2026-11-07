@@ -1,7 +1,12 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
+<<<<<<< HEAD
  *  Copyright (C) 2023
+=======
+ *  Copyright (C) 2011 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
+>>>>>>> abbaf97 (Update libretro.c)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +24,7 @@
  */
 
 #include "mapinc.h"
+<<<<<<< HEAD
 #include "asic_mmc1.h"
 #include "asic_mmc3.h"
 #include "asic_vrc2and4.h"
@@ -32,6 +38,54 @@ static SFORMAT stateRegs[] = {
 	{ &reg, 1, "MODE" },
 	{ &init, 1, "INIT" },
 	{ 0 },
+=======
+#include "vrc2and4.h"
+#include "mmc3.h"
+#include "mmc1.h"
+
+#define MODE_MMC1 mode & 0x02
+#define MODE_MMC3 mode & 0x01
+
+static uint8 mode = 0;
+static uint8 game = 0;
+
+<<<<<<< HEAD
+static uint8 mmc1_regs[4]  = { 0 };
+static uint8 mmc1_buffer   = 0;
+static uint8 mmc1_shift    = 0;
+
+static uint8 IRQCount      = 0;
+static uint8 IRQLatch      = 0;
+static uint8 IRQa          = 0;
+static uint8 IRQReload     = 0;
+static uint8 mode          = 0;
+
+static uint8 submapper     = 0;
+static uint8 game          = 0;
+
+extern uint32 ROM_size;
+extern uint32 VROM_size;
+
+static SFORMAT StateRegs[] =
+{
+	{ &mode,        1, "MODE" },
+	{ vrc2_chr,     8, "VRCC" },
+	{ vrc2_prg,     2, "VRCP" },
+	{ &vrc2_mirr,   1, "VRCM" },
+	{ mmc3_regs,   10, "M3RG" },
+	{ &mmc3_ctrl,   1, "M3CT" },
+	{ &mmc3_mirr,   1, "M3MR" },
+	{ &IRQReload,   1, "IRQR" },
+	{ &IRQCount,    1, "IRQC" },
+	{ &IRQLatch,    1, "IRQL" },
+	{ &IRQa,        1, "IRQA" },
+	{ mmc1_regs,    4, "M1RG" },
+	{ &mmc1_buffer, 1, "M1BF" },
+	{ &mmc1_shift,  1, "M1MR" },
+	{ &submapper,   1, "SUBM" },
+	{ &game,        1, "GAME" },
+	{ 0 }
+>>>>>>> abbaf97 (Update libretro.c)
 };
 
 static SFORMAT stateRegsMulti[] = {
@@ -123,14 +177,81 @@ static void SyncMIR(void) {
 		break;
 	}
 	}
+=======
+static SFORMAT StateRegs[] = {
+	{ &mode, 1, "MODE"},
+	{ &game, 1, "GAME"},
+	{ 0 }
+};
+
+static uint32 GetPRGMask(void) {
+	if (iNESCart.submapper != 3) {
+		return 0x3F;
+	}
+	return (game ? 0x0F : 0x1F);
+}
+
+static uint32 GetPRGBase(void) {
+	if (game) {
+		return (game + 1) * 0x10;
+	}
+	return 0;
+}
+
+static uint32 GetCHRMask(void) {
+	return (game ? 0x7F : 0xFF);
+}
+
+static uint32 GetCHRBase(void) {
+	return (game ? (game + 1) * 0x80 : 0);
+}
+
+static void M116VRC24PW(uint16 A, uint16 V) {
+	setprg8(A, GetPRGBase() | (V & GetPRGMask()));
+}
+
+static void M116VRC24CW(uint16 A, uint16 V) {
+	setchr1(A, ((mode << 6) & 0x100) | GetCHRBase() | (V & GetCHRMask()));
+}
+
+static void M116MMC3PW(uint16 A, uint16 V) {
+	setprg8(A, GetPRGBase() | (V & GetPRGMask()));
+}
+
+static void M116MMC3CW(uint16 A, uint16 V) {
+	setchr1(A, ((mode << 6) & 0x100) | GetCHRBase() | (V & GetCHRMask()));
+}
+
+static void M116MMC1PW(uint16 A, uint16 V) {
+	if (iNESCart.submapper == 2) {
+		setprg16(A, V >> 1);
+	} else {
+		setprg16(A, (GetPRGBase() >> 1) | (V & (GetPRGMask() >> 1)));
+	}
+}
+
+static void M116MMC1CW(uint16 A, uint16 V) {
+	setchr4(A, (GetCHRBase() >> 2) | (V & (GetCHRMask() >> 2)));
+>>>>>>> 6236ef7 (Update libretro.c)
 }
 
 static void Sync(void) {
-	SyncPRG();
-	SyncCHR();
-	SyncMIR();
+	if (MODE_MMC1) {
+		MMC1_FixPRG();
+		MMC1_FixCHR();
+		MMC1_FixMIR();
+	} else if (MODE_MMC3) {
+		MMC3_FixPRG();
+		MMC3_FixCHR();
+		MMC3_FixMIR();
+	} else {
+		VRC24_FixPRG();
+		VRC24_FixCHR();
+		VRC24_FixMIR();
+	}
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 static DECLFW(UNLSL12ModeWrite) {
 	if (A & 0x100) {
@@ -150,11 +271,30 @@ static void UNLSL12ModeWrite(uint32 A, uint8 V) {
 			mmc1_regs[3] = 0;
 			mmc1_buffer = 0;
 			mmc1_shift = 0;
+=======
+static void applyMode(void) {
+	if (MODE_MMC1) {
+		SetWriteHandler(0x8000, 0xFFFF, MMC1_Write);
+		if (iNESCart.submapper != 1) {
+			MMC1_Write(0x8000, 0x80);
+>>>>>>> 6236ef7 (Update libretro.c)
 		}
+	} else if (MODE_MMC3) {
+		SetWriteHandler(0x8000, 0xFFFF, MMC3_Write);
+	} else {
+		SetWriteHandler(0x8000, 0xFFFF, VRC24_Write);
+	}
+}
+
+static DECLFW(M116ModeWrite) {
+	if (A & 0x100) {
+		mode = V;
+		applyMode();
 		Sync();
 	}
 }
 
+<<<<<<< HEAD
 static void UNLSL12Write(uint32 A, uint8 V) {
 	switch (mode & 3) {
 	case 0: {
@@ -258,6 +398,26 @@ static DECLFW (writeReg) {
 			applyMode(1);
 		else
 			sync();
+=======
+static void M116HBIRQ(void) {
+	if ((mode & 0x03) == 0x01) {
+		MMC3_IRQHBHook();
+	}
+}
+
+static void StateRestore(int version) {
+	Sync();
+}
+
+<<<<<<< HEAD
+static void UNLSL12Reset(void) {
+	/* this is suppose to increment during power cycle */
+	/* but we dont have a way to do that, so increment on reset instead. */
+	if (submapper == 3) {
+		game = game + 1;
+		if (game > 4)
+			game = 0;
+>>>>>>> abbaf97 (Update libretro.c)
 	}
 }
 
@@ -278,6 +438,7 @@ static void power (void) {
 	applyMode(1);
 }
 
+<<<<<<< HEAD
 static void restore (int version) {
 	applyMode(0);
 }
@@ -292,4 +453,76 @@ void UNLSL12_Init (CartInfo *info) {
 	GameStateRestore = restore;
 	AddExState(stateRegs, ~0, 0, 0);
 	if (submapper == 3) AddExState(stateRegsMulti, ~0, 0, 0);
+=======
+void UNLSL12_Init(CartInfo *info) {
+	info->Power      = UNLSL12Power;
+	info->Reset      = UNLSL12Reset;
+	GameHBIRQHook    = UNLSL12HBIRQ;
+	GameStateRestore = StateRestore;
+	AddExState(&StateRegs, ~0, 0, 0);
+	submapper        = info->submapper;
+	if (submapper == 0) {
+		/* PRG 128K and CHR 128K is Huang-2 (submapper 2) */
+		if (ROM_size == 8 && VROM_size == 16)
+			submapper = 2;
+=======
+static void M116Reset(void) {
+	if (iNESCart.submapper == 3) {
+		game = game + 1;
+		if (game > 4) {
+			game = 0;
+		}
+	}
+	applyMode();
+	Sync();
+}
+
+static void M116Power(void) {
+	game = (iNESCart.submapper == 3) ? 4 : 0;
+	mode = 1;
+
+	MMC3_Power();
+	MMC1_Reset();
+	VRC24_Power();
+
+	SetReadHandler(0x8000, 0xFFFF, CartBR);
+	SetWriteHandler(0x4100, 0x5FFF, M116ModeWrite);
+
+	vrc24.chr[0] = ~0;
+	vrc24.chr[1] = ~0;
+	vrc24.chr[2] = ~0;
+	vrc24.chr[3] = ~0;
+
+	applyMode();
+	Sync();
+}
+
+void Mapper116_Init(CartInfo *info) {
+	VRC24_Init(info, VRC2, 0x01, 0x02, FALSE, TRUE);
+	VRC24_pwrap = M116VRC24PW;
+	VRC24_cwrap = M116VRC24CW;
+
+	MMC3_Init(info, FALSE, FALSE);
+	MMC3_pwrap = M116MMC3PW;
+	MMC3_cwrap = M116MMC3CW;
+
+	MMC1_Init(info, FALSE, FALSE);
+	MMC1_pwrap = M116MMC1PW;
+	MMC1_cwrap = M116MMC1CW;
+	mmc1_type = MMC1A;
+
+	info->Power = M116Power;
+	info->Reset = M116Reset;
+
+	GameHBIRQHook = M116HBIRQ;
+
+	GameStateRestore = StateRestore;
+	AddExState(StateRegs, ~0, 0, NULL);
+
+	/* PRG 128K and CHR 128K is Huang-2 (iNESCart.submapper 2) */
+	if (((ROM.prg.size * 16) == 128) && ((ROM.chr.size * 8) == 128)) {
+		info->submapper = 2;
+>>>>>>> 6236ef7 (Update libretro.c)
+	}
+>>>>>>> abbaf97 (Update libretro.c)
 }
