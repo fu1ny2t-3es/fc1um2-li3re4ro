@@ -40,8 +40,13 @@ void md5_starts(struct md5_context *ctx) {
 	ctx->state[3] = 0x10325476;
 }
 
+<<<<<<< HEAD
 static void md5_process(struct md5_context *ctx, const uint8_t data[64]) {
 	uint32_t A, B, C, D, X[16];
+=======
+static void md5_process(struct md5_context *ctx, uint8 data[64]) {
+	uint32 A, B, C, D, X[16];
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
 	GET_UINT32(X[0], data, 0);
 	GET_UINT32(X[1], data, 4);

@@ -1,8 +1,9 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
  *  Copyright (C) 1998 BERO
  *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +21,7 @@
  */
 
 #include "mapinc.h"
+<<<<<<< HEAD
 
 static void GenMMC1Power(void);
 static void GenMMC1Init(CartInfo *info, int prg, int chr, int wram, int saveram);
@@ -28,13 +30,21 @@ static uint8_t submapper;
 static uint8_t DRegs[4];
 static uint8_t Buffer, BufferShift;
 
+<<<<<<< HEAD
 static uint32_t WRAMSIZE = 0;
+=======
+static uint32 WRAMSIZE = 0;
+=======
+#include "mmc1.h"
+>>>>>>> b7d36442 (Update libretro_core_options.h)
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
  /* size of non-battery-backed portion of WRAM */
  /* serves as starting offset for actual save ram from total wram size */
  /* returns 0 if entire work ram is battery backed ram */
 static uint32_t NONSaveRAMSIZE = 0;
 
+<<<<<<< HEAD
 static void (*MMC1CHRHook4)(uint32_t A, uint8_t V);
 static void (*MMC1PRGHook16)(uint32_t A, uint8_t V);
 /* Used to override default wram behavior */
@@ -43,8 +53,22 @@ static void (*MMC1WRAMHook8)(void);
 
 static uint8_t *WRAM = NULL;
 static uint8_t *CHRRAM = NULL;
-static int is155;
+=======
+MMC1Type mmc1_type = MMC1B;
 
+<<<<<<< HEAD
+static uint8 *WRAM = NULL;
+static uint8 *CHRRAM = NULL;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
+static int is155;
+=======
+void (*MMC1_pwrap)(uint16 A, uint16 V);
+void (*MMC1_cwrap)(uint16 A, uint16 V);
+void (*MMC1_mwrap)(uint8 V);
+void (*MMC1_wwrap)(void);
+>>>>>>> b7d36442 (Update libretro_core_options.h)
+
+<<<<<<< HEAD
 static uint32_t MMC1GetCHRBank (uint32_t bank) {
 	if (DRegs[0] & 0x10)	/* 4 KiB mode */
 		return (DRegs[1 + bank]);
@@ -52,6 +76,36 @@ static uint32_t MMC1GetCHRBank (uint32_t bank) {
 }
 
 static uint8_t MMC1WRAMEnabled(void) {
+=======
+MMC1 mmc1;
+
+static void GENWRAMWRAP(void) {
+	uint8 bank = 0;
+
+	if (!WRAMSIZE) {
+		return;
+	}
+	if (WRAMSIZE > 8192) {
+		if (WRAMSIZE > 16384) {
+			bank = (mmc1.reg[1] >> 2) & 3;
+		} else {
+			bank = (mmc1.reg[1] >> 3) & 1;
+		}
+	}
+	setprg8r(0x10, 0x6000, bank);
+}
+
+static void GENPWRAP(uint16 A, uint16 V) {
+	setprg16(A, V & 0x0F);
+}
+
+static void GENCWRAP(uint16 A, uint16 V) {
+	setchr4(A, V & 0x1F);
+}
+
+static uint8 MMC1WRAMEnabled(void) {
+<<<<<<< HEAD
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	return !(DRegs[3] & 0x10);
 }
 
@@ -80,24 +134,23 @@ static void MMC1CHR(void) {
 			else
 				setprg8r(0x10, 0x6000, (DRegs[1] >> 3) & 1);
 		}
+=======
+	if ((mmc1.reg[3] & 0x10) && (mmc1_type == MMC1B)) {
+		return FALSE;
+>>>>>>> b7d36442 (Update libretro_core_options.h)
 	}
-	if (MMC1CHRHook4) {
-		if (DRegs[0] & 0x10) {
-			MMC1CHRHook4(0x0000, DRegs[1]);
-			MMC1CHRHook4(0x1000, DRegs[2]);
-		} else {
-			MMC1CHRHook4(0x0000, (DRegs[1] & 0xFE));
-			MMC1CHRHook4(0x1000, DRegs[1] | 1);
-		}
-	} else {
-		if (DRegs[0] & 0x10) {
-			setchr4(0x0000, DRegs[1]);
-			setchr4(0x1000, DRegs[2]);
-		} else
-			setchr8(DRegs[1] >> 1);
+
+	return TRUE;
+}
+
+static DECLFW(MBWRAM) {
+	if (MMC1WRAMEnabled()) {
+		/* WRAM is enabled. */
+		CartBW(A, V);
 	}
 }
 
+<<<<<<< HEAD
 static void MMC1PRG(void) {
 	uint8_t offs = DRegs[1] & 0x10;
 	if (MMC1PRGHook16) {
@@ -132,9 +185,18 @@ static void MMC1PRG(void) {
 			setprg16(0xc000, ((DRegs[3] & ~1) + offs + 1));
 			break;
 		}
+=======
+static DECLFR(MAWRAM) {
+	if (!MMC1WRAMEnabled()) {
+		/* WRAM is disabled */
+		return cpu.openbus;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	}
+
+	return CartBR(A);
 }
 
+<<<<<<< HEAD
 static void MMC1MIRROR(void) {
 	if (submapper != 7)
 		switch (DRegs[0] & 3) {
@@ -143,6 +205,62 @@ static void MMC1MIRROR(void) {
 		case 0: setmirror(MI_0); break;
 		case 1: setmirror(MI_1); break;
 		}
+=======
+uint32 MMC1_GetPRGBank(int index) {
+	uint32 bank;
+	uint8 prg = mmc1.reg[3];
+
+	switch (mmc1.reg[0] & 0xC) {
+	case 0xC:
+		bank = prg | (index * 0x0F);
+		break;
+	case 0x8:
+		bank = (prg & (index * 0x0F));
+		break;
+	case 0x0:
+	case 0x4:
+	default:
+		bank = (prg & ~1) | index;
+		break;
+	}
+
+	if ((mmc1.reg[3] & 0x10) && (mmc1_type == MMC1A)) {
+		return ((bank & 0x07) | (mmc1.reg[3] & 0x08));
+	}
+
+	return (bank & 0x0F);
+}
+
+uint32 MMC1_GetCHRBank(int index) {
+	if (mmc1.reg[0] & 0x10) {
+		return (mmc1.reg[1 + index]);
+	}
+
+	return ((mmc1.reg[1] & ~1) | index);
+}
+
+void MMC1_FixCHR(void) {
+	if (MMC1_wwrap) {
+		MMC1_wwrap();
+	}
+
+	MMC1_cwrap(0x0000, MMC1_GetCHRBank(0));
+	MMC1_cwrap(0x1000, MMC1_GetCHRBank(1));
+}
+
+void MMC1_FixPRG(void) {
+	MMC1_pwrap(0x8000, MMC1_GetPRGBank(0));
+	MMC1_pwrap(0xC000, MMC1_GetPRGBank(1));
+}
+
+void MMC1_FixMIR(void) {
+	switch (mmc1.reg[0] & 3) {
+	case 2: setmirror(MI_V); break;
+	case 3: setmirror(MI_H); break;
+	case 0: setmirror(MI_0); break;
+	case 1: setmirror(MI_1); break;
+	}
+>>>>>>> b7d36442 (Update libretro_core_options.h)
 }
 
 <<<<<<< HEAD
@@ -150,8 +268,12 @@ static uint64_t lreset;
 static DECLFW(MMC1_write) {
 =======
 static uint64 lreset;
+<<<<<<< HEAD
 static void MMC1_write(uint32 A, uint8 V) {
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+DECLFW(MMC1_Write) {
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	int n = (A >> 13) - 4;
 
 	/* The MMC1 is busy so ignore the write. */
@@ -160,54 +282,73 @@ static void MMC1_write(uint32 A, uint8 V) {
 		precision isn't that great), but this should still work to
 		deal with 2 writes in a row from a single RMW instruction.
 	*/
-	if ((timestampbase + timestamp) < (lreset + 2))
+	if ((timestampbase + timestamp) < (lreset + 2)) {
 		return;
+	}
+
+	/* FCEU_printf("Write %04x:%02x\n",A,V); */
 	if (V & 0x80) {
-		DRegs[0] |= 0xC;
-		BufferShift = Buffer = 0;
-		MMC1PRG();
+		mmc1.reg[0] |= 0xC;
+		mmc1.shift = mmc1.buffer = 0;
+		MMC1_FixPRG();
 		lreset = timestampbase + timestamp;
 		return;
 	}
 
-	Buffer |= (V & 1) << (BufferShift++);
+	mmc1.buffer |= (V & 1) << (mmc1.shift++);
 
-	if (BufferShift == 5) {
-		DRegs[n] = Buffer;
-		BufferShift = Buffer = 0;
+	if (mmc1.shift == 5) {
+		/* FCEU_printf("REG[%d]=%02x\n",n,mmc1.buffer); */
+		mmc1.reg[n] = mmc1.buffer;
+		mmc1.shift = mmc1.buffer = 0;
 		switch (n) {
-		case 0: MMC1MIRROR(); MMC1CHR(); MMC1PRG(); break;
-		case 1: MMC1CHR(); MMC1PRG(); break;
-		case 2: MMC1CHR(); break;
-		case 3: MMC1PRG(); break;
+		case 0:
+			MMC1_FixMIR();
+			MMC1_FixCHR();
+			MMC1_FixPRG();
+			break;
+		case 1:
+			MMC1_FixCHR();
+			MMC1_FixPRG();
+			break;
+		case 2:
+			MMC1_FixCHR();
+			break;
+		case 3:
+			MMC1_FixPRG();
+			break;
 		}
 	}
 }
 
-static void MMC1_Restore(int version) {
-	MMC1MIRROR();
-	MMC1CHR();
-	MMC1PRG();
-	lreset = 0;			/* timestamp(base) is not stored in save states. */
+void MMC1_Restore(int version) {
+	MMC1_FixMIR();
+	MMC1_FixCHR();
+	MMC1_FixPRG();
+	lreset = 0; /* timestamp(base) is not stored in save states. */
 }
 
-static void MMC1CMReset(void) {
-	int i;
+void MMC1_Reset(void) {
+	mmc1.reg[0] = 0x0C;
+	mmc1.reg[1] = 0;
+	mmc1.reg[2] = 0;
+	mmc1.reg[3] = 0;
 
+<<<<<<< HEAD
 	for (i = 0; i < 4; i++)
 		DRegs[i] = 0;
 	Buffer = BufferShift = 0;
 	DRegs[0] = 0x0C;
+=======
+	mmc1.buffer = mmc1.shift = 0;
+>>>>>>> e4356d7 (Update libretro_core_options.h)
 
-	DRegs[1] = 0;
-	DRegs[2] = 0;		/* Should this be something other than 0? */
-	DRegs[3] = 0;
-
-	MMC1MIRROR();
-	MMC1CHR();
-	MMC1PRG();
+	MMC1_FixPRG();
+	MMC1_FixCHR();
+	MMC1_FixMIR();
 }
 
+<<<<<<< HEAD
 static int DetectMMC1WRAMSize(CartInfo *info, int *saveRAM) {
 	int workRAM = 8;
 	if (info->iNES2) {
@@ -288,16 +429,20 @@ void Mapper105_Init(CartInfo *info) {
 }
 
 static void GenMMC1Power(void) {
+=======
+void MMC1_Power(void) {
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	lreset = 0;
-	SetWriteHandler(0x8000, 0xFFFF, MMC1_write);
+	SetWriteHandler(0x8000, 0xFFFF, MMC1_Write);
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 
 	if (WRAMSIZE) {
 		FCEU_CheatAddRAM(8, 0x6000, WRAM);
 
 		/* clear non-battery-backed portion of WRAM */
-		if (NONSaveRAMSIZE)
-			FCEU_dwmemset(WRAM, 0, NONSaveRAMSIZE);
+		if (NONSaveRAMSIZE) {
+			FCEU_MemoryRand(WRAM, NONSaveRAMSIZE);
+		}
 
 		SetReadHandler(0x6000, 0x7FFF, MAWRAM);
 		SetWriteHandler(0x6000, 0x7FFF, MBWRAM);
@@ -306,29 +451,25 @@ static void GenMMC1Power(void) {
 	if (submapper == 8)
 		SetReadHandler(0x6000, 0x6FFF, SFEXPROM_readBank);
 
-	MMC1CMReset();
+	MMC1_Reset();
 }
 
-static void GenMMC1Close(void) {
-	if (CHRRAM)
-		FCEU_gfree(CHRRAM);
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	CHRRAM = WRAM = NULL;
+void MMC1_Close(void) {
 }
 
+<<<<<<< HEAD
 static void GenMMC1Init(CartInfo *info, int prg, int chr, int wram, int saveram) {
 	submapper = info->submapper;
 	is155 = 0;
+=======
+void MMC1_Init(CartInfo *info, int wram, int saveram) {
+	MMC1_pwrap = GENPWRAP;
+	MMC1_cwrap = GENCWRAP;
+	MMC1_wwrap = GENWRAMWRAP;
+>>>>>>> b7d36442 (Update libretro_core_options.h)
 
-	info->Close = GenMMC1Close;
-	MMC1PRGHook16 = MMC1CHRHook4 = 0;
-	MMC1WRAMHook8 = 0;
 	WRAMSIZE = wram * 1024;
 	NONSaveRAMSIZE = (wram - saveram) * 1024;
-	PRGmask16[0] &= (prg >> 14) - 1;
-	CHRmask4[0] &= (chr >> 12) - 1;
-	CHRmask8[0] &= (chr >> 13) - 1;
 
 	if (WRAMSIZE) {
 		WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
@@ -339,16 +480,23 @@ static void GenMMC1Init(CartInfo *info, int prg, int chr, int wram, int saveram)
 			info->SaveGameLen[0] = saveram * 1024;
 		}
 	}
+<<<<<<< HEAD
 	if (!chr) {
 		CHRRAM = (uint8_t*)FCEU_gmalloc(8192);
 		SetupCartCHRMapping(0, CHRRAM, 8192, 1);
 		AddExState(CHRRAM, 8192, 0, "CHRR");
 	}
 	AddExState(DRegs, 4, 0, "DREG");
+=======
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 
-	info->Power = GenMMC1Power;
+	AddExState(mmc1.reg, 4, 0, "DREG");
+
+	info->Power = MMC1_Power;
+	info->Close = MMC1_Close;
 	GameStateRestore = MMC1_Restore;
 	AddExState(&lreset, 8, 1, "LRST");
+<<<<<<< HEAD
 	AddExState(&Buffer, 1, 1, "BFFR");
 	AddExState(&BufferShift, 1, 1, "BFRS");
 }
@@ -363,32 +511,21 @@ void Mapper1_Init(CartInfo *info) {
 void Mapper155_Init(CartInfo *info) {
 	GenMMC1Init(info, 512, 256, 8, info->battery ? 8 : 0);
 	is155 = 1;
+=======
+	AddExState(&mmc1.buffer, 1, 1, "BFFR");
+	AddExState(&mmc1.shift, 1, 1, "BFRS");
+>>>>>>> b7d36442 (Update libretro_core_options.h)
 }
 
 void SAROM_Init(CartInfo *info) {
-	GenMMC1Init(info, 128, 64, 8, info->battery ? 8 : 0);
-}
-
-void SBROM_Init(CartInfo *info) {
-	GenMMC1Init(info, 128, 64, 0, 0);
-}
-
-void SCROM_Init(CartInfo *info) {
-	GenMMC1Init(info, 128, 128, 0, 0);
-}
-
-void SEROM_Init(CartInfo *info) {
-	GenMMC1Init(info, 32, 64, 0, 0);
-}
-
-void SGROM_Init(CartInfo *info) {
-	GenMMC1Init(info, 256, 0, 0, 0);
+	MMC1_Init(info, 8, info->battery ? 8 : 0);
 }
 
 void SKROM_Init(CartInfo *info) {
-	GenMMC1Init(info, 256, 64, 8, info->battery ? 8 : 0);
+	MMC1_Init(info, 8, info->battery ? 8 : 0);
 }
 
+<<<<<<< HEAD
 void SLROM_Init(CartInfo *info) {
 	GenMMC1Init(info, 256, 128, 0, 0);
 }
@@ -417,11 +554,14 @@ static void SHROM_Init(CartInfo *info) {
 /*              */
 /*              */
 
+=======
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 void SNROM_Init(CartInfo *info) {
-	GenMMC1Init(info, 256, 0, 8, info->battery ? 8 : 0);
+	MMC1_Init(info, 8, info->battery ? 8 : 0);
 }
 
 void SOROM_Init(CartInfo *info) {
+<<<<<<< HEAD
 	GenMMC1Init(info, 256, 0, 16, info->battery ? 8 : 0);
 }
 
@@ -732,4 +872,7 @@ void Mapper404_Init(CartInfo *info) {
 	MMC1CHRHook4 = M404CHR4;
 	MMC1PRGHook16 = M404PRG16;
 	AddExState(&outerBank, 1, 0, "BANK");
+=======
+	MMC1_Init(info, 16, info->battery ? 8 : 0);
+>>>>>>> e4356d7 (Update libretro_core_options.h)
 }

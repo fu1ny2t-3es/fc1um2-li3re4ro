@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 uint8_t *C;
 uint8_t cc;
 uint32_t vadr;
@@ -13,6 +14,21 @@ uint32_t vadr;
 	uint8 xs = X1;
 	uint8 ys = ((scanline >> 3) + MMC5HackSPScroll) & 0x1F;
 >>>>>>> 74f678f9 (Some general cleanups/removal of unused functions)
+=======
+uint8 *C;
+uint8 cc;
+uint32 vadr;
+#ifdef PPU_VRC5FETCH
+uint8 tmpd;
+#endif
+
+#ifndef PPUT_MMC5SP
+	FCEU_MAYBE_UNUSED uint8 zz;
+#else
+	uint8 xs, ys;
+	xs = X1;
+	ys = ((scanline >> 3) + MMC5HackSPScroll) & 0x1F;
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 	if (ys >= 0x1E) ys -= 0x1E;
 #endif
 
@@ -82,7 +98,11 @@ if (X1 >= 2) {
 #else
 	zz = RefreshAddr & 0x1F;
 	C = vnapage[(RefreshAddr >> 10) & 3];
-	vadr = (C[RefreshAddr & 0x3ff] << 4) + vofs;	/* Fetch name table byte. */
+#ifdef PPU_VRC5FETCH
+	tmpd = QTRAM[((((RefreshAddr >> 10) & 3) >> ((qtramreg >> 1)) & 1) << 10) | (RefreshAddr & 0x3FF)];
+	vofs = ((tmpd & 0x3F) << 12) | ((RefreshAddr >> 12) & 7);	/* recalculate VROM offset  */
+#endif
+	vadr = (C[RefreshAddr & 0x3ff] << 4) + vofs;				/* Fetch name table byte. */
 #endif
 
 #ifdef PPUT_HOOK
@@ -114,11 +134,24 @@ pshift[1] <<= 8;
 	#ifdef PPUT_MMC5CHR1
 		C = MMC5HackVROMPTR;
 		C += (((MMC5HackExNTARAMPtr[RefreshAddr & 0x3ff]) & 0x3f & MMC5HackVROMMask) << 12) + (vadr & 0xfff);
-		C += (MMC50x5130 & 0x3) << 18;
+		C += (MMC50x5130 & 0x3) << 18; /* 11-jun-2009 for kuja_killer */
 	#elif defined(PPUT_MMC5)
 		C = MMC5BGVRAMADR(vadr);
 	#else
+
+	#ifdef PPU_VRC5FETCH
+	if (tmpd & 0x40) {
+		if ((ROM.chr.size * 8) == 128) {
+		    vadr = ((vadr & 0x07) << 1) | ((vadr & 0x10) >> 4) | ((vadr & 0x3FFE0) >> 1);
+	    }
+		C = &ROM.chr.data[vadr];
+	} else {
 		C = VRAMADR(vadr);
+	}
+	#else
+		C = VRAMADR(vadr);
+	#endif
+
 	#endif
 #endif
 
@@ -135,8 +168,16 @@ pshift[1] <<= 8;
 		pshift[1] |= C[0];
 	}
 #else
+	#ifdef PPU_VRC5FETCH
+	pshift[0] |= C[0];
+	if (tmpd & 0x40)
+		pshift[1] |= (tmpd & 0x80) ? 0xFF : 0x00;
+	else
+		pshift[1] |= C[8];
+	#else
 	pshift[0] |= C[0];
 	pshift[1] |= C[8];
+	#endif
 #endif
 
 #if defined(HAVE_HDPACK) && !defined(PPU_BGFETCH)
