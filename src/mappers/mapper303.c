@@ -22,7 +22,7 @@
  */
 
 #include "mapinc.h"
-#include "../fds_apu.h"
+#include "sound/fdssound.h"
 
 static uint8_t latche, reg, mirr;
 static int32_t IRQa, IRQCount, IRQLatch;
