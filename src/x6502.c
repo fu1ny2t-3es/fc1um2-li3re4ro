@@ -30,9 +30,15 @@ X6502 X;
 uint8_t encryptOpcodes = 0;
 uint8_t encryptOpcodesConfig = 0;
 
+<<<<<<< HEAD
 uint32_t timestamp;
 uint32_t sound_timestamp;
 void FP_FASTAPASS(1) (*MapIRQHook)(int a);
+=======
+uint32 timestamp;
+uint32 sound_timestamp;
+void (*MapIRQHook)(int a);
+>>>>>>> 74114ad0 (Update libretro.c)
 
 #define _PC        X.PC
 #define _A         X.A
@@ -63,7 +69,11 @@ static INLINE void WrMemNorm(uint32_t A, uint8_t V) {
 	BWrite[A](A, V);
 }
 
+<<<<<<< HEAD
 static INLINE uint8_t RdRAMFast(uint32_t A) {
+=======
+static INLINE uint8 RdRAMFast(uint32 A) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	return(_DB = RAM[A]);
 }
 
@@ -71,12 +81,20 @@ static INLINE void WrRAMFast(uint32_t A, uint8_t V) {
 	RAM[A] = V;
 }
 
+<<<<<<< HEAD
 uint8_t FASTAPASS(1) X6502_DMR(uint32_t A) {
+=======
+uint8 X6502_DMR(uint32 A) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	ADDCYC(1);
 	return(X.DB = ARead[A](A));
 }
 
+<<<<<<< HEAD
 void FASTAPASS(2) X6502_DMW(uint32_t A, uint8_t V) {
+=======
+void X6502_DMW(uint32 A, uint8 V) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	ADDCYC(1);
 	BWrite[A](A, V);
 }
@@ -333,11 +351,11 @@ static const uint8_t CycTable[256] =
 /*0xF0*/ 2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
 };
 
-void FASTAPASS(1) X6502_IRQBegin(int w) {
+void X6502_IRQBegin(int w) {
 	_IRQlow |= w;
 }
 
-void FASTAPASS(1) X6502_IRQEnd(int w) {
+void X6502_IRQEnd(int w) {
 	_IRQlow &= ~w;
 }
 
@@ -373,13 +391,137 @@ void X6502_Power(void) {
 	X6502_Reset();
 }
 
+<<<<<<< HEAD
 void X6502_Run(int32_t cycles)
+=======
+<<<<<<< HEAD
+#ifdef FCEUDEF_DEBUGGER
+static void X6502_RunDebug(int32 cycles) {
+	#define RdRAM RdMemHook
+	#define WrRAM WrMemHook
+	#define RdMem RdMemHook
+	#define WrMem WrMemHook
+
+	if (PAL)
+		cycles *= 15;	/* 15*4=60 */
+	else
+		cycles *= 16;	/* 16*4=64 */
+
+	_count += cycles;
+
+	while (_count > 0) {
+		int32 temp;
+		uint8 b1;
+
+		if (_IRQlow) {
+			if (_IRQlow & FCEU_IQRESET) {
+				_PC = RdMem(0xFFFC);
+				_PC |= RdMem(0xFFFD) << 8;
+				_jammed = 0;
+				_PI = _P = I_FLAG;
+				_IRQlow &= ~FCEU_IQRESET;
+			} else if (_IRQlow & FCEU_IQNMI2) {
+				_IRQlow &= ~FCEU_IQNMI2;
+				_IRQlow |= FCEU_IQNMI;
+			} else if (_IRQlow & FCEU_IQNMI) {
+				if (!_jammed) {
+					ADDCYC(7);
+					PUSH(_PC >> 8);
+					PUSH(_PC);
+					PUSH((_P & ~B_FLAG) | (U_FLAG));
+					_P |= I_FLAG;
+					_PC = RdMem(0xFFFA);
+					_PC |= RdMem(0xFFFB) << 8;
+					_IRQlow &= ~FCEU_IQNMI;
+				}
+			} else {
+				if (!(_PI & I_FLAG) && !_jammed) {
+					ADDCYC(7);
+					PUSH(_PC >> 8);
+					PUSH(_PC);
+					PUSH((_P & ~B_FLAG) | (U_FLAG));
+					_P |= I_FLAG;
+					_PC = RdMem(0xFFFE);
+					_PC |= RdMem(0xFFFF) << 8;
+				}
+			}
+			_IRQlow &= ~(FCEU_IQTEMP);
+			if (_count <= 0) {
+				_PI = _P;
+				return;
+			}	/* Should increase accuracy without a
+				 * major speed hit.
+				 */
+		}
+
+		if (X.CPUHook) X.CPUHook(&X);
+		/* Ok, now the real fun starts.
+		 * Do the pre-exec voodoo.
+		 */
+		if (X.ReadHook || X.WriteHook) {
+			uint32 tsave = timestamp;
+			XSave = X;
+
+			fceuindbg = 1;
+			X.preexec = 1;
+			b1 = RdMem(_PC);
+			_PC++;
+			if (encryptOpcodes ==12) b1 =b1 &0x39 | b1 >>1 &0x42 | b1 <<1 &0x84;
+			if (encryptOpcodes ==14) b1 =b1 &0x3F | b1 >>1 &0x40 | b1 <<1 &0x80;
+			switch (b1) {
+				#include "ops.h"
+			}
+
+			timestamp = tsave;
+
+			/* In case an NMI/IRQ/RESET was triggered by the debugger.
+			 * Should we also copy over the other hook variables?
+			 */
+			XSave.IRQlow = X.IRQlow;
+			XSave.ReadHook = X.ReadHook;
+			XSave.WriteHook = X.WriteHook;
+			XSave.CPUHook = X.CPUHook;
+			X = XSave;
+			fceuindbg = 0;
+		}
+
+		_PI = _P;
+		b1 = RdMem(_PC);
+		ADDCYC(CycTable[b1]);
+
+		temp = _tcount;
+		_tcount = 0;
+		if (MapIRQHook) MapIRQHook(temp);
+
+      if (!overclocked)
+         FCEU_SoundCPUHook(temp);
+
+		_PC++;
+		if (encryptOpcodes ==12) b1 =b1 &0x39 | b1 >>1 &0x42 | b1 <<1 &0x84;
+		if (encryptOpcodes ==14) b1 =b1 &0x3F | b1 >>1 &0x40 | b1 <<1 &0x80;
+		switch (b1) {
+			#include "ops.h"
+		}
+	}
+	#undef RdRAM
+	#undef WrRAM
+	#undef RdMem
+	#undef WrMem
+}
+
+static void X6502_RunNormal(int32 cycles)
+#else
+=======
+>>>>>>> 7ce4697 (Update libretro.c)
+void X6502_Run(int32 cycles)
+>>>>>>> 74114ad0 (Update libretro.c)
 {
 	#define RdRAM RdRAMFast
 	#define WrRAM WrRAMFast
 	#define RdMem RdMemNorm
 	#define WrMem WrMemNorm
 
+<<<<<<< HEAD
 	#if (defined(C80x86) && defined(__GNUC__))
 	/* Gives a nice little speed boost. */
 	register uint16_t pbackus asm ("edi");
@@ -388,6 +530,9 @@ void X6502_Run(int32_t cycles)
 	#endif
 
 	pbackus = _PC;
+=======
+	uint16 pbackus = _PC;
+>>>>>>> 74114ad0 (Update libretro.c)
 
 	#undef _PC
 	#define _PC pbackus

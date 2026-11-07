@@ -30,7 +30,7 @@ typedef struct {
 
 static MOUSE Mouse;
 
-static void FP_FASTAPASS(1) StrobeMOUSE(int w) {
+static void StrobeMOUSE(int w) {
 	Mouse.readbit = 0;
 	if ((Mouse.mzxold - Mouse.mzx) > 0)
 		Mouse.data |= 0x0C;
@@ -42,8 +42,13 @@ static void FP_FASTAPASS(1) StrobeMOUSE(int w) {
 		Mouse.data |= 0x10;
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(1) ReadMOUSE(int w) {
 	uint8_t ret = 0;
+=======
+static uint8 ReadMOUSE(int w) {
+	uint8 ret = 0;
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (Mouse.readbit >= 8)
 		ret |= 1;
 	else {
@@ -53,8 +58,13 @@ static uint8_t FP_FASTAPASS(1) ReadMOUSE(int w) {
 	return(ret);
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(3) UpdateMOUSE(int w, void *data, int arg) {
 	uint32_t *ptr = (uint32_t*)data;
+=======
+static void UpdateMOUSE(int w, void *data, int arg) {
+	uint32 *ptr = (uint32*)data;
+>>>>>>> 74114ad0 (Update libretro.c)
 	Mouse.data = 0;
 	Mouse.mzxold = Mouse.mzx;
 	Mouse.mzyold = Mouse.mzy;

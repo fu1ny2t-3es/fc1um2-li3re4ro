@@ -19,6 +19,7 @@
 static uint32_t mrindex;
 static uint32_t mrratio;
 
+<<<<<<< HEAD
 int64_t sexyfilter_acc1 = 0, sexyfilter_acc2 = 0;
 
 /* SexyFilter2's separate accumulator. Like sexyfilter_acc1/_acc2 it
@@ -36,6 +37,10 @@ void SexyFilter_Reset(void)
    /* mrindex is reset in MakeFilters, which FCEUI_Sound calls on
     * every cart load, so it doesn't need to be reset here. */
 }
+=======
+void SexyFilter2(int32 *in, int32 count) {
+	static int64 acc = 0;
+>>>>>>> 74114ad0 (Update libretro.c)
 
 void SexyFilter2(int32_t *in, int32_t count) {
 	int64_t  coeff;
@@ -70,12 +75,21 @@ void SexyFilter2(int32_t *in, int32_t count) {
 	}
 }
 
+<<<<<<< HEAD
 void SexyFilter(int32_t *in, int32_t *out, int32_t count) {
 	int32_t mul1, mul2, vmul;
 
 	mul1 = (94 << 16) / FSettings.SndRate;
 	mul2 = (24 << 16) / FSettings.SndRate;
 	vmul = (FSettings.SoundVolume << 16) * 3 / 4 / 100;
+=======
+int64 sexyfilter_acc1 = 0, sexyfilter_acc2 = 0;
+
+void SexyFilter(int32 *in, int32 *out, int32 count) {
+	int32 mul1 = (94 << 16) / FSettings.SndRate;
+	int32 mul2 = (24 << 16) / FSettings.SndRate;
+	int32 vmul = (FSettings.SoundVolume << 16) * 3 / 4 / 100;
+>>>>>>> 74114ad0 (Update libretro.c)
 
 	if (FSettings.soundq)
 		vmul /= 4;
@@ -194,15 +208,30 @@ int32_t NeoFilterSound(int32_t *in, int32_t *out, uint32_t inlen, int32_t *lefto
 }
 
 void MakeFilters(int32_t rate) {
+<<<<<<< HEAD
 	int32_t *tabs[8] = { C44100NTSC, C44100PAL, C48000NTSC, C48000PAL, C96000NTSC,
 					   C96000PAL, C32000NTSC, C32000PAL };
 	int32_t *sq2tabs[8] = { SQ2C44100NTSC, SQ2C44100PAL, SQ2C48000NTSC, SQ2C48000PAL,
 						  SQ2C96000NTSC, SQ2C96000PAL, SQ2C32000NTSC, SQ2C32000PAL };
+=======
+	int32_t *tabs[6] = { C44100NTSC, C44100PAL, C48000NTSC, C48000PAL, C96000NTSC,
+					   C96000PAL };
+	int32_t *sq2tabs[6] = { SQ2C44100NTSC, SQ2C44100PAL, SQ2C48000NTSC, SQ2C48000PAL,
+						  SQ2C96000NTSC, SQ2C96000PAL };
+<<<<<<< HEAD
+>>>>>>> d0dea0fb (Update libretro.c)
 
 	int32_t *tmp;
 	int32_t x;
 	uint32_t nco;
+<<<<<<< HEAD
 	uint32_t idx;
+=======
+=======
+	int32 x;
+	uint32 nco;
+>>>>>>> 74114ad0 (Update libretro.c)
+>>>>>>> d0dea0fb (Update libretro.c)
 
 	if (FSettings.soundq == 2)
 		nco = SQ2NCOEFFS;
@@ -226,14 +255,23 @@ void MakeFilters(int32_t rate) {
 	idx |= (PAL ? 1 : 0);
 
 	if (FSettings.soundq == 2)
+<<<<<<< HEAD
 		tmp = sq2tabs[idx];
 	else
 		tmp = tabs[idx];
 
 	if (FSettings.soundq == 2)
+=======
+	{
+		int32 *tmp = sq2tabs[(PAL ? 1 : 0) | (rate == 48000 ? 2 : 0) | (rate == 96000 ? 4 : 0)];
+>>>>>>> d0dea0fb (Update libretro.c)
 		for (x = 0; x < (SQ2NCOEFFS >> 1); x++)
 			sq2coeffs[x] = sq2coeffs[SQ2NCOEFFS - 1 - x] = tmp[x];
+	}
 	else
+	{
+		int32 *tmp = tabs[(PAL ? 1 : 0) | (rate == 48000 ? 2 : 0) | (rate == 96000 ? 4 : 0)];
 		for (x = 0; x < (NCOEFFS >> 1); x++)
 			coeffs[x] = coeffs[NCOEFFS - 1 - x] = tmp[x];
+	}
 }

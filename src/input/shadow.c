@@ -33,7 +33,11 @@ typedef struct {
 
 static ZAPPER ZD;
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(3) ZapperFrapper(uint8_t * bg, uint8_t * spr, uint32_t linets, int final) {
+=======
+static void ZapperFrapper(uint8 * bg, uint8 * spr, uint32 linets, int final) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	int xs, xe;
 	int zx, zy;
 
@@ -86,7 +90,11 @@ static INLINE int CheckColor(void) {
 }
 
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) ReadZapper(int w, uint8_t ret) {
+=======
+static uint8 ReadZapper(int w, uint8 ret) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (w) {
 		ret &= ~0x18;
 		if (ZD.bogo)
@@ -104,13 +112,22 @@ static uint8_t FP_FASTAPASS(2) ReadZapper(int w, uint8_t ret) {
 	return ret;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) DrawZapper(uint8_t * buf, int arg) {
+=======
+static void DrawZapper(uint8 * buf, int arg) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (arg)
 		FCEU_DrawGunSight(buf, ZD.mzx, ZD.mzy);
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) UpdateZapper(void *data, int arg) {
 	uint32_t *ptr = (uint32_t*)data;
+=======
+static void UpdateZapper(void *data, int arg) {
+	uint32 *ptr = (uint32*)data;
+>>>>>>> 74114ad0 (Update libretro.c)
 
 	if (ZD.bogo)
 		ZD.bogo--;
@@ -122,9 +139,7 @@ static void FP_FASTAPASS(2) UpdateZapper(void *data, int arg) {
 	ZD.mzb = ptr[2];
 }
 
-static void StrobeShadow(void) {
-	ZD.zap_readbit = 0;
-}
+static void StrobeShadow(void) { ZD.zap_readbit = 0; }
 
 static INPUTCFC SHADOWC = { ReadZapper, 0, StrobeShadow, UpdateZapper, ZapperFrapper, DrawZapper };
 

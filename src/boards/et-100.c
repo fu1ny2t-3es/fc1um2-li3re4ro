@@ -71,7 +71,7 @@ static void BMC1024CA1MW(uint8_t V) {
 		setmirror(V &1? MI_H: MI_V);
 }
 
-static DECLFW(BMC1024CA1Write) {
+static void BMC1024CA1Write(uint32 A, uint8 V) {
 	if (((A001B & 0xC0) == 0x80) && !(EXPREGS[0] & 7))
 	{
 		EXPREGS[0] = A & 0x3F;

@@ -45,8 +45,8 @@
 static uint8_t SongReload;
 static int CurrentSong;
 
-static DECLFW(NSF_write);
-static DECLFR(NSF_read);
+static void NSF_write(uint32 A, uint8 V);
+static uint8 NSF_read(uint32 A);
 
 static int vismode = 1;
 
@@ -76,7 +76,7 @@ static uint8_t NSFROM[0x30 + 6] =
 	0x90, 0xFE			/* Loopie time. */
 };
 
-static DECLFR(NSFROMRead) {
+static uint8 NSFROMRead(uint32 A) {
 	return (NSFROM - 0x3800)[A];
 }
 
@@ -249,7 +249,7 @@ int NSFLoad(FCEUFILE *fp) {
 	return 1;
 }
 
-static DECLFR(NSFVectorRead) {
+static uint8 NSFVectorRead(uint32 A) {
 	if (((NSFNMIFlags & 1) && SongReload) || (NSFNMIFlags & 2) || doreset) {
 		if (A == 0xFFFA) return(0x00);
 		else if (A == 0xFFFB) return(0x38);
@@ -333,7 +333,7 @@ void NSF_init(void) {
 	NSFNMIFlags = 0;
 }
 
-static DECLFW(NSF_write) {
+static void NSF_write(uint32 A, uint8 V) {
 	switch (A) {
 	case 0x3FF3: NSFNMIFlags |= 1; break;
 	case 0x3FF4: NSFNMIFlags &= ~2; break;
@@ -355,7 +355,7 @@ static DECLFW(NSF_write) {
 	}
 }
 
-static DECLFR(NSF_read) {
+static uint8 NSF_read(uint32 A) {
 	int x;
 
 	switch (A) {

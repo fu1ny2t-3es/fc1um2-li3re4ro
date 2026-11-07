@@ -24,7 +24,11 @@
 static uint32_t bs, bss;
 static uint32_t boop;
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) Read(int w, uint8_t ret) {
+=======
+static uint8 Read(int w, uint8 ret) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (w) {
 		ret |= (bs & 1) << 3;
 		ret |= (boop & 1) << 4;
@@ -34,19 +38,23 @@ static uint8_t FP_FASTAPASS(2) Read(int w, uint8_t ret) {
 	return(ret);
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) Write(uint8_t V) {
 	bs = bss;
 }
 
 static void FP_FASTAPASS(2) Update(void *data, int arg) {
 	bss = *(uint8_t*)data;
+=======
+static void Write(uint8 V) { bs = bss; }
+
+static void Update(void *data, int arg) {
+	bss = *(uint8*)data;
+>>>>>>> 74114ad0 (Update libretro.c)
 	bss |= bss << 8;
 	bss |= bss << 8;
 }
 
 static INPUTCFC TopRider = { Read, Write, 0, Update, 0, 0 };
 
-INPUTCFC *FCEU_InitTopRider(void) {
-	return(&TopRider);
-}
-
+INPUTCFC *FCEU_InitTopRider(void) { return(&TopRider); }

@@ -46,7 +46,11 @@ typedef struct {
 
 static ZAPPER ZD[2];
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(3) ZapperFrapper(int w, uint8_t * bg, uint8_t * spr, uint32_t linets, int final) {
+=======
+static void ZapperFrapper(int w, uint8 * bg, uint8 * spr, uint32 linets, int final) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (!switchZapper) {
 	   int xs, xe;
 	   int zx, zy;
@@ -99,9 +103,8 @@ static void FP_FASTAPASS(3) ZapperFrapper(int w, uint8_t * bg, uint8_t * spr, ui
  	endo:
 		ZD[w].zappo = final;
 	}
-	else {
+	else
 		ZD[w].zappo = 0;
-	}
 }
 
 static INLINE int CheckColor(int w) {
@@ -113,8 +116,13 @@ static INLINE int CheckColor(int w) {
 	return(1);
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(1) ReadZapperVS(int w) {
 	uint8_t ret = 0;
+=======
+static uint8 ReadZapperVS(int w) {
+	uint8 ret = 0;
+>>>>>>> 74114ad0 (Update libretro.c)
 
 	if (ZD[w].zap_readbit == 4) ret = 1;
 
@@ -136,12 +144,15 @@ static uint8_t FP_FASTAPASS(1) ReadZapperVS(int w) {
 	return ret;
 }
 
-static void FP_FASTAPASS(1) StrobeZapperVS(int w) {
-	ZD[w].zap_readbit = 0;
-}
+static void StrobeZapperVS(int w) { ZD[w].zap_readbit = 0; }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(1) ReadZapper(int w) {
 	uint8_t ret = 0;
+=======
+static uint8 ReadZapper(int w) {
+	uint8 ret = 0;
+>>>>>>> 74114ad0 (Update libretro.c)
 		
 	if (ZD[w].bogo) 
 		ret |= 0x10;
@@ -156,13 +167,22 @@ static uint8_t FP_FASTAPASS(1) ReadZapper(int w) {
 	return ret;
 }
 
+<<<<<<< HEAD
 static void FASTAPASS(3) DrawZapper(int w, uint8_t * buf, int arg) {
+=======
+static void DrawZapper(int w, uint8 * buf, int arg) {
+>>>>>>> 74114ad0 (Update libretro.c)
 	if (arg && !switchZapper)
 		FCEU_DrawGunSight(buf, ZD[w].mzx, ZD[w].mzy);
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(3) UpdateZapper(int w, void *data, int arg) {
 	uint32_t *ptr = (uint32_t*)data;
+=======
+static void UpdateZapper(int w, void *data, int arg) {
+	uint32 *ptr = (uint32*)data;
+>>>>>>> 74114ad0 (Update libretro.c)
 
 	if (ZD[w].bogo)
 		ZD[w].bogo--;
@@ -192,25 +212,27 @@ static uint32_t InefficientSqrt(uint32_t z) {
 	for (i = 0 ; i * i <= z ; i++) ;
 	return i-1;
 }
-#endif
 
 void FCEU_ZapperSetTolerance(int t)
 {
+<<<<<<< HEAD
 #ifdef ROUNDED_TARGET
 	uint32_t y;
+=======
+	uint32 y;
+>>>>>>> 74114ad0 (Update libretro.c)
 	tolerance = t <= MAX_TOLERANCE ? t : MAX_TOLERANCE;
 	for (y = 0; y <= tolerance; y++)
 		targetExpansion[y] = InefficientSqrt(tolerance*tolerance-y*y);
-#else
-	tolerance = t;
-#endif
 }
+#else
+void FCEU_ZapperSetTolerance(int t) { tolerance = t; }
+#endif
 
 INPUTC *FCEU_InitZapper(int w) {
 	memset(&ZD[w], 0, sizeof(ZAPPER));
 	if (GameInfo->type == GIT_VSUNI)
 		return(&ZAPVSC);
-	else
-		return(&ZAPC);
+	return(&ZAPC);
 }
 

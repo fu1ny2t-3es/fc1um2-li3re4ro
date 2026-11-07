@@ -44,6 +44,7 @@ static void Mapper441_CHRWrap(uint32_t A, uint8_t V) {
 	setchr1(A, V &chrAND | chrOR &~chrAND);
 }
 
+<<<<<<< HEAD
 static DECLFW(Mapper441_Write) {
 	if (~EXPREGS[0] &0x80) {
 		if (submapper == 1)
@@ -54,6 +55,12 @@ static DECLFW(Mapper441_Write) {
 		FixMMC3CHR(MMC3_cmd);
 	}
 	CartBW(A, V);
+=======
+static void Mapper441_Write(uint32 A, uint8 V) {
+	if (~EXPREGS[0] &0x80) EXPREGS[0] =V;
+	FixMMC3PRG(MMC3_cmd);
+	FixMMC3CHR(MMC3_cmd);
+>>>>>>> 7ce4697 (Update libretro.c)
 }
 
 static void Mapper441_Reset(void) {
