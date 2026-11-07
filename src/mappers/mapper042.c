@@ -23,7 +23,7 @@
  */
 
 #include "mapinc.h"
-#include "../fds_apu.h"
+#include "sound/fdssound.h"
 
 static uint8_t preg, creg, mirr;
 static uint32_t IRQCount, IRQa;

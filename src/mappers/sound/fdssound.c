@@ -30,12 +30,19 @@
 #include <string.h>
 
 #include "fceu-types.h"
+<<<<<<< HEAD:src/fds_apu.c
 #include "x6502.h"
 #include "fceu.h"
 #include "sound.h"
 #include "filter.h"
 #include "state.h"
 #include "fds_apu.h"
+=======
+#include "../../x6502.h"
+#include "../../fceu.h"
+#include "../../sound.h"
+#include "../../state.h"
+>>>>>>> db28951f (Update libretro_core_options.h):src/mappers/sound/fdssound.c
 
 #define FDSClock (1789772.7272727272727272 / 2)
 
