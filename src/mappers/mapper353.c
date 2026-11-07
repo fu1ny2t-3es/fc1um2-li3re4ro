@@ -25,7 +25,7 @@
 
 #include "mapinc.h"
 #include "mmc3.h"
-#include "../fds_apu.h"
+#include "sound/fdssound.h"
 
 static uint8_t* CHRRAM = NULL;
 static uint32_t CHRRAMSIZE;
