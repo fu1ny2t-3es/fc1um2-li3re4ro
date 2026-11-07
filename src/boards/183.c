@@ -28,6 +28,7 @@ static SFORMAT stateRegs[] ={
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static void sync () {
 	setprg8(0x6000, prg);
 	VRC24_syncPRG(0x01F, 0x000);
@@ -46,7 +47,87 @@ static void power(void) {
 }
 
 void Mapper183_Init (CartInfo *info) {
+<<<<<<< HEAD
 	VRC4_init(info, sync, 0x04, 0x08, 1, NULL, NULL, CartBR, writePRG, NULL);
 	AddExState(stateRegs, ~0, 0, 0);
 	info->Power =power;
+=======
+	VRC24_init(info, sync, 0x04, 0x08, 1, 1, 0);
+	VRC24_WRAMRead =CartBR;
+	VRC24_WRAMWrite =Mapper183_writePRG;
+	AddExState(Mapper183_stateRegs, ~0, 0, 0);
+	info->Power =Mapper183_power;
+=======
+static void M183SyncPrg(void) {
+	setprg8(0x6000, prg[3]);
+	setprg8(0x8000, prg[0]);
+	setprg8(0xA000, prg[1]);
+	setprg8(0xC000, prg[2]);
+	setprg8(0xE000, ~0);
+}
+
+static void M183SyncMirr(void) {
+	switch (mirr) {
+	case 0: setmirror(MI_V); break;
+	case 1: setmirror(MI_H); break;
+	case 2: setmirror(MI_0); break;
+	case 3: setmirror(MI_1); break;
+	}
+}
+
+static void M183SyncChr(void) {
+	int i;
+	for (i = 0; i < 8; i++)
+		setchr1(i << 10, chr[i]);
+}
+
+static void StateRestore(int version) {
+	M183SyncPrg();
+	M183SyncChr();
+	M183SyncMirr();
+}
+
+static void M183Write(uint32 A, uint8 V) {
+	if ((A & 0xF800) == 0x6800) {
+		prg[3] = A & 0x3F;
+		M183SyncPrg();
+	} else if (((A & 0xF80C) >= 0xB000) && ((A & 0xF80C) <= 0xE00C)) {
+		int index = (((A >> 11) - 6) | (A >> 3)) & 7;
+		chr[index] = (chr[index] & (0xF0 >> (A & 4))) | ((V & 0x0F) << (A & 4));
+		M183SyncChr();
+	} else switch (A & 0xF80C) {
+		case 0x8800: prg[0] = V; M183SyncPrg(); break;
+		case 0xA800: prg[1] = V; M183SyncPrg(); break;
+		case 0xA000: prg[2] = V; M183SyncPrg(); break;
+		case 0x9800: mirr = V & 3; M183SyncMirr(); break;
+		case 0xF000: IRQCount = ((IRQCount & 0xF0) | (V & 0xF)); break;
+		case 0xF004: IRQCount = ((IRQCount & 0x0F) | ((V & 0xF) << 4)); break;
+		case 0xF008: IRQa = V; if (!V) IRQPre = 0; X6502_IRQEnd(FCEU_IQEXT); break;
+		case 0xF00C: IRQPre = 16; break;
+		}
+}
+
+static void M183IRQCounter(void) {
+	if (IRQa) {
+		IRQCount++;
+		if ((IRQCount - IRQPre) == 238)
+			X6502_IRQBegin(FCEU_IQEXT);
+	}
+}
+
+static void M183Power(void) {
+	IRQPre = IRQCount = IRQa = 0;
+	SetReadHandler(0x6000, 0xFFFF, CartBR);
+	SetWriteHandler(0x6000, 0xFFFF, M183Write);
+	M183SyncPrg();
+	M183SyncChr();
+}
+
+void Mapper183_Init(CartInfo *info) {
+	info->Power = M183Power;
+	GameHBIRQHook = M183IRQCounter;
+	GameStateRestore = StateRestore;
+	AddExState(&StateRegs, ~0, 0, 0);
+>>>>>>> 0c28901 (Update ppu.c)
+>>>>>>> 8b538f0 (Update ppu.c)
 }

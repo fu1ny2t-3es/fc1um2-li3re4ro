@@ -31,8 +31,13 @@ static SFORMAT StateRegs[] =
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static void Sync(void) {
 	uint32_t prgl, prgh, page = (areg >> 7) & 0x3F;
+=======
+static void M228Sync(void) {
+	uint32 prgl, prgh, page = (areg >> 7) & 0x3F;
+>>>>>>> f9553c43 (Update ppu.c)
 	if ((page & 0x30) == 0x30)
 		page -= 0x10;
 	prgl = prgh = (page << 1) + (((areg >> 6) & 1) & ((areg >> 5) & 1));
@@ -44,25 +49,25 @@ static void Sync(void) {
 	setchr8(((vreg & 0x3) | ((areg & 0xF) << 2)));
 }
 
-static DECLFW(M228RamWrite) {
+static void M228RamWrite(uint32 A, uint8 V) {
 	mram[A & 3] = V & 0x0F;
 }
 
-static DECLFR(M228RamRead) {
+static uint8 M228RamRead(uint32 A) {
 	return mram[A & 3];
 }
 
-static DECLFW(M228Write) {
+static void M228Write(uint32 A, uint8 V) {
 	areg = A;
 	vreg = V;
-	Sync();
+	M228Sync();
 }
 
 static void M228Reset(void) {
 	areg = 0x8000;
 	vreg = 0;
 	memset(mram, 0, sizeof(mram));
-	Sync();
+	M228Sync();
 }
 
 static void M228Power(void) {
@@ -73,13 +78,13 @@ static void M228Power(void) {
 	SetWriteHandler(0x8000, 0xFFFF, M228Write);
 }
 
-static void StateRestore(int version) {
-	Sync();
+static void M228StateRestore(int version) {
+	M228Sync();
 }
 
 void Mapper228_Init(CartInfo *info) {
 	info->Reset = M228Reset;
 	info->Power = M228Power;
-	GameStateRestore = StateRestore;
+	GameStateRestore = M228StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
 }

@@ -45,13 +45,14 @@ static void UNLBMW8544CW(uint32_t A, uint8_t V) {
 
 }
 
-static DECLFW(UNLBMW8544ProtWrite) {
+static void UNLBMW8544ProtWrite(uint32 A, uint8 V) {
 	if(!(A & 1)) {
 		EXPREGS[0] = V;
 		FixMMC3PRG(MMC3_cmd);
 	}
 }
 
+<<<<<<< HEAD
 static DECLFR(UNLBMW8544ProtRead) {
 	if(!(A & 1)) {
 		if((EXPREGS[0] & 0xE0) == 0xC0) {
@@ -61,6 +62,19 @@ static DECLFR(UNLBMW8544ProtRead) {
 		}
 		FixMMC3CHR(MMC3_cmd & 0x7F);		/* there are more different behaviour of the board that's not used by game itself, so unimplemented here and */
 	}										/* actually will break the current logic ;) */
+=======
+static uint8 UNLBMW8544ProtRead(uint32 A) {
+	{
+		if(!(A & 1)) {
+			if((EXPREGS[0] & 0xE0) == 0xC0) {
+				EXPREGS[1] = ARead[0x6a](0x6a);	/* program can latch some data from the BUS, but I can't say how exactly, */
+			} else {							/* without more equipment and skills ;) probably here we can try to get any write */
+				EXPREGS[2] = ARead[0xff](0xff);	/* before the read operation */
+			}
+			FixMMC3CHR(MMC3_cmd & 0x7F);		/* there are more different behaviour of the board that's not used by game itself, so unimplemented here and */
+		}										/* actually will break the current logic ;) */
+	}
+>>>>>>> f9553c43 (Update ppu.c)
 	return 0;
 }
 

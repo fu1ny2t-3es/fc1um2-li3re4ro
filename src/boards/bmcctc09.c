@@ -46,6 +46,7 @@ static void Sync(void) {
 	setmirror(((regs[PRG] >> 5) & 1) ^ 1);
 }
 
+<<<<<<< HEAD
 static DECLFW(WritePRG) {
 	if (~regs[PRG] &0x40) {
 		regs[PRG] = V;
@@ -59,6 +60,14 @@ static DECLFW(WriteCHR) {
 		Sync();
 	}
 }
+=======
+static void WritePRG(uint32 A, uint8 V) {
+	regs[PRG] = V;
+	Sync();
+}
+
+static void WriteCHR(uint32 A, uint8 V) { regs[CHR] = V; Sync(); }
+>>>>>>> 6a4879c8 (Update ppu.c)
 
 static void BMCCTC09Power(void) {
 	regs[0] =regs[1] =0;

@@ -94,7 +94,7 @@ static void Sync(void) {
 		setmirror((exRegs[2] & 1) ^ 1);
 }
 
-static DECLFW(M359WriteIRQ) {
+static void M359WriteIRQ(uint32 A, uint8 V) {
 	switch (A & 0xF003) {
 	case 0xC000:
 		if (IRQAutoEnable) IRQa = 0;
@@ -123,20 +123,35 @@ static DECLFW(M359WriteIRQ) {
 	}
 }
 
+<<<<<<< HEAD
 static DECLFW(M359WritePRG) {
 	uint8_t i = A & 3;
+=======
+static void M359WritePRG(uint32 A, uint8 V) {
+	uint8 i = A & 3;
+>>>>>>> f9553c43 (Update ppu.c)
 	preg[i] = V;
 	Sync();
 }
 
+<<<<<<< HEAD
 static DECLFW(M359WriteCHR) {
 	uint8_t i = ((A >> 10) & 4) | (A & 3);
+=======
+static void M359WriteCHR(uint32 A, uint8 V) {
+	uint8 i = ((A >> 10) & 4) | (A & 3);
+>>>>>>> f9553c43 (Update ppu.c)
 	creg[i] = V;
 	Sync();
 }
 
+<<<<<<< HEAD
 static DECLFW(M359WriteEx) {
 	uint8_t i = A & 3;
+=======
+static void M359WriteEx(uint32 A, uint8 V) {
+	uint8 i = A & 3;
+>>>>>>> f9553c43 (Update ppu.c)
 	exRegs[i] = V;
 	Sync();
 }
@@ -156,7 +171,7 @@ static void M359Reset(void) {
 	Sync();
 }
 
-static void FP_FASTAPASS(1) M359CPUHook(int a) {
+static void M359CPUHook(int a) {
 	if (!irqPA12) {
 		if (IRQa && IRQCount16) {
 			IRQCount16 -= a;
