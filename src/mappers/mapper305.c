@@ -1,7 +1,7 @@
 /* FCE Ultra - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2007 CaH4e3
+ *  Copyright (C) 2012 CaH4e3
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,65 +17,66 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * FDS Conversion - Monty no Doki Doki Daisassō, Monty on the Run, cartridge code LH32
+ * FDS Conversion - dracula ii - noroi no fuuin [u][!]
  *
  */
 
 #include "mapinc.h"
-#include "../fds_apu.h"
+#include "sound/fdssound.h"
 
-static uint8_t reg;
-static uint8_t *WRAM = NULL;
-static uint32_t WRAMSIZE;
+static uint8_t reg[4];
 
 static SFORMAT StateRegs[] =
 {
-	{ &reg, 1, "REG" },
+	{ reg, 4, "REGS" },
 	{ 0 }
 };
 
 static void Sync(void) {
-	setprg8(0x6000, reg);
-	setprg8(0x8000, ~3);
-	setprg8(0xa000, ~2);
-	setprg8r(0x10, 0xc000, 0);
-	setprg8(0xe000, ~0);
+	setprg2(0x6000, reg[0]);
+	setprg2(0x6800, reg[1]);
+	setprg2(0x7000, reg[2]);
+	setprg2(0x7800, reg[3]);
+
+	setprg2(0x8000, 15);
+	setprg2(0x8800, 14);
+	setprg2(0x9000, 13);
+	setprg2(0x9800, 12);
+	setprg2(0xa000, 11);
+	setprg2(0xa800, 10);
+	setprg2(0xb000, 9);
+	setprg2(0xb800, 8);
+
+	setprg2(0xc000, 7);
+	setprg2(0xc800, 6);
+	setprg2(0xd000, 5);
+	setprg2(0xd800, 4);
+	setprg2(0xe000, 3);
+	setprg2(0xe800, 2);
+	setprg2(0xf000, 1);
+	setprg2(0xf800, 0);
+
 	setchr8(0);
 }
 
-static void LH32Write(uint32 A, uint8 V) {
-	reg = V;
+static void UNLKS7031Write(uint32 A, uint8 V) {
+	reg[(A >> 11) & 3] = V;
 	Sync();
 }
 
-static void LH32Power(void) {
+static void UNLKS7031Power(void) {
 	FDSSoundPower();
 	Sync();
 	SetReadHandler(0x6000, 0xFFFF, CartBR);
-	SetWriteHandler(0xC000, 0xDFFF, CartBW);
-	SetWriteHandler(0x6000, 0x6000, LH32Write);
-	FCEU_CheatAddRAM(WRAMSIZE >> 10, 0x6000, WRAM);
-}
-
-static void LH32Close(void) {
-	if (WRAM)
-		FCEU_gfree(WRAM);
-	WRAM = NULL;
+	SetWriteHandler(0x8000, 0xffff, UNLKS7031Write);
 }
 
 static void StateRestore(int version) {
 	Sync();
 }
 
-void LH32_Init(CartInfo *info) {
-	info->Power = LH32Power;
-	info->Close = LH32Close;
-
-	WRAMSIZE = 8192;
-	WRAM = (uint8_t*)FCEU_gmalloc(WRAMSIZE);
-	SetupCartPRGMapping(0x10, WRAM, WRAMSIZE, 1);
-	AddExState(WRAM, WRAMSIZE, 0, "WRAM");
-
+void UNLKS7031_Init(CartInfo *info) {
+	info->Power = UNLKS7031Power;
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
 }
