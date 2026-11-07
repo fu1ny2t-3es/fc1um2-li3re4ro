@@ -44,8 +44,13 @@ static void Sync(void) {
 	setmirror(((regs[0] >> 4) & 1) ^ 1);
 }
 
+<<<<<<< HEAD
 static DECLFW(BMC80013BWrite) {
 	uint8_t reg = (A >> 13) & 0x03;
+=======
+static void BMC80013BWrite(uint32 A, uint8 V) {
+	uint8 reg = (A >> 13) & 0x03;
+>>>>>>> d5085b8d (Update libretro_core_options.h)
 	if (!reg)
 		regs[0] = V & 0x1F;
 	else {
