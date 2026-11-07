@@ -68,12 +68,16 @@ static uint8 M235Read(uint32 A) {
 	if (openbus) {
 		openbus = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 6a4879c8 (Update ppu.c)
 		return X.DB;
 	else
 		return CartBR(A);
 =======
 		return cpu.DB;
+=======
+		return cpu.openbus;
+>>>>>>> 0321b839 (Update ppu.c)
 	}
 	return CartBR(A);
 >>>>>>> ef7238cf (Update ppu.c)
