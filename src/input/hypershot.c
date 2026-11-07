@@ -24,20 +24,29 @@
 static uint8_t HSVal, HSValR;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 static uint8_t FP_FASTAPASS(2) HS_Read(int w, uint8_t ret) {
 =======
+=======
+
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 static uint8 HS_Read(int w, uint8 ret) {
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	if (w) ret |= HSValR;
+
 	return(ret);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 static void HS_Strobe(void) {
 	HSValR = HSVal << 1;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) HS_Update(void *data, int arg) {
 	HSVal = *(uint8_t*)data;
 }
@@ -45,6 +54,11 @@ static void FP_FASTAPASS(2) HS_Update(void *data, int arg) {
 static void HS_Strobe(void) { HSValR = HSVal << 1; }
 static void HS_Update(void *data, int arg) { HSVal = *(uint8*)data; }
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
+=======
+static void HS_Update(void *data, int arg) {
+	HSVal = *(uint8*)data;
+}
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 
 static INPUTCFC HyperShot = { HS_Read, 0, HS_Strobe, HS_Update, 0, 0 };
 
