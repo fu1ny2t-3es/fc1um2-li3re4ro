@@ -1,7 +1,12 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
+<<<<<<< HEAD
  *  Copyright (C) 2025 NewRisingSun
+=======
+ *  Copyright (C) 2005 CaH4e3
+ *  Copyright (C) 2023-2024 negativeExponent
+>>>>>>> 886c1d3 (Update libretro.c)
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +21,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+<<<<<<< HEAD
+=======
+ *
+ * iNES Mapper 222 - (CTC-31?)
+ * (VRC2 mapper)
+ *
+>>>>>>> 886c1d3 (Update libretro.c)
  */
 
 #include "mapinc.h"
 #include "asic_vrc2and4.h"
 
+<<<<<<< HEAD
 static uint8_t clockMode;
 static uint8_t pending;
 static uint8_t counter1;
 static uint8_t counter2;
 static uint8_t prescaler;
+=======
+<<<<<<< HEAD
+static uint8 clockMode;
+static uint8 pending;
+static uint8 counter1;
+static uint8 counter2;
+static uint8 prescaler;
+>>>>>>> 5926d713 (Update libretro.c)
 
 static SFORMAT stateRegs[] = {
 	{ &clockMode, 1, "CLKM" },
@@ -33,6 +54,14 @@ static SFORMAT stateRegs[] = {
 	{ &counter1, 1, "CNT1" },
 	{ &counter2, 1, "CNT2" },
 	{ &prescaler, 1, "PRES" },
+=======
+static uint8 IRQCount;
+static uint8 IRQa;
+
+static SFORMAT StateRegs[] = {
+	{ &IRQCount, 1, "IRQC" },
+	{ &IRQa, 1, "IRQA" },
+>>>>>>> 886c1d3 (Update libretro.c)
 	{ 0 }
 };
 
@@ -85,8 +114,9 @@ static void FP_FASTAPASS(1) cpuCycle (int a) {
 static void M222IRQ(void) {
 	if (IRQa) {
 		IRQCount++;
-		if (IRQCount >= 238)
+		if (IRQCount >= 238) {
 			X6502_IRQBegin(FCEU_IQEXT);
+<<<<<<< HEAD
 >>>>>>> c7e9e1c (Update libretro.c)
 	}
 }
@@ -127,21 +157,49 @@ static void M222Write(uint32 A, uint8 V) {
 	case 0xF000: IRQa = IRQCount = V; if (scanline < 240) IRQCount -= 8; else IRQCount += 4; X6502_IRQEnd(FCEU_IQEXT); break;
 	}
 	Sync();
+=======
+		}
+	}
+}
+
+static DECLFW(M222WriteCHR) {
+	if (!(A & 0x01)) {
+		VRC24_Write(A, V);
+		VRC24_Write(A | 0x01, V >> 4);
+	}
+}
+
+static DECLFW(M222WriteIRQ) {
+	/* TODO: Update this */
+	IRQa = IRQCount = V;
+	if (scanline < 240)
+		IRQCount -= 8;
+	else
+		IRQCount += 4;
+	X6502_IRQEnd(FCEU_IQEXT);
+>>>>>>> 886c1d3 (Update libretro.c)
 }
 
 static void M222Power(void) {
-	setprg16(0xC000, ~0);
-	SetReadHandler(0x8000, 0xFFFF, CartBR);
-	SetWriteHandler(0x8000, 0xFFFF, M222Write);
+	VRC24_Power();
+	SetWriteHandler(0xB000, 0xEFFF, M222WriteCHR);
+	SetWriteHandler(0xF000, 0xFFFF, M222WriteIRQ);
 }
 
-static void StateRestore(int version) { Sync(); }
-
 void Mapper222_Init(CartInfo *info) {
+	VRC24_Init(info, VRC2, 0x01, 0x02, 0, 1);
 	info->Power = M222Power;
+	MapIRQHook = NULL;
 	GameHBIRQHook = M222IRQ;
+<<<<<<< HEAD
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
 >>>>>>> c7e9e1c (Update libretro.c)
+<<<<<<< HEAD
 >>>>>>> 7af8d8d (Update libretro.c)
+=======
+=======
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> 886c1d3 (Update libretro.c)
+>>>>>>> abbaf97 (Update libretro.c)
 }
