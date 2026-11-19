@@ -30,6 +30,7 @@ static uint8_t pad;
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 static DECLFR (readPad) {
 	return CartBR(A &~3 | pad &3);
 }
@@ -39,6 +40,9 @@ static uint8 Mapper460_ReadOB(uint32 A) { return X.DB; }
 =======
 static uint8 Mapper460_ReadOB(uint32 A) { return cpu.DB; }
 >>>>>>> c794cfc (Update libretro.c)
+=======
+static uint8 Mapper460_ReadOB(uint32 A) { return cpu.openbus; }
+>>>>>>> b4bf12f (Update libretro.c)
 
 static void sync () {
 	MMC3_syncPRG(0x0F, reg <<4 &~0x0F);
