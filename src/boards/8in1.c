@@ -41,7 +41,7 @@ static void BMC8IN1PW(uint32_t A, uint8_t V) {
 	}
 }
 
-static DECLFW(BMC8IN1Write) {
+static void BMC8IN1Write(uint32 A, uint8 V) {
 	if(A & 0x1000) {
 		EXPREGS[0] = V;
 		FixMMC3PRG(MMC3_cmd);

@@ -24,6 +24,7 @@ static uint8_t submapper, initialMirroring;
 static uint8_t reg[3];
 static uint8_t regIndex, cycleCount, fetchCount;
 
+<<<<<<< HEAD
 static void sync () {
 	int prg, chr;
 	if (reg[0] &0x40) { /* NINA-03 */
@@ -114,6 +115,12 @@ static void power () {
 	if (submapper == 1) {
 		SetReadHandler(0x4100, 0x41FF, readReg4_submapper1);
 		SetReadHandler(0x8000, 0xFFFF, readReg8_submapper1);
+=======
+static void M234Sync(void) {
+	if (bank & 0x40) {
+		setprg32(0x8000, (bank & 0xE) | (preg & 1));
+		setchr8(((bank & 0xE) << 2) | ((preg >> 4) & 7));
+>>>>>>> 98a65ef2 (Update libretro.c)
 	} else {
 		SetReadHandler(0x8000, 0xEFFF, CartBR);
 		SetReadHandler(0xF000, 0xFFFF, readRegF_submapper0);
@@ -121,6 +128,7 @@ static void power () {
 	reset();
 }
 
+<<<<<<< HEAD
 static void stateRestore (int version) {
 	sync();
 }
@@ -136,4 +144,53 @@ void Mapper234_Init (CartInfo *info) {
 	AddExState(&cycleCount, 1, 0, "CYCC");
 	AddExState(&fetchCount, 1, 0, "FETC");
 	if (submapper == 1) MapIRQHook = cpuCycle_submapper1;
+=======
+<<<<<<< HEAD
+static DECLFR(M234ReadBank) {
+	uint8_t r = CartBR(A);
+=======
+uint8 M234ReadBank(uint32 A) {
+	uint8 r = CartBR(A);
+>>>>>>> b8aebecd (Update libretro.c)
+	if (!bank) {
+		bank = r;
+		M234Sync();
+	}
+	return r;
+}
+
+<<<<<<< HEAD
+static DECLFR(M234ReadPreg) {
+	uint8_t r = CartBR(A);
+=======
+uint8 M234ReadPreg(uint32 A) {
+	uint8 r = CartBR(A);
+>>>>>>> b8aebecd (Update libretro.c)
+	preg = r;
+	M234Sync();
+	return r;
+}
+
+static void M234Reset(void) {
+	bank = preg = 0;
+	M234Sync();
+}
+
+static void M234Power(void) {
+	M234Reset();
+	SetReadHandler(0x8000, 0xFFFF, CartBR);
+	SetReadHandler(0xFF80, 0xFF9F, M234ReadBank);
+	SetReadHandler(0xFFE8, 0xFFF7, M234ReadPreg);
+}
+
+static void M234StateRestore(int version) {
+	M234Sync();
+}
+
+void Mapper234_Init(CartInfo *info) {
+	info->Power = M234Power;
+	info->Reset = M234Reset;
+	AddExState(&StateRegs, ~0, 0, 0);
+	GameStateRestore = M234StateRestore;
+>>>>>>> 98a65ef2 (Update libretro.c)
 }
