@@ -24,20 +24,29 @@
 static uint8_t HSVal, HSValR;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 static uint8_t FP_FASTAPASS(2) HS_Read(int w, uint8_t ret) {
 =======
+=======
+
+>>>>>>> ae14339e (Update Makefile.libretro)
 static uint8 HS_Read(int w, uint8 ret) {
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 	if (w) ret |= HSValR;
+
 	return(ret);
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> ae14339e (Update Makefile.libretro)
 static void HS_Strobe(void) {
 	HSValR = HSVal << 1;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) HS_Update(void *data, int arg) {
 	HSVal = *(uint8_t*)data;
 }
@@ -45,6 +54,11 @@ static void FP_FASTAPASS(2) HS_Update(void *data, int arg) {
 static void HS_Strobe(void) { HSValR = HSVal << 1; }
 static void HS_Update(void *data, int arg) { HSVal = *(uint8*)data; }
 >>>>>>> f6efdc94 (Update Makefile.libretro)
+=======
+static void HS_Update(void *data, int arg) {
+	HSVal = *(uint8*)data;
+}
+>>>>>>> ae14339e (Update Makefile.libretro)
 
 static INPUTCFC HyperShot = { HS_Read, 0, HS_Strobe, HS_Update, 0, 0 };
 

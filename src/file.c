@@ -37,6 +37,7 @@
 #include "driver.h"
 #include "general.h"
 
+<<<<<<< HEAD
 static MEMWRAP *MakeMemWrap(RFILE *tz)
 {
    MEMWRAP *tmp = NULL;
@@ -123,10 +124,81 @@ FCEUFILE * FCEU_fopen(const char *path, const uint8_t *buffer, size_t bufsize)
          free(fceufp);
          return NULL;
       }
+=======
+static MEMWRAP *MakeMemWrap(RFILE *tz) {
+	MEMWRAP *tmp = NULL;
+
+	if (!(tmp = (MEMWRAP *)FCEU_malloc(sizeof(MEMWRAP)))) {
+		goto doret;
    }
+	tmp->location = 0;
+
+	filestream_seek(tz, 0, RETRO_VFS_SEEK_POSITION_END);
+	tmp->size = filestream_tell(tz);
+	filestream_seek(tz, 0, RETRO_VFS_SEEK_POSITION_START);
+
+	if (!(tmp->data_int = (uint8 *)FCEU_malloc(tmp->size))) {
+		free(tmp);
+		tmp = NULL;
+		goto doret;
+	}
+
+	filestream_read(tz, tmp->data_int, tmp->size);
+	tmp->data = tmp->data_int;
+
+doret:
+	return tmp;
+}
+
+static MEMWRAP *MakeMemWrapBuffer(const uint8 *buffer, size_t bufsize) {
+	MEMWRAP *tmp = (MEMWRAP *)FCEU_malloc(sizeof(MEMWRAP));
+
+	if (!tmp) {
+		return NULL;
+   }
+
+	tmp->location = 0;
+	tmp->size = bufsize;
+	tmp->data_int = NULL;
+	tmp->data = buffer;
+
+	return tmp;
+}
+
+FCEUFILE *FCEU_fopen(const char *path, const uint8 *buffer, size_t bufsize) {
+	FCEUFILE *fceufp = (FCEUFILE *)malloc(sizeof(FCEUFILE));
+   RFILE *t = NULL;
+
+   if (!fceufp) {
+      return NULL;
+   }
+
+	if (buffer) {
+		fceufp->fp = MakeMemWrapBuffer(buffer, bufsize);
+      if (!fceufp->fp) {
+         free(fceufp);
+         return NULL;
+      }
+      return fceufp;
+>>>>>>> ae14339e (Update Makefile.libretro)
+   }
+
+   if (!string_is_empty(path) && path_is_valid(path)) {
+	  t = filestream_open(path, RETRO_VFS_FILE_ACCESS_READ, RETRO_VFS_FILE_ACCESS_HINT_NONE);
+   }
+
+   if (!t) {
+	  free(fceufp);
+	  return NULL;
+   }
+
+   fceufp->fp = MakeMemWrap(t);
+   filestream_close(t);
+
    return fceufp;
 }
 
+<<<<<<< HEAD
 int FCEU_fclose(FCEUFILE *fp)
 {
    if (!fp)
@@ -164,15 +236,30 @@ uint64_t FCEU_fread(void *ptr, size_t element_size, size_t nmemb, FCEUFILE *fp)
       fp->fp->location = fp->fp->size;
 
       return (ak / element_size);
+=======
+int FCEU_fclose(FCEUFILE *fp) {
+	if (!fp) {
+		return 0;
+>>>>>>> ae14339e (Update Makefile.libretro)
    }
 
-   memcpy((uint8_t*)ptr, fp->fp->data + fp->fp->location, total);
+	if (fp->fp) {
+		if (fp->fp->data_int) {
+			free(fp->fp->data_int);
+      }
+		fp->fp->data_int = NULL;
 
-   fp->fp->location += total;
+		free(fp->fp);
+	}
+	fp->fp = NULL;
 
-   return nmemb;
+	free(fp);
+	fp = NULL;
+
+	return 1;
 }
 
+<<<<<<< HEAD
 int FCEU_fseek(FCEUFILE *fp, long offset, int whence)
 {
    switch (whence)
@@ -191,11 +278,29 @@ int FCEU_fseek(FCEUFILE *fp, long offset, int whence)
 
          fp->fp->location += offset;
          break;
+=======
+uint64 FCEU_fread(void *ptr, size_t element_size, size_t nmemb, FCEUFILE *fp) {
+	uint32_t total = nmemb * element_size;
+
+	if (fp->fp->location >= fp->fp->size) {
+		return 0;
+>>>>>>> e261f391 (Update Makefile.libretro)
    }
 
-   return 0;
+	if ((fp->fp->location + total) > fp->fp->size) {
+		int64_t ak = fp->fp->size - fp->fp->location;
+
+		memcpy((uint8_t *)ptr, fp->fp->data + fp->fp->location, ak);
+		fp->fp->location = fp->fp->size;
+		return (ak / element_size);
+	}
+
+	memcpy((uint8_t *)ptr, fp->fp->data + fp->fp->location, total);
+	fp->fp->location += total;
+	return nmemb;
 }
 
+<<<<<<< HEAD
 int FCEU_read32le(uint32_t *Bufo, FCEUFILE *fp)
 {
    if ((fp->fp->location + 4) > fp->fp->size)
@@ -206,16 +311,36 @@ int FCEU_read32le(uint32_t *Bufo, FCEUFILE *fp)
    fp->fp->location += 4;
 
    return 1;
+=======
+int FCEU_fseek(FCEUFILE *fp, long offset, int whence) {
+	switch (whence) {
+	case SEEK_SET:
+		if (offset >= fp->fp->size) {
+			return -1;
+      }
+		fp->fp->location = offset;
+		break;
+	case SEEK_CUR:
+		if ((offset + fp->fp->location) > fp->fp->size) {
+			return -1;
+      }
+		fp->fp->location += offset;
+		break;
+	}
+	return 0;
+>>>>>>> ae14339e (Update Makefile.libretro)
 }
 
-int FCEU_fgetc(FCEUFILE *fp)
-{
-   if (fp->fp->location < fp->fp->size)
-      return fp->fp->data[fp->fp->location++];
-
-   return EOF;
+int FCEU_read32le(uint32 *Bufo, FCEUFILE *fp) {
+	if ((fp->fp->location + 4) > fp->fp->size) {
+		return 0;
+   }
+	*Bufo = FCEU_de32lsb(fp->fp->data + fp->fp->location);
+	fp->fp->location += 4;
+	return 1;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 uint64_t FCEU_ftell(FCEUFILE *fp)
 {
@@ -228,4 +353,19 @@ uint64 FCEU_fgetsize(FCEUFILE *fp)
 >>>>>>> f6efdc94 (Update Makefile.libretro)
 {
    return fp->fp->size;
+=======
+int FCEU_fgetc(FCEUFILE *fp) {
+	if (fp->fp->location < fp->fp->size) {
+		return fp->fp->data[fp->fp->location++];
+   }
+	return EOF;
+}
+
+uint64 FCEU_ftell(FCEUFILE *fp) {
+	return fp->fp->location;
+}
+
+uint64 FCEU_fgetsize(FCEUFILE *fp) {
+	return fp->fp->size;
+>>>>>>> ae14339e (Update Makefile.libretro)
 }

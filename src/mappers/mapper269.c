@@ -1,7 +1,7 @@
 /* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2020
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static uint8_t *CHRROM;
 static uint32_t CHRROMSIZE;
 
@@ -43,37 +44,48 @@ static void M269PW(uint32_t A, uint8_t V) {
 	MV |= EXPREGS[1];
 	MV |= ((EXPREGS[3] & 0x40) << 2);
 	setprg8(A, MV);
+=======
+static uint8 reg[4];
+static uint8 cmd;
+
+static void M269CW(uint16 A, uint16 V) {
+	uint32 mask = 0xFF >> (~reg[2] & 0xF);
+	uint32 base = ((reg[2] << 4) & 0xF00) | reg[0];
+
+	setchr1(A, (base & ~mask) | (V & mask));
 }
 
-static void M269Write5(uint32 A, uint8 V) {
-	if (!(EXPREGS[3] & 0x80)) {
-		EXPREGS[EXPREGS[4]] = V;
-		EXPREGS[4] = (EXPREGS[4] + 1) & 3;
-		FixMMC3PRG(MMC3_cmd);
-		FixMMC3CHR(MMC3_cmd);
+static void M269PW(uint16 A, uint16 V) {
+	uint32 mask = ~reg[3] & 0x3F;
+	uint32 base = ((reg[2] << 2) & 0x300) | reg[1];
+
+	setprg8(A, (base & ~mask) | (V & mask));
+>>>>>>> ae14339e (Update Makefile.libretro)
+}
+
+static DECLFW(M269Write5) {
+	if (!(reg[3] & 0x80)) {
+		reg[cmd] = V;
+		cmd = (cmd + 1) & 3;
+		MMC3_FixPRG();
+		MMC3_FixCHR();
 	}
 }
 
-static void M269Close(void) {
-	GenMMC3Close();
-	if (CHRROM)
-		FCEU_free(CHRROM);
-	CHRROM = NULL;
-}
-
 static void M269Reset(void) {
-	EXPREGS[0] = EXPREGS[1] = EXPREGS[3] = EXPREGS[4] = 0;
-	EXPREGS[2] = 0x0F;
-	MMC3RegReset();
+	reg[0] = reg[1] = reg[3] = cmd = 0;
+	reg[2] = 0x0F;
+	MMC3_Reset();
 }
 
 static void M269Power(void) {
-	EXPREGS[0] = EXPREGS[1] = EXPREGS[3] = EXPREGS[4] = 0;
-	EXPREGS[2] = 0x0F;
-	GenMMC3Power();
+	reg[0] = reg[1] = reg[3] = cmd = 0;
+	reg[2] = 0x0F;
+	MMC3_Power();
 	SetWriteHandler(0x5000, 0x5FFF, M269Write5);
 }
 
+<<<<<<< HEAD
 static uint8_t unscrambleCHR(uint8_t data) {
 	return 	((data & 0x01) << 6) | ((data & 0x02) << 3) | ((data & 0x04) << 0) | ((data & 0x08) >> 3) |
 			((data & 0x10) >> 3) | ((data & 0x20) >> 2) | ((data & 0x40) >> 1) | ((data & 0x80) << 0);
@@ -84,11 +96,23 @@ void Mapper269_Init(CartInfo *info) {
 	GenMMC3_Init(info, 512, 0, 8, 0);
 	cwrap = M269CW;
 	pwrap = M269PW;
+=======
+static uint8 unscrambleCHR(uint8 data) {
+	return ((data & 0x01) << 6) | ((data & 0x02) << 3) | ((data & 0x04) << 0) | ((data & 0x08) >> 3) |
+	    ((data & 0x10) >> 3) | ((data & 0x20) >> 2) | ((data & 0x40) >> 1) | ((data & 0x80) << 0);
+}
+
+void Mapper269_Init(CartInfo *info) {
+	MMC3_Init(info, 8, 0);
+	MMC3_cwrap = M269CW;
+	MMC3_pwrap = M269PW;
+>>>>>>> ae14339e (Update Makefile.libretro)
 	info->Power = M269Power;
 	info->Reset = M269Reset;
-	info->Close = M269Close;
-	AddExState(EXPREGS, 5, 0, "EXPR");
+	AddExState(reg, 4, 0, "EXPR");
+	AddExState(&cmd, 1, 0, "CMD0");
 
+<<<<<<< HEAD
 	CHRROMSIZE = PRGsize[0];
 	CHRROM = (uint8_t*)FCEU_gmalloc(CHRROMSIZE);
 	/* unscramble CHR data from PRG */
@@ -96,4 +120,18 @@ void Mapper269_Init(CartInfo *info) {
 		CHRROM[i] = unscrambleCHR(PRGptr[0][i]);
 	SetupCartCHRMapping(0, CHRROM, CHRROMSIZE, 0);
 	AddExState(CHRROM, CHRROMSIZE, 0, "_CHR");
+=======
+	if (UNIFchrrama) {
+		uint32 i;
+		if (ROM.chr.data) {
+			FCEU_free(ROM.chr.data);
+		}
+		ROM.chr.data = (uint8*)FCEU_malloc(PRGsize[0]);
+		/* unscramble CHR data from PRG */
+		for (i = 0; i < PRGsize[0]; i++) {
+			ROM.chr.data[i] = unscrambleCHR(ROM.prg.data[i]);
+		}
+		SetupCartCHRMapping(0, ROM.chr.data, PRGsize[0], 0);
+	}
+>>>>>>> ae14339e (Update Makefile.libretro)
 }

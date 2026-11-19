@@ -21,8 +21,12 @@
 #ifndef _FCEU_UNIF_H
 #define _FCEU_UNIF_H
 
+<<<<<<< HEAD
 #include "file.h"
 
+=======
+<<<<<<< HEAD
+>>>>>>> ae14339e (Update Makefile.libretro)
 void AC08_Init(CartInfo *info);
 void ANROM_Init(CartInfo *info);
 void BMC11160_Init(CartInfo *info);
@@ -187,6 +191,33 @@ void WAIXINGFS005_Init(CartInfo *info);
 void Mapper422_Init(CartInfo *info);
 void Mapper444_Init(CartInfo *info);
 void COOLGIRL_Init(CartInfo* info);		/* m342 */
+=======
+void BMCFK23CA_Init(CartInfo *);
+void BMCFK23C_Init(CartInfo *);
+void BMCT2271_Init(CartInfo *);
+void EKROM_Init(CartInfo *);
+void ELROM_Init(CartInfo *);
+void ETROM_Init(CartInfo *);
+void EWROM_Init(CartInfo *);
+void GNROM_Init(CartInfo *);
+void S74LS374NA_Init(CartInfo *);
+void SA0161M_Init(CartInfo *);
+void SAROM_Init(CartInfo *);
+void SKROM_Init(CartInfo *);
+void SNROM_Init(CartInfo *);
+void SOROM_Init(CartInfo *);
+void SSSNROM_Init(CartInfo *);
+void Super24_Init(CartInfo *);
+void Transformer_Init(CartInfo *);
+void UNL3DBlock_Init(CartInfo *);
+void UNL43272_Init(CartInfo *);
+void COOLBOY_Init(CartInfo *);
+void MINDKIDS_Init(CartInfo *);			/* m268 */
+void BMC810131C_Init(CartInfo *);
+void COOLGIRL_Init(CartInfo *);			/* m342 */
+void KG256_Init(CartInfo *);
+void WAIXINGFS005_Init(CartInfo *);
+>>>>>>> 7733d52 (Update Makefile.libretro)
 
 extern uint8_t *UNIFchrrama;	/* Meh.  So I can stop CHR RAM
 							 * bank switcherooing with certain boards...
