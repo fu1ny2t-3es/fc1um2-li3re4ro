@@ -74,8 +74,8 @@ static uint8 M372Read(uint32 A) {
 	uint32 addr = 1 << (EXPREGS[5] + 4);
 >>>>>>> f9553c43 (Update ppu.c)
 	if (A & (addr | (addr - 1)))
-		return cpu.DB | 1;
-	return cpu.DB;
+		return cpu.openbus | 1;
+	return cpu.openbus;
 }
 
 static void M372Reset(void) {
