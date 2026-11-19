@@ -30,9 +30,14 @@ static uint8_t FP_FASTAPASS(2) FT_Read(int w, uint8_t ret) {
 	if (w) {
 =======
 static uint8 FT_Read(int w, uint8 ret) {
+<<<<<<< HEAD
 	if (w)
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
+=======
+	if (w) {
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 		ret |= FTValR;
+	}
 	return(ret);
 }
 
@@ -57,12 +62,18 @@ static void FT_Write(uint8 V) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) FT_Update(void *data, int arg) {
 	FTVal = *(uint32_t*)data;
 }
 =======
 static void FT_Update(void *data, int arg) { FTVal = *(uint32*)data; }
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
+=======
+static void FT_Update(void *data, int arg) {
+	FTVal = *(uint32*)data;
+}
+>>>>>>> f6dccad9 (Update libretro_core_options.h)
 
 static INPUTCFC FamilyTrainer = { FT_Read, FT_Write, 0, FT_Update, 0, 0 };
 
