@@ -81,16 +81,19 @@ extern uint32_t soundtsoffs;
 #define SOUNDTS (sound_timestamp + soundtsoffs)
 
 void SetNESSoundMap(void);
-void FrameSoundUpdate(void);
 
 void FCEUSND_Power(void);
 void FCEUSND_Reset(void);
 void FCEUSND_SaveState(void);
 void FCEUSND_LoadState(int version);
 
+<<<<<<< HEAD
 void FASTAPASS(1) FCEU_SoundCPUHook(int);
 /* Cycles since the hook last ran, and the count at which it is next due. */
 extern int32_t FCEU_SoundCycles;
 extern int32_t FCEU_SoundNext;
+=======
+void FCEU_SoundCPUHook(int);
+>>>>>>> 77bb346e (Update libretro_core_options.h)
 
 #endif
