@@ -68,12 +68,16 @@ static uint8 M235Read(uint32 A) {
 	if (openbus) {
 		openbus = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 70e96de1 (Update libretro_core_options.h)
 		return X.DB;
 	else
 		return CartBR(A);
 =======
 		return cpu.DB;
+=======
+		return cpu.openbus;
+>>>>>>> 1369b8ce (Update libretro_core_options.h)
 	}
 	return CartBR(A);
 >>>>>>> 94e3cfdc (Update libretro_core_options.h)
