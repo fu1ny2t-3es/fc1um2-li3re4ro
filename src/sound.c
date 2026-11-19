@@ -81,7 +81,11 @@ static uint8_t IRQFrameMode = 0;				/* $4017 / xx000000 */
 static uint8_t PSG[0x10];
 static uint8_t RawDALatch = 0;				/* $4011 0xxxxxxx */
 
+<<<<<<< HEAD
 uint8_t EnabledChannels = 0;					/* Byte written to $4015 */
+=======
+static uint8 EnabledChannels = 0;					/* Byte written to $4015 */
+>>>>>>> 3200afaa (Some general cleanups/removal of unused functions)
 
 typedef struct {
 	uint8_t Speed;
@@ -629,6 +633,7 @@ static void WaveHiAddRun(int32_t *D, int32_t n, int32_t value) {
 	(((count) > 0 && (count) < (left)) ? (count) : (left))
 
 static INLINE void RDoSQ(int x) {
+<<<<<<< HEAD
 	int32_t V;
 	int32_t amp;
 	int32_t rthresh;
@@ -640,6 +645,15 @@ static INLINE void RDoSQ(int x) {
 	V = SOUNDTS - ChannelBC[x];
 	cf = (curfreq[x] + 1) * 2;
 	rc = wlcount[x];
+=======
+	int32 amp;
+	int32 rthresh;
+	int32 *D;
+	int32 currdc;
+	int32 V = SOUNDTS - ChannelBC[x];
+	int32 cf = (curfreq[x] + 1) * 2;
+	int32 rc = wlcount[x];
+>>>>>>> 3200afaa (Some general cleanups/removal of unused functions)
 
 	/* added 2018/12/08 */
 	/* when pulse channel is silenced, resets length counters but not
@@ -696,13 +710,8 @@ static INLINE void RDoSQ(int x) {
 	ChannelBC[x] = SOUNDTS;
 }
 
-static void RDoSQ1(void) {
-	RDoSQ(0);
-}
-
-static void RDoSQ2(void) {
-	RDoSQ(1);
-}
+static void RDoSQ1(void) { RDoSQ(0); }
+static void RDoSQ2(void) { RDoSQ(1); }
 
 /* Adds 'value' to the low-quality mix for steps [v, v + n): sixteen
  * steps per Wave slot, so a run of steps adds value times its count to
@@ -724,19 +733,33 @@ static void WaveAddRun(int32_t v, int32_t n, int32_t value) {
 	(!(inie) ? -1 : ((acc) <= 0 ? 1 : ((acc) - 1) / (inie) + 1))
 
 static void RDoSQLQ(void) {
+<<<<<<< HEAD
 	int32_t start, end;
 	int32_t V;
 	int32_t amp[2];
 	int32_t rthresh[2];
 	int32_t freq[2];
+=======
+	int32 V;
+	int32 amp[2];
+	int32 rthresh[2];
+	int32 freq[2];
+>>>>>>> 3200afaa (Some general cleanups/removal of unused functions)
 	int x;
 	int32_t inie[2];
 
+<<<<<<< HEAD
 	int32_t ttable[2][8];
 	int32_t totalout;
 
 	start = ChannelBC[0];
 	end = (SOUNDTS << 16) / soundtsinc;
+=======
+	int32 ttable[2][8];
+	int32 totalout;
+	int32 start = ChannelBC[0];
+	int32 end = (SOUNDTS << 16) / soundtsinc;
+>>>>>>> 3200afaa (Some general cleanups/removal of unused functions)
 	if (end <= start) return;
 	ChannelBC[0] = end;
 
@@ -801,6 +824,7 @@ static void RDoSQLQ(void) {
 		 * to Wave[V>>4] - genuinely no-op for ~30000 NES cycles
 		 * per frame. Skip the loop entirely. */
 	} else {
+<<<<<<< HEAD
 		/* The output only changes when a channel's accumulator runs
 		 * out, so each span up to the next such step goes into the mix
 		 * at once. */
@@ -814,6 +838,10 @@ static void RDoSQLQ(void) {
 			k = LQ_STEPS_TO_EVENT(sqacc[1], inie[1]);
 			if (k >= 0 && k < n)
 				n = k;
+=======
+		for (V = start; V < end; V++) {
+			Wave[V >> 4] += totalout;	/* tmpamp; */
+>>>>>>> f0e6a3fd (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 			WaveAddRun(V, n, totalout);
 			V += n;
@@ -895,6 +923,7 @@ static void RDoTriangle(void) {
 }
 
 static void RDoTriangleNoisePCMLQ(void) {
+<<<<<<< HEAD
 	int32_t V;
 	int32_t start, end;
 	int32_t freq[2];
@@ -910,6 +939,17 @@ static void RDoTriangleNoisePCMLQ(void) {
 
 	start = ChannelBC[2];
 	end = (SOUNDTS << 16) / soundtsinc;
+=======
+	int32 V;
+	int32 freq[2];
+	int32 inie[2];
+	uint32 amptab[2];
+	uint32 noiseout;
+	int nshift;
+	int32 totalout;
+	int32 start = ChannelBC[2];
+	int32 end = (SOUNDTS << 16) / soundtsinc;
+>>>>>>> 3200afaa (Some general cleanups/removal of unused functions)
 	if (end <= start) return;
 	ChannelBC[2] = end;
 
@@ -1510,8 +1550,6 @@ SFORMAT FCEUSND_STATEINFO[] = {
 
 	{ 0 }
 };
-
-void FCEUSND_SaveState(void) { }
 
 void FCEUSND_LoadState(int version) {
 	int i;
