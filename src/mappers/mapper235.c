@@ -67,10 +67,16 @@ static DECLFR(M235Read) {
 static uint8 M235Read(uint32 A) {
 	if (openbus) {
 		openbus = 0;
+<<<<<<< HEAD
 >>>>>>> 98a65ef2 (Update libretro.c)
 		return X.DB;
 	else
 		return CartBR(A);
+=======
+		return cpu.DB;
+	}
+	return CartBR(A);
+>>>>>>> 9321cd7f (Update libretro.c)
 }
 
 static void M235Write(uint32 A, uint8 V) {
