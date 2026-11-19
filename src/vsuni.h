@@ -1,6 +1,7 @@
 #ifndef _FCEU_VSUNI_H
 #define _FCEU_VSUNI_H
 
+<<<<<<< HEAD
 void FCEU_VSUniPower(void);
 void FCEU_VSUniCheck(uint64_t md5partial, int *, int *);
 void FCEU_VSUniDraw(uint8_t *XBuf);
@@ -10,6 +11,9 @@ void FCEU_VSUniCoin(void);
 void FCEU_VSUniSwap(uint8_t *j0, uint8_t *j1);
 
 enum {
+=======
+enum VSGAMEID {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	VS_BASEBALL = 1,
 	VS_BATTLECITY,
 	VS_CASTLEVANIA,
@@ -39,7 +43,41 @@ enum {
 	VS_SUPERXEVIOUS,
 	VS_TETRIS,
 	VS_TKOBOXING,
-	VS_TOPGUN
+	VS_TOPGUN,
+
+	VS_GAMEID_COUNT = VS_TOPGUN
 };
+
+enum IOPTION {
+	IOPTION_GUN       = 0x01,
+	IOPTION_SWAPDIRAB = 0x02,
+	IOPTION_PREDIP    = 0x10
+};
+
+typedef struct VSUNISYSTEM {
+	int gameid;		/* Currently used for VS game id for per-game dipswitch */
+	int ppu;
+	int type;
+	int ioption;
+
+	int coinon[2];
+	int service;
+
+	int vsdip;
+
+	int rc2c05_enable;
+	int rc2c05_A2002;
+} VSUNISYSTEM;
+
+extern VSUNISYSTEM vsuni_system;
+
+void FCEU_VSUniPower(void);
+void FCEU_VSUniCheck(uint64 md5partial, int *, int *);
+void FCEU_VSUniDraw(uint8 *target);
+
+void FCEU_VSUniToggleDIP(int);	/* For movies and netplay */
+void FCEU_VSUniCoin(int slot);
+void FCEU_VSUniService(void);
+void FCEU_VSUniSwap(uint8 *j0, uint8 *j1);
 
 #endif

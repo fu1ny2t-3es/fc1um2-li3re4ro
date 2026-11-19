@@ -22,6 +22,7 @@
 #include "share.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static int seq, ptr, bit, cnt, have;
 static uint8_t bdata[20];
 
@@ -35,6 +36,13 @@ static uint8 BWorld_Read(int w, uint8 ret) {
 	static int cnt;
 	static int bit;
 >>>>>>> 74114ad0 (Update libretro.c)
+=======
+static int seq, ptr, bit, cnt, have;
+static uint8 bdata[20];
+
+
+static uint8 Read(int w, uint8 ret) {
+>>>>>>> 7b06ddc4 (Update libretro.c)
 	if (w && have) {
 		switch (seq) {
 		case 0: seq++; ptr = 0; ret |= 0x4; break;
@@ -53,6 +61,7 @@ static uint8 BWorld_Read(int w, uint8 ret) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) Write(uint8_t V) {
 }
 
@@ -63,8 +72,12 @@ static void FP_FASTAPASS(2) Update(void *data, int arg) {
 		*(uint8_t*)data = 0;
 =======
 static void BWorld_Write(uint8 V) { }
+=======
+static void Write(uint8 V) {
+}
+>>>>>>> 7b06ddc4 (Update libretro.c)
 
-static void BWorld_Update(void *data, int arg) {
+static void Update(void *data, int arg) {
 	if (*(uint8*)data) {
 		*(uint8*)data = 0;
 >>>>>>> 74114ad0 (Update libretro.c)
@@ -82,6 +95,9 @@ static void BWorld_Update(void *data, int arg) {
 	}
 }
 
-static INPUTCFC BarcodeWorld = { BWorld_Read, BWorld_Write, 0, BWorld_Update, 0, 0 };
+static INPUTCFC BarcodeWorld = { Read, Write, 0, Update, 0, 0 };
 
-INPUTCFC *FCEU_InitBarcodeWorld(void) { return(&BarcodeWorld); }
+INPUTCFC *FCEU_InitBarcodeWorld(void) {
+	return(&BarcodeWorld);
+}
+
