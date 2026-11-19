@@ -305,6 +305,7 @@ int NSFLoad(FCEUFILE *fp) {
 
 	GameInterface = NSFGI;
 
+#if 0
 	FCEU_printf("NSF Loaded.  File information:\n\n");
 	FCEU_printf(" Name:       %s\n Artist:     %s\n Copyright:  %s\n\n", NSFHeader.SongName, NSFHeader.Artist, NSFHeader.Copyright);
 	if (NSFHeader.SoundChip) {
@@ -322,13 +323,20 @@ int NSFLoad(FCEUFILE *fp) {
 	FCEU_printf(" Load address:  $%04x\n Init address:  $%04x\n Play address:  $%04x\n", LoadAddr, InitAddr, PlayAddr);
 	FCEU_printf(" %s\n", (NSFHeader.VideoSystem & 1) ? "PAL" : "NTSC");
 	FCEU_printf(" Starting song:  %d / %d\n\n", NSFHeader.StartingSong, NSFHeader.TotalSongs);
+#endif
 
+<<<<<<< HEAD
 	if (NSFHeader.SoundChip & 4)
 		ExWRAM = FCEU_gmalloc(32768 + 8192);
 	else
 		ExWRAM = FCEU_gmalloc(8192);
 	if (!ExWRAM)
 		return 0;
+=======
+	/* ExWRAM default size is 8192. FDS format adds additional 32K for RAM.
+	 * For simplicity for savestates and runahead, lets just use the maximum size here. */
+	ExWRAM = (uint8 *)FCEU_gmalloc(32768 + 8192);
+>>>>>>> 03052f6b (Update ppu.c)
 	return 1;
 }
 
@@ -341,8 +349,8 @@ static uint8 NSFVectorRead(uint32 A) {
 			doreset = 0; return(0x38);
 		}
 		return(X.DB);
-	} else
-		return(CartBR(A));
+	}
+	return(CartBR(A));
 }
 
 void NSF_init(void) {
