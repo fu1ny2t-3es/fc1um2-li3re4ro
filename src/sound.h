@@ -70,7 +70,11 @@ extern int32_t nesincsize;
 
 void SetSoundVariables(void);
 
+<<<<<<< HEAD
 int GetSoundBuffer(int32_t **W);
+=======
+int GetSoundBuffer(void);
+>>>>>>> bf9e0b00 (Update Makefile.libretro)
 int FlushEmulateSound(void);
 extern int32_t Wave[2048 + 512];
 extern int32_t WaveFinal[2048 + 512];
