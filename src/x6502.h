@@ -23,15 +23,26 @@
 
 #include "x6502struct.h"
 
+<<<<<<< HEAD
 void X6502_Run(int32_t cycles);
 
 extern uint32_t timestamp;
+<<<<<<< HEAD
 extern uint32_t x6502_sound_lag;
 /* The APU's clock: CPU cycles not run overclocked. */
 #define sound_timestamp ((uint32_t)(timestamp - x6502_sound_lag))
 extern uint32_t x6502_sound_ts_state;
 /* timestamp * 48 + X.count; constant while the CPU runs. */
 extern int32_t x6502_count_base;
+=======
+extern uint32_t sound_timestamp;
+=======
+void X6502_Run(int32 cycles);
+
+extern uint32 timestamp;
+extern uint32 sound_timestamp;
+>>>>>>> 74114ad0 (Update libretro.c)
+>>>>>>> 71d0fd52 (Update libretro.c)
 extern X6502 X;
 extern uint8_t encryptOpcodes;
 extern uint8_t encryptOpcodesConfig;
@@ -45,7 +56,7 @@ extern uint8_t encryptOpcodesConfig;
 #define Z_FLAG  0x02
 #define C_FLAG  0x01
 
-extern void FP_FASTAPASS(1) (*MapIRQHook)(int a);
+extern void (*MapIRQHook)(int a);
 
 #define NTSC_CPU (dendy ? 1773447.467 : 1789772.7272727272727272)
 #define PAL_CPU  1662607.125
@@ -74,10 +85,15 @@ void X6502_LoadState(void);
 void TriggerNMI(void);
 void TriggerNMI2(void);
 
+<<<<<<< HEAD
 uint8_t FASTAPASS(1) X6502_DMR(uint32_t A);
 void FASTAPASS(2) X6502_DMW(uint32_t A, uint8_t V);
+=======
+uint8 X6502_DMR(uint32 A);
+void X6502_DMW(uint32 A, uint8 V);
+>>>>>>> 74114ad0 (Update libretro.c)
 
-void FASTAPASS(1) X6502_IRQBegin(int w);
-void FASTAPASS(1) X6502_IRQEnd(int w);
+void X6502_IRQBegin(int w);
+void X6502_IRQEnd(int w);
 
 #endif
