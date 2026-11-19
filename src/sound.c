@@ -222,8 +222,13 @@ static void (*DoSQ2)(void) = Dummyfunc;
 
 static uint32_t ChannelBC[5];
 
+<<<<<<< HEAD
 static void LoadDMCPeriod(uint8_t V) {
 	if (PAL)
+=======
+static void LoadDMCPeriod(uint8 V) {
+	if (isPAL)
+>>>>>>> 0f4fda22 (Update libretro.c)
 		DMCPeriod = PALDMCTable[V];
 	else
 		DMCPeriod = NTSCDMCTable[V];
@@ -542,7 +547,6 @@ static void FrameSoundUpdate(void) {
 }
 
 static INLINE void tester(void) {
-	if (DMCBitCount == 0) {
 		if (!DMCHaveDMA)
 			DMCHaveSample = 0;
 		else {
@@ -550,7 +554,6 @@ static INLINE void tester(void) {
 			DMCShift = DMCDMABuf;
 			DMCHaveDMA = 0;
 		}
-	}
 }
 
 static INLINE void DMCDMA(void) {
@@ -603,7 +606,8 @@ void FCEU_SoundCPUHook(int cycles) {
 		DMCacc += DMCPeriod;
 		DMCBitCount = (DMCBitCount + 1) & 7;
 		DMCShift >>= 1;
-		tester();
+		if (DMCBitCount == 0)
+			tester();
 	}
 	SoundSchedule();
 }
@@ -662,9 +666,8 @@ static INLINE void RDoSQ(int x) {
 	!CheckFreq(curfreq[x], PSG[(x << 2) | 0x1]) ||
 	!lengthcount[x]) {
 		rc -= V;
-		if (rc <= 0) {
+		if (rc <= 0)
 			rc = cf - (-rc % cf);
-		}
 	} else {
 		int dutyCycle;
 
@@ -1035,6 +1038,7 @@ static void RDoTriangleNoisePCMLQ(void) {
 
 		if (inie[1] && lq_noiseacc <= 0) {
  rea2:
+<<<<<<< HEAD
 			/* used to added <<(16+2) when the noise table
 			 * values were half.
 			 */
@@ -1048,6 +1052,65 @@ static void RDoTriangleNoisePCMLQ(void) {
 			if (lq_noiseacc <= 0) goto rea2;
 			totalout = wl2(scaled_tcout + noiseout + scaled_dmc);
 		}
+=======
+				/* used to added <<(16+2) when the noise table
+				 * values were half.
+				 */
+				if (isPAL)
+					lq_noiseacc += PALNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
+				else
+					lq_noiseacc += NTSCNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
+				nreg = (nreg << 1) + (((nreg >> nshift) ^ (nreg >> 14)) & 1);
+				nreg &= 0x7fff;
+				noiseout = amptab[(nreg >> 0xe) & 1];
+				if (lq_noiseacc <= 0) goto rea2;
+				totalout = wl2(scaled_tcout + noiseout + scaled_dmc);
+			}	/* noiseacc<=0 */
+		}	/* for(V=... */
+	} else if (inie[0]) {
+		for (V = start; V < end; V++) {
+			Wave[V >> 4] += totalout;
+
+			lq_triacc -= inie[0];
+
+			if (lq_triacc <= 0) {
+ area:
+				lq_triacc += freq[0];	/* t; */
+				tristep = (tristep + 1) & 0x1F;
+				if (lq_triacc <= 0) goto area;
+				lq_tcout = (tristep & 0xF);
+				if (!(tristep & 0x10)) lq_tcout ^= 0xF;
+				lq_tcout = lq_tcout * 3;
+				scaled_tcout = (tri_vol != 256)
+				             ? ((lq_tcout * tri_vol) / 256)
+				             : lq_tcout;
+				totalout = wl2(scaled_tcout + noiseout + scaled_dmc);
+			}
+		}
+	} else if (inie[1]) {
+		for (V = start; V < end; V++) {
+			Wave[V >> 4] += totalout;
+			lq_noiseacc -= inie[1];
+			if (lq_noiseacc <= 0) {
+ area2:
+				/* used to be added <<(16+2) when the noise table
+				 * values were half.
+				 */
+				if (isPAL)
+					lq_noiseacc += PALNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
+				else
+					lq_noiseacc += NTSCNoiseFreqTable[PSG[0xE] & 0xF] << (16 + 1);
+				nreg = (nreg << 1) + (((nreg >> nshift) ^ (nreg >> 14)) & 1);
+				nreg &= 0x7fff;
+				noiseout = amptab[(nreg >> 0xe) & 1];
+				if (lq_noiseacc <= 0) goto area2;
+				totalout = wl2(scaled_tcout + noiseout + scaled_dmc);
+			}	/* noiseacc<=0 */
+		}
+	} else {
+		for (V = start; V < end; V++)
+			Wave[V >> 4] += totalout;
+>>>>>>> 95691822 (Update libretro.c)
 	}
 }
 
@@ -1077,10 +1140,10 @@ static void RDoNoise(void) {
 
 	outo = amptab[(nreg >> 0xe) & 1];
 
-	if (!lengthcount[3]) {
+	if (!lengthcount[3])
 		outo = amptab[0] = 0;
-	}
 
+<<<<<<< HEAD
 	/* Feedback from bit 8 for "short" noise, bit 13 otherwise. Spans
 	 * between shifts of the register go into the mix at once. */
 	fbit = (PSG[0xE] & 0x80) ? 8 : 13;
@@ -1099,6 +1162,49 @@ static void RDoNoise(void) {
 			nreg = (nreg << 1) + feedback;
 			nreg &= 0x7fff;
 			outo = amptab[(nreg >> 0xe) & 1];
+=======
+	if (PSG[0xE] & 0x80) {/* "short" noise */
+		for (V = ChannelBC[3]; V < SOUNDTS; V++) {
+			WaveHi[V] += outo;
+			wlcount[3]--;
+			if (!wlcount[3]) {
+<<<<<<< HEAD
+				uint8_t feedback;
+				if (PAL)
+=======
+				uint8 feedback;
+				if (isPAL)
+>>>>>>> 0f4fda22 (Update libretro.c)
+					wlcount[3] = PALNoiseFreqTable[PSG[0xE] & 0xF];
+				else
+					wlcount[3] = NTSCNoiseFreqTable[PSG[0xE] & 0xF];
+				feedback = ((nreg >> 8) & 1) ^ ((nreg >> 14) & 1);
+				nreg = (nreg << 1) + feedback;
+				nreg &= 0x7fff;
+				outo = amptab[(nreg >> 0xe) & 1];
+			}
+		}
+	} else {
+		for (V = ChannelBC[3]; V < SOUNDTS; V++) {
+			WaveHi[V] += outo;
+			wlcount[3]--;
+			if (!wlcount[3]) {
+<<<<<<< HEAD
+				uint8_t feedback;
+				if (PAL)
+=======
+				uint8 feedback;
+				if (isPAL)
+>>>>>>> 0f4fda22 (Update libretro.c)
+					wlcount[3] = PALNoiseFreqTable[PSG[0xE] & 0xF];
+				else
+					wlcount[3] = NTSCNoiseFreqTable[PSG[0xE] & 0xF];
+				feedback = ((nreg >> 13) & 1) ^ ((nreg >> 14) & 1);
+				nreg = (nreg << 1) + feedback;
+				nreg &= 0x7fff;
+				outo = amptab[(nreg >> 0xe) & 1];
+			}
+>>>>>>> 95691822 (Update libretro.c)
 		}
 	}
 	ChannelBC[3] = SOUNDTS;
@@ -1221,10 +1327,14 @@ int FlushEmulateSound(void) {
 	return end;
 }
 
+<<<<<<< HEAD
 int GetSoundBuffer(int32_t **W) {
 	*W = WaveFinal;
 	return(inbuf);
 }
+=======
+int GetSoundBuffer(void) { return(inbuf); }
+>>>>>>> 0f4fda22 (Update libretro.c)
 
 /* FIXME:  Find out what sound registers get reset on reset.  I know $4001/$4005 don't,
 due to that whole MegaMan 2 Game Genie thing.
@@ -1324,7 +1434,7 @@ void FCEUSND_Power(void) {
 void SetSoundVariables(void) {
 	int x;
 
-	fhinc = PAL ? 16626 : 14915;	/* *2 CPU clock rate */
+	fhinc  = isPAL ? 16626 : 14915;	/* *2 CPU clock rate */
 	fhinc *= 24;
 
 	if (FSettings.SndRate) {
@@ -1386,6 +1496,7 @@ void SetSoundVariables(void) {
 	if (GameExpSound.RChange)
 		GameExpSound.RChange();
 
+<<<<<<< HEAD
 	/* nesincsize / soundtsinc are derived from the CPU clock (x6502.h) and
 	 * the output rate. The CPU clock is exactly NTSC=19687500/11,
 	 * PAL=13300857/8 (1662607.125), dendy=1773447467/1000 (1773447.467), so
@@ -1410,10 +1521,29 @@ void SetSoundVariables(void) {
 				(FSettings.SndRate * 16));
 	}
 
+=======
+<<<<<<< HEAD
+	nesincsize = (int64_t)(((int64_t)1 << 17) * (double)(PAL ? PAL_CPU : NTSC_CPU) / (FSettings.SndRate * 16));
+=======
+	nesincsize = (int64)(((int64)1 << 17) * (double)(isPAL ? PAL_CPU : NTSC_CPU) / (FSettings.SndRate * 16));
+>>>>>>> 0f4fda22 (Update libretro.c)
+>>>>>>> 77d63dc3 (Update libretro.c)
 	memset(sqacc, 0, sizeof(sqacc));
 	memset(ChannelBC, 0, sizeof(ChannelBC));
 
 	LoadDMCPeriod(DMCFormat & 0xF);	/* For changing from PAL to NTSC */
+<<<<<<< HEAD
+=======
+
+<<<<<<< HEAD
+	/* Use double rather than long double here. long double has
+	 * platform-dependent precision (80-bit on x87, 64-bit with
+	 * -mfpmath=sse, 128-bit on some non-x86), so the cast-to-uint32
+	 * result varies across platforms. double is guaranteed 64-bit
+	 * IEEE-754 on every platform we target, keeping soundtsinc
+	 * deterministic across builds for replay/netplay. */
+	soundtsinc = (uint32_t)((uint64_t)((double)(PAL ? PAL_CPU : NTSC_CPU) * 65536.0) / (FSettings.SndRate * 16));
+>>>>>>> 77d63dc3 (Update libretro.c)
 }
 
 void FCEUI_Sound(int Rate) {
@@ -1435,6 +1565,9 @@ void FCEUI_ReduceDmcPopping(int d) {
 void FCEUI_SetSoundQuality(int quality) {
 	FSettings.soundq = quality;
 	SetSoundVariables();
+=======
+	soundtsinc = (uint32)((uint64)(isPAL ? (long double)PAL_CPU * 65536 : (long double)NTSC_CPU * 65536) / (FSettings.SndRate * 16));
+>>>>>>> 0f4fda22 (Update libretro.c)
 }
 
 <<<<<<< HEAD
