@@ -557,7 +557,11 @@ static void ResetRL(uint8 *target) {
 	Plinef = target;
 	Pline = target;
 	firsttile = 0;
+<<<<<<< HEAD
 	linestartts = x6502_count_base;
+=======
+	linestartts = timestamp * 48 + cpu.count;
+>>>>>>> b7844d2d (Update libretro.c)
 	tofix = 0;
 	FCEUPPU_LineUpdate();
 	tofix = 1;
