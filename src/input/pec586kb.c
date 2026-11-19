@@ -47,7 +47,11 @@ static const uint16_t matrix[13][8] =
 	{ AK(INSERT),AK(NUMPAD1),AK(HOME),AK(PRIOR),AK(DELETE),AK(END),AK(NEXT),AK(NUMLOCK) },
 };
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) PEC586KB_Write(uint8_t v) {
+=======
+static void PEC586KB_Write(uint8 v) {
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	if (!(kstrobe & 2) && (v & 2)) {
 		kspos = 0;
 	}
@@ -61,7 +65,11 @@ static void FP_FASTAPASS(1) PEC586KB_Write(uint8_t v) {
 	kstrobe = v;
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) PEC586KB_Read(int w, uint8_t ret) {
+=======
+static uint8 PEC586KB_Read(int w, uint8 ret) {
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	if (w) {
 		ret &= ~2;
 		if(bufit[matrix[kspos][7-ksindex]])
@@ -72,13 +80,9 @@ static uint8_t FP_FASTAPASS(2) PEC586KB_Read(int w, uint8_t ret) {
 	return(ret);
 }
 
-static void PEC586KB_Strobe(void) {
-/*	kstrobe = 0; 
-	ksindex = 0;
-*/
-}
+static void PEC586KB_Strobe(void) { }
 
-static void FP_FASTAPASS(2) PEC586KB_Update(void *data, int arg) {
+static void PEC586KB_Update(void *data, int arg) {
 	memcpy(bufit + 1, data, sizeof(bufit) - 1);
 }
 

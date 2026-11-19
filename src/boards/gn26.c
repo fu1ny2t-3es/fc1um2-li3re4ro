@@ -40,11 +40,15 @@ static void BMCGN26PW(uint32_t A, uint8_t V) {
 		setprg8(A, (EXPREGS[0] << 4) | (V & 0x0F));
 }
 
+<<<<<<< HEAD
 static DECLFR(readPad) {
 	return EXPREGS[1] &0x01? X.DB: CartBR(A);
 }
 
 static DECLFW(BMCGN26Write) {
+=======
+static void BMCGN26Write(uint32 A, uint8 V) {
+>>>>>>> 8293f27d (Update libretro_core_options.h)
 	if (A001B &0x80 && ~A001B &0x40) {
 		EXPREGS[0] = A;
 		FixMMC3PRG(MMC3_cmd);
