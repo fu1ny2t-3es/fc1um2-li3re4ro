@@ -225,15 +225,20 @@ static void LoadDMCPeriod(uint8_t V) {
 		DMCPeriod = NTSCDMCTable[V];
 }
 
-static void PrepDPCM() {
+static void PrepDPCM(void) {
 	DMCAddress = 0x4000 + (DMCAddressLatch << 6);
 	DMCSize = (DMCSizeLatch << 4) + 1;
 }
 
 /* Instantaneous?  Maybe the new freq value is being calculated all of the time... */
 
+<<<<<<< HEAD
 static int FASTAPASS(2) CheckFreq(uint32_t cf, uint8_t sr) {
 	uint32_t mod;
+=======
+static int CheckFreq(uint32 cf, uint8 sr) {
+	uint32 mod;
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	if (!(sr & 0x8)) {
 		mod = cf >> (sr & 7);
 		if ((mod + cf) & 0x800)
@@ -251,7 +256,7 @@ static void SQReload(int x, uint8_t V) {
 	EnvUnits[x].reloaddec = 1;
 }
 
-static DECLFW(Write_PSG) {
+static void Write_PSG(uint32 A, uint8 V) {
 	A &= 0x1F;
 	switch (A) {
 	case 0x0:
@@ -334,7 +339,7 @@ static DECLFW(Write_PSG) {
 	PSG[A] = V;
 }
 
-static DECLFW(Write_DMCRegs) {
+static void Write_DMCRegs(uint32 A, uint8 V) {
 	A &= 0xF;
 
 	switch (A) {
@@ -385,7 +390,7 @@ static DECLFW(Write_DMCRegs) {
 	}
 }
 
-static DECLFW(StatusWrite) {
+static void StatusWrite(uint32 A, uint8 V) {
 	int x;
 
 	SoundSync();
@@ -401,32 +406,40 @@ static DECLFW(StatusWrite) {
 	if (V & 0x10) {
 		if (!DMCSize)
 			PrepDPCM();
-	} else {
+	} else
 		DMCSize = 0;
-	}
 	SIRQStat &= ~0x80;
 	X6502_IRQEnd(FCEU_IQDPCM);
 	EnabledChannels = V & 0x1F;
 	SoundSchedule();
 }
 
-static DECLFR(StatusRead) {
+static uint8 StatusRead(uint32 A) {
 	int x;
+<<<<<<< HEAD
 	uint8_t ret;
 
 	ret = SIRQStat;
+=======
+	uint8 ret = SIRQStat;
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 
 	for (x = 0; x < 4; x++) ret |= lengthcount[x] ? (1 << x) : 0;
 	if (DMCSize) ret |= 0x10;
 
+<<<<<<< HEAD
 	{
 		SIRQStat &= ~0x40;
 		X6502_IRQEnd(FCEU_IQFCOUNT);
 	}
+=======
+	SIRQStat &= ~0x40;
+	X6502_IRQEnd(FCEU_IQFCOUNT);
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	return ret;
 }
 
-static void FASTAPASS(1) FrameSoundStuff(int V) {
+static void FrameSoundStuff(int V) {
 	int P;
 
 	DoSQ1();
@@ -503,7 +516,7 @@ static void FASTAPASS(1) FrameSoundStuff(int V) {
 	}
 }
 
-void FrameSoundUpdate(void) {
+static void FrameSoundUpdate(void) {
 	/* Linear counter:  Bit 0-6 of $4008
 	 * Length counter:  Bit 4-7 of $4003, $4007, $400b, $400f
 	 */
@@ -558,7 +571,7 @@ static INLINE void DMCDMA(void) {
 	}
 }
 
-void FASTAPASS(1) FCEU_SoundCPUHook(int cycles) {
+void FCEU_SoundCPUHook(int cycles) {
 	fhcnt -= cycles * 48;
 	if (fhcnt <= 0) {
 		FrameSoundUpdate();
@@ -829,9 +842,17 @@ static void RDoSQLQ(void) {
 }
 
 static void RDoTriangle(void) {
+<<<<<<< HEAD
 	uint32_t V;
 	int32_t tcout = (tristep & 0xF);
+<<<<<<< HEAD
 	uint32_t triangle_raw_period = (PSG[0xa] | ((PSG[0xb] & 7) << 8));
+=======
+=======
+	uint32 V;
+	int32 tcout = (tristep & 0xF);
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
+>>>>>>> 3b1da35c (Update libretro_core_options.h)
 	if (!(tristep & 0x10)) tcout ^= 0xF;
 	tcout = (tcout * 3) << 16;	/* (tcout<<1); */
 
@@ -852,11 +873,6 @@ static void RDoTriangle(void) {
 			*start += (tcout / 256 * FSettings.TriangleVolume) & (~0xFFFF);  /* TODO OPTIMIZE ME */
 			start++;
 		}
-
-		/* cout = (tcout / 256 * FSettings.TriangleVolume) & (~0xFFFF);
-		for(V = ChannelBC[2]; V < SOUNDTS; V++)
-			WaveHi[V] += cout; */
-
 	} else {
 		/* Spans between steps of the wave go into the mix at once. */
 		for (V = ChannelBC[2]; V < SOUNDTS; ) {
@@ -1048,8 +1064,15 @@ static void RDoNoise(void) {
 	ChannelBC[3] = SOUNDTS;
 }
 
+<<<<<<< HEAD
 static DECLFW(Write_IRQFM) {
+<<<<<<< HEAD
 	SoundSync();
+=======
+=======
+static void Write_IRQFM(uint32 A, uint8 V) {
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
+>>>>>>> 17244a87 (Update libretro_core_options.h)
 	V = (V & 0xC0) >> 6;
 	fcnt = 0;
 	if (V & 2)
@@ -1143,11 +1166,11 @@ int FlushEmulateSound(void) {
 			Wave[0] = Wave[(end >> 4)];
 		Wave[end >> 4] = 0;
 	}
- nosoundo:
 
-	if (FSettings.soundq >= 1) {
+ nosoundo:
+	if (FSettings.soundq >= 1)
 		soundtsoffs = left;
-	} else {
+	else {
 		for (x = 0; x < 5; x++)
 			ChannelBC[x] = end & 0xF;
 		soundtsoffs = (soundtsinc * (end & 0xF)) >> 16;
@@ -1358,9 +1381,8 @@ void FCEUI_Sound(int Rate) {
 	SetSoundVariables();
 }
 
-void FCEUI_SetLowPass(int q) {
-	FSettings.lowpass = q;
-}
+void FCEUI_SetLowPass(int q) { FSettings.lowpass = q; }
+void FCEUI_SetSoundVolume(uint32 volume) { FSettings.SoundVolume = volume; }
 
 void FCEUI_RemoveTriangleNoise(int d) {
 	FSettings.RemoveTriangleNoise = d ? 1 : 0;
@@ -1375,6 +1397,7 @@ void FCEUI_SetSoundQuality(int quality) {
 	SetSoundVariables();
 }
 
+<<<<<<< HEAD
 void FCEUI_SetSoundVolume(uint32_t volume) {
 	FSettings.SoundVolume = volume;
 }
@@ -1396,6 +1419,8 @@ int32_t GetExpOutput(int channel, int32_t in) {
 }
 
 
+=======
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 SFORMAT FCEUSND_STATEINFO[] = {
 	{ &fhcnt, 4 | FCEUSTATE_RLSB, "FHCN" },
 	{ &fcnt, 1, "FCNT" },
@@ -1486,8 +1511,7 @@ SFORMAT FCEUSND_STATEINFO[] = {
 	{ 0 }
 };
 
-void FCEUSND_SaveState(void) {
-}
+void FCEUSND_SaveState(void) { }
 
 void FCEUSND_LoadState(int version) {
 	int i;
@@ -1497,36 +1521,46 @@ void FCEUSND_LoadState(int version) {
 	DMCAddress &= 0x7FFF;
 
 	/* minimal validation */
-	for (i = 0; i < 5; i++)
+	if (FSettings.soundq == 2)
 	{
+<<<<<<< HEAD
 		uint32_t BC_max = 15;
 
 		if (FSettings.soundq == 2)
+=======
+		for (i = 0; i < 5; i++)
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 		{
-			BC_max = 1025;
-		}
-		else if (FSettings.soundq == 1)
-		{
-			BC_max = 485;
-		}
-		if (/* ChannelBC[i] < 0 || */ ChannelBC[i] > BC_max)
-		{
-			ChannelBC[i] = 0;
+			if (ChannelBC[i] > 1025)
+				ChannelBC[i] = 0;
 		}
 	}
+	else if (FSettings.soundq == 1)
+	{
+		for (i = 0; i < 5; i++)
+		{
+			if (ChannelBC[i] > 485)
+				ChannelBC[i] = 0;
+		}
+	}
+	else
+	{
+		for (i = 0; i < 5; i++)
+		{
+			if (ChannelBC[i] > 15)
+				ChannelBC[i] = 0;
+		}
+	}
+
 	for (i = 0; i < 4; i++)
 	{
 		if (wlcount[i] < 0 || wlcount[i] > 2048)
-		{
 			wlcount[i] = 2048;
-		}
 	}
 	for (i = 0; i < 2; i++)
 	{
 		if (RectDutyCount[i] < 0 || RectDutyCount[i] > 7)
-		{
 			RectDutyCount[i] = 7;
-		}
 	}
 
 	if (soundtsoffs + sound_timestamp >= soundtsinc)
@@ -1535,8 +1569,10 @@ void FCEUSND_LoadState(int version) {
 		x6502_sound_lag = timestamp;
 	}
 	if (tristep > 32)
-	{
 		tristep &= 0x1F;
+<<<<<<< HEAD
 	}
 	SoundSchedule();
+=======
+>>>>>>> 17244a87 (Update libretro_core_options.h)
 }

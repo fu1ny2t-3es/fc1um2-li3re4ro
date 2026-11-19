@@ -31,42 +31,49 @@ static SFORMAT StateRegs[] =
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static void Sync(void) {	
 	uint8_t chr = (regs[0] >> 4) & 7;
 	uint8_t prg = (regs[1] >> 3) & 7;
 	uint8_t dec = (regs[1] >> 4) & 4;
+=======
+static void HP898FSync(void) {	
+	uint8 chr = (regs[0] >> 4) & 7;
+	uint8 prg = (regs[1] >> 3) & 7;
+	uint8 dec = (regs[1] >> 4) & 4;
+>>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	setchr8(chr & (~(((regs[0] & 1) << 2) | (regs[0] & 2))));
 	setprg16(0x8000, prg & (~dec));
 	setprg16(0xC000, prg | dec);
 	setmirror(regs[1] >> 7);
 }
 
-static DECLFW(HP898FWrite) {
+static void HP898FWrite(uint32 A, uint8 V) {
 	if((A & 0x6000) == 0x6000) {
 		regs[(A & 4) >> 2] = V;
-		Sync();
+		HP898FSync();
 	}
 }
 
 static void HP898FPower(void) {
 	regs[0] = regs[1] = 0;
-	Sync();
+	HP898FSync();
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 	SetWriteHandler(0x6000, 0xFFFF, HP898FWrite);
 }
 
 static void HP898FReset(void) {
 	regs[0] = regs[1] = 0;
-	Sync();
+	HP898FSync();
 }
 
-static void StateRestore(int version) {
-	Sync();
+static void HP898FStateRestore(int version) {
+	HP898FSync();
 }
 
 void BMCHP898F_Init(CartInfo *info) {
 	info->Reset = HP898FReset;
 	info->Power = HP898FPower;
-	GameStateRestore = StateRestore;
+	GameStateRestore = HP898FStateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
 }
