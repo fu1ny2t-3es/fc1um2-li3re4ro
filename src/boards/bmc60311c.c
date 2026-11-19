@@ -50,19 +50,20 @@ static void Sync(void) {
 	setmirror(!(reg[0] &8));
 }
 
+<<<<<<< HEAD
 static DECLFR(ReadPad) {
 	return solderPad;
 }
 
 static DECLFW(WriteReg) {
+=======
+static void WriteReg(uint32 A, uint8 V) {
+>>>>>>> b3d8774 (Update Makefile.libretro)
 	reg[A &1] =V;
 	Sync();
 }
 
-static DECLFW(WriteLatch) {
-	latch = V;
-	Sync();
-}
+static void WriteLatch(uint32 A, uint8 V) { latch = V; Sync(); }
 
 static void BMC60311CPower(void) {
 	latch =reg[0] =reg[1] =0;
