@@ -77,6 +77,9 @@ static uint32_t ppulut3[128];
 
 #define GETLASTPIXEL    (PAL ? ((timestamp * 48 - linestartts) / 15) : ((timestamp * 48 - linestartts) >> 4))
 
+#define MMC5SPRVRAMADR(V)   &MMC5SPRVPage[(V) >> 10][(V)]
+#define VRAMADR(V)          &VPage[(V) >> 10][(V)]
+
 typedef struct {
 	uint8 y, no, atr, x;
 } SPR;
@@ -104,6 +107,7 @@ static int spork = 0;
 static uint8 sprlinebuf[256 + 8];
 static int rendis = 0;
 
+<<<<<<< HEAD
 /* Forward declarations */
 static void FetchSpriteData(void);
 static void RefreshLine(int lastpixel);
@@ -134,6 +138,9 @@ static void makeppulut(void) {
 		}
 	}
 }
+=======
+static uint16 TempAddrT, RefreshAddrT;
+>>>>>>> 516598ea (Update ppu.c)
 
 <<<<<<< HEAD
 static uint8_t ppudead = 1;
@@ -180,15 +187,91 @@ static int maxsprites = 8;
 int scanline;
 static uint32_t scanlines_per_frame;
 
+<<<<<<< HEAD
 uint8_t PPU[4];
 uint8_t PPUSPL;
 uint8_t NTARAM[0x800], PALRAM[0x20], SPRAM[0x100], SPRBUF[0x100];
 uint8_t UPALRAM[0x03];/* for 0x4/0x8/0xC addresses in palette, the ones in
 					 * 0x20 are 0 to not break fceu rendering.
 					 */
+=======
+uint8 PPU[4];
+uint8 PPUSPL;
+uint8 NTARAM[0x800], PALRAM[0x20], SPRAM[0x100], SPRBUF[0x100];
+uint8 UPALRAM[0x03];/* for 0x4/0x8/0xC addresses in palette, the ones in
+		     * 0x20 are 0 to not break fceu rendering.
+		     */
+>>>>>>> 70177fe6 (Cleanups)
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+/* Background pair LUT for pputile.h's per-tile 8-pixel palette gather.
+ * Each 8-bit chunk of pixdata indexes two 4-bit pens (low nibble = even
+ * pixel, high nibble = odd), so a 256-entry uint16_t table maps each
+ * pixdata byte to a pre-packed 2-pen pair, letting the per-tile body
+ * emit four pair-lookups and a single 64-bit store instead of eight
+ * serial nibble-load-store iterations.
+ *
+ * Rebuilt INSIDE RefreshLine just before the pputile.h includes, so
+ * that:
+ *   (a) any PALRAM[0x00..0x0F] change since the previous RefreshLine
+ *       is reflected on the next tile span, and
+ *   (b) crucially, the 0x40 "background priority" bit that RefreshLine
+ *       OR's into Pal[0/4/8/0xC] right before rendering -- and ANDs
+ *       off again after -- is captured in the LUT.  Without that the
+ *       sprite compositor cannot tell BG-color pixels apart from the
+ *       universal background, breaking sprite priority for any game
+ *       that hits Pal[0x04/0x08/0x0C] (e.g. Mega Man 3 sprites). */
+static uint16_t fceu_bg_pair_lut[256];
+
+static void FCEU_BuildBgPairLUT(void)
+{
+	int b;
+	for (b = 0; b < 256; b++)
+	{
+#ifdef MSB_FIRST
+		/* Big-endian: the 64-bit tile word in pputile.h is stored
+		 * most-significant byte first, so the even (leftmost) pen of
+		 * each pair must live in the HIGH byte of the LUT entry for
+		 * it to land at the lower memory address. */
+		fceu_bg_pair_lut[b] = ((uint16_t)PALRAM[b & 0x0F] << 8) |
+		                       (uint16_t)PALRAM[b >> 4];
+#else
+		fceu_bg_pair_lut[b] = (uint16_t)PALRAM[b & 0x0F] |
+		                      ((uint16_t)PALRAM[b >> 4] << 8);
+#endif
+	}
+}
+
+>>>>>>> 516598ea (Update ppu.c)
 #define MMC5SPRVRAMADR(V)   &MMC5SPRVPage[(V) >> 10][(V)]
 #define VRAMADR(V)          &VPage[(V) >> 10][(V)]
+=======
+SFORMAT FCEUPPU_STATEINFO[] = {
+	{ NTARAM, 0x800, "NTAR" },
+	{ PALRAM, 0x20, "PRAM" },
+	{ SPRAM, 0x100, "SPRA" },
+	{ PPU, 0x4, "PPUR" },
+	{ &kook, 1, "KOOK" },
+	{ &ppudead, 1, "DEAD" },
+	{ &PPUSPL, 1, "PSPL" },
+	{ &XOffset, 1, "XOFF" },
+	{ &vtoggle, 1, "VTGL" },
+	{ &RefreshAddrT, 2 | FCEUSTATE_RLSB, "RADD" },
+	{ &TempAddrT, 2 | FCEUSTATE_RLSB, "TADD" },
+	{ &VRAMBuffer, 1, "VBUF" },
+	{ &PPUGenLatch, 1, "PGEN" },
+	{ 0 }
+};
+
+
+/* Forward declarations */
+static void FetchSpriteData(void);
+static void RefreshLine(int lastpixel);
+static void Fixit1(void);
+void MMC5_hb(int); /* Ugh ugh ugh. */
+>>>>>>> 6c8aca46 (Update ppu.c)
 
 static uint8_t * MMC5BGVRAMADR(uint32_t V) {
 	if (!Sprite16) {
@@ -967,8 +1050,6 @@ static void RefreshSprites(void) {
 	spork = 1;
 }
 
-
-void MMC5_hb(int);		/* Ugh ugh ugh. */
 static void DoLine(void)
 {
 	int x;
@@ -1573,7 +1654,28 @@ void FCEUPPU_SetVideoSystem(int w) {
 }
 
 void FCEUPPU_Init(void) {
-	makeppulut();
+	int x;
+	int y;
+	int cc, xo, pixel;
+
+	for (x = 0; x < 256; x++) {
+		ppulut1[x] = 0;
+		for (y = 0; y < 8; y++)
+			ppulut1[x] |= ((x >> (7 - y)) & 1) << (y * 4);
+		ppulut2[x] = ppulut1[x] << 1;
+	}
+
+	for (cc = 0; cc < 16; cc++) {
+		for (xo = 0; xo < 8; xo++) {
+			ppulut3[xo | (cc << 3)] = 0;
+			for (pixel = 0; pixel < 8; pixel++) {
+				int shiftr;
+				shiftr = (pixel + xo) / 8;
+				shiftr *= 2;
+				ppulut3[xo | (cc << 3)] |= ((cc >> shiftr) & 3) << (2 + pixel * 4);
+			}
+		}
+	}
 }
 
 void FCEUPPU_Reset(void) {
@@ -1632,10 +1734,6 @@ void FCEUPPU_Power(void) {
 
 	BWrite[0x4014] = B4014;
 }
-
-#ifdef FRAMESKIP
-static void FCEU_PutImageDummy(void) { }
-#endif
 
 static void FCEU_PutImage(void)
 {
@@ -1750,6 +1848,7 @@ int FCEUPPU_Loop(int skip) {
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #ifdef FRAMESKIP
 	if (skip) {
@@ -1766,28 +1865,17 @@ int FCEUPPU_Loop(int skip) {
 
 static uint16_t TempAddrT, RefreshAddrT;
 
+=======
+	FCEU_PutImage();
+	return(1);
+}
+
+>>>>>>> 70177fe6 (Cleanups)
 void FCEUPPU_LoadState(int version) {
 	spr_lines_dirty = 1;
 	TempAddr = TempAddrT;
 	RefreshAddr = RefreshAddrT;
 }
-
-SFORMAT FCEUPPU_STATEINFO[] = {
-	{ NTARAM, 0x800, "NTAR" },
-	{ PALRAM, 0x20, "PRAM" },
-	{ SPRAM, 0x100, "SPRA" },
-	{ PPU, 0x4, "PPUR" },
-	{ &kook, 1, "KOOK" },
-	{ &ppudead, 1, "DEAD" },
-	{ &PPUSPL, 1, "PSPL" },
-	{ &XOffset, 1, "XOFF" },
-	{ &vtoggle, 1, "VTGL" },
-	{ &RefreshAddrT, 2 | FCEUSTATE_RLSB, "RADD" },
-	{ &TempAddrT, 2 | FCEUSTATE_RLSB, "TADD" },
-	{ &VRAMBuffer, 1, "VBUF" },
-	{ &PPUGenLatch, 1, "PGEN" },
-	{ 0 }
-};
 
 void FCEUPPU_SaveState(void) {
 	TempAddrT = TempAddr;
