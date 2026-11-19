@@ -68,12 +68,16 @@ static uint8 M235Read(uint32 A) {
 	if (openbus) {
 		openbus = 0;
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> 01e246a5 (Update Makefile.libretro)
 		return X.DB;
 	else
 		return CartBR(A);
 =======
 		return cpu.DB;
+=======
+		return cpu.openbus;
+>>>>>>> 565f8e7c (Update Makefile.libretro)
 	}
 	return CartBR(A);
 >>>>>>> 83fc5bb0 (Update Makefile.libretro)
