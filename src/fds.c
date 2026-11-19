@@ -100,6 +100,7 @@ static uint8_t  mapperFDS_diskaccess; /* disk needs to be accessed at least once
 #define DC_INC    1
 #define BYTES_PER_SIDE 65500
 
+<<<<<<< HEAD
 uint8_t *FDSROM_ptr(void) {
 	return (FDSROM);
 }
@@ -107,6 +108,11 @@ uint8_t *FDSROM_ptr(void) {
 uint32_t FDSROM_size(void) {
 	return (FDSROMSize);
 }
+=======
+uint8 *FDSROM_ptr(void)  { return (FDSROM); }
+uint32 FDSROM_size(void) { return (FDSROMSize); }
+static uint8 FDSRead4033(uint32 A) { return 0x80; /* battery */ }
+>>>>>>> 69f50aa3 (Refactors)
 
 static void FDSGI(int h) {
 	switch (h) {
@@ -478,9 +484,7 @@ void FCEU_FDSInsert(int oride) {
 	}
 }
 
-void FCEU_FDSEject(void) {
-	InDisk = 255;
-}
+void FCEU_FDSEject(void) { InDisk = 255; }
 
 void FCEU_FDSSelect(void) {
 	if (InDisk != 255) {
@@ -574,10 +578,6 @@ static uint8 FDSRead4032(uint32 A) {
 	if (InDisk == 255 || !(FDSRegs[5] & 1) || (FDSRegs[5] & 2))
 		ret |= 2;
 	return ret;
-}
-
-static uint8 FDSRead4033(uint32 A) {
-	return 0x80;		/* battery */
 }
 
 struct codes_t {
