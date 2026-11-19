@@ -1,8 +1,7 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2012 CaH4e3
- *  Copyright (C) 2002 Xodnizel
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +19,10 @@
  */
 
 #include "mapinc.h"
+#include "s5bsound.h"
+#include "fme7.h"
 
+<<<<<<< HEAD
 static uint8_t cmdreg, preg[4], creg[8], mirr;
 static uint8_t IRQa;
 static int32_t IRQCount;
@@ -58,13 +60,17 @@ static void Sync(void) {
 	case 2: setmirror(MI_0); break;
 	case 3: setmirror(MI_1); break;
 	}
+=======
+static void M069PW(uint16 A, uint16 V) {
+	setprg8(A, V & 0x3F);
+>>>>>>> 5926d713 (Update libretro.c)
 }
 
-static void M69WRAMWrite(uint32 A, uint8 V) {
-	if ((preg[3] & 0xC0) == 0xC0)
-		CartBW(A, V);
+static void M069CW(uint16 A, uint16 V) {
+	setchr1(A, V & 0xFF);
 }
 
+<<<<<<< HEAD
 static uint8 M69WRAMRead(uint32 A) {
 	if ((preg[3] & 0xC0) == 0x40)
 		return cpu.openbus;
@@ -329,4 +335,10 @@ void NSFAY_Init(void) {
 	SetWriteHandler(0xE000, 0xFFFF, M69SWrite1);
 	Mapper69_ESI();
 	AddExState(&SStateRegs, ~0, 0, 0);
+=======
+void Mapper069_Init(CartInfo *info) {
+	FME7_Init(info, TRUE, info->battery);
+	FME7_pwrap = M069PW;
+	FME7_cwrap = M069CW;
+>>>>>>> 5926d713 (Update libretro.c)
 }
