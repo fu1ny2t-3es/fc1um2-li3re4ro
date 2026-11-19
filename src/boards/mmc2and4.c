@@ -54,7 +54,11 @@ static void Sync(void) {
 	setmirror(mirr);
 }
 
+<<<<<<< HEAD
 static DECLFW(MMC2and4Write) {
+=======
+static void MMC2and4Write(uint32 A, uint8 V) {
+>>>>>>> d5085b8d (Update libretro_core_options.h)
 	switch (A & 0xF000) {
 	case 0xA000: preg = V & 0xF; Sync(); break;
 	case 0xB000: creg[0] = V & 0x1F; Sync(); break;
@@ -65,8 +69,13 @@ static DECLFW(MMC2and4Write) {
 	}
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) MMC2and4PPUHook(uint32_t A) {
 	uint8_t l, h = A >> 8;
+=======
+static void MMC2and4PPUHook(uint32 A) {
+	uint8 l, h = A >> 8;
+>>>>>>> d5085b8d (Update libretro_core_options.h)
 	if (h >= 0x20 || ((h & 0xF) != 0xF))
 		return;
 	l = A & 0xF0;

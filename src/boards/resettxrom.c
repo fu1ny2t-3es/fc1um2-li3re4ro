@@ -30,8 +30,12 @@
 
 static uint8_t submapper;
 
+<<<<<<< HEAD
 static void M313CW(uint32_t A, uint8_t V) {
 	/*FCEU_printf("CHR: A:%04x V:%02x 0:%02x\n", A, V, EXPREGS[0]);*/
+=======
+static void M313CW(uint32 A, uint8 V) {
+>>>>>>> d5085b8d (Update libretro_core_options.h)
 	uint32_t bank;
 	switch (submapper) {
 	default: bank = (EXPREGS[0] << 7) | (V & 0x7F); break;
@@ -43,8 +47,12 @@ static void M313CW(uint32_t A, uint8_t V) {
 	setchr1(A, bank);
 }
 
+<<<<<<< HEAD
 static void M313PW(uint32_t A, uint8_t V) {
 	/*FCEU_printf("PRG: A:%04x V:%02x 0:%02x\n", A, V, EXPREGS[0]);*/
+=======
+static void M313PW(uint32 A, uint8 V) {
+>>>>>>> d5085b8d (Update libretro_core_options.h)
 	uint32_t bank;
 	switch (submapper) {
 	default: bank = (EXPREGS[0] << 4) | (V & 0x0F); break;
