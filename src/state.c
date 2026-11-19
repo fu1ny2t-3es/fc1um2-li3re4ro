@@ -321,7 +321,32 @@ SFORMAT SFCPUC[] = {
    { 0 }
 };
 
+<<<<<<< HEAD
 static int SubWrite(state_stream_t *mem, SFORMAT *sf)
+=======
+#ifdef MSB_FIRST
+static void FlipByteOrder(uint8 *src, uint32 count)
+{
+   uint8 *start = src;
+   uint8 *end = src + count - 1;
+
+   if ((count & 1) || !count)
+      return;     /* This shouldn't happen. */
+
+   while (count--)
+   {
+      uint8 tmp = *end;
+      *end = *start;
+      *start = tmp;
+      end--;
+      start++;
+   }
+}
+
+#endif
+
+static int SubWrite(memstream_t *mem, SFORMAT *sf)
+>>>>>>> 0a5c1a31 (Update libretro_core_options.h)
 {
    uint32_t acc = 0;
 
