@@ -1,7 +1,8 @@
-/* FCE Ultra - NES/Famicom Emulator
+/* FCEUmm - NES/Famicom Emulator
  *
  * Copyright notice for this file:
- *  Copyright (C) 2020 NewRisingSun
+ *  Copyright (C) 2020
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+<<<<<<< HEAD
 /* Multicarts based around the ING003C and TEC9719 enhanced MMC3 ASICs.
    ING003C's scanline counter is inverted from MMC3, while TEC9719 is normal.
    Both ASICs natively only support 256 KiB of CHR ROM/RAM; cartridges with more than that re-purpose higher PRG address as CHR address lines. There are two connection variants of this re-purposing.
@@ -37,10 +39,17 @@
 
    Both ASICs invert the register bit that selects PRG A21 (6000.5), hence "EXPREGS[0] ^0x20".
 */
+=======
+/* Mapper 422: "Normal" version of the mapper. Represents UNIF boards BS-400R and BS-4040R.
+ * Mapper 126: Power Joy version of the mapper, connecting CHR A18 and A19 in reverse order.
+ * Mapper 534: Waixing version of the mapper, inverting the reload V of the MMC3 scanline counter.
+ */
+>>>>>>> 30faeea0 (Update Makefile.libretro)
 
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static uint8_t reverseCHR_A18_A19;
 static uint8_t invertC000;
 static uint8_t SL0;
@@ -51,7 +60,25 @@ static uint8_t getMMC3Bank (int bank) {
 	return bank &2? 0xFE | bank &1: DRegBuf[6 | bank &1];
 }
 
+<<<<<<< HEAD
 static void wrapPRG (uint32_t A, uint8_t V) {
+=======
+static void wrapPRG(uint32_t A, uint8_t V) {
+=======
+static uint8 reg[4];
+static uint8 dipsw;
+static uint8 oldump = FALSE;
+
+static SFORMAT StateRegs[] = {
+	{ reg, 4, "REGS" },
+	{ &dipsw, 1, "DPSW" },
+	{ 0 }
+};
+
+<<<<<<< HEAD
+static void wrapPRG(uint32 A, uint8 V) {
+>>>>>>> ae14339e (Update Makefile.libretro)
+>>>>>>> ccaecfc3 (Update Makefile.libretro)
 	int prgAND = EXPREGS[0] &0x40? 0x0F: 0x1F; /* 128 KiB or 256 KiB inner PRG bank selection */
 	int prgOR  = (EXPREGS[0] <<4 &0x70 | (EXPREGS[0] ^0x20) <<3 &0x180) &~prgAND; /* Outer PRG bank */
 
@@ -96,12 +123,60 @@ static void wrapPRG (uint32_t A, uint8_t V) {
 			V = A &1 | V &~1;
 			if (EXPREGS[3] &0x02) V = A &2 | V &~2; /* NROM-256 */
 		}
+<<<<<<< HEAD
 		setprg8(0x8000 +A*0x2000, V &prgAND | prgOR &~prgAND);
+=======
+		setprg8(0x8000 +A*0x2000, V &prgAND | prgOR &~prgAND);		
+=======
+static void M126PW(uint16 A, uint16 V) {
+	uint8 reg0 = reg[0] ^ (oldump ? 0 : 0x20);
+	uint16 mask = (reg0 & 0x40) ? 0x0F : 0x1F;
+	uint16 base = (((reg0 << 4) & 0x70) | ((reg0 << 3) & 0x180)) & ~mask;
+
+	switch (iNESCart.submapper) {
+	case 1: base |= ((base & 0x100) >> 1); break;
+	case 2: base |= ((reg[1] & 0x02) << 5); break;
+>>>>>>> ff5b809 (Update Makefile.libretro)
+>>>>>>> ccaecfc3 (Update Makefile.libretro)
 	}
-	mwrap(A000B); /* After 8000 write */
+
+	if (reg[3] & 0x08) {
+		uint8 b = (A >> 13) & 0x03;
+		V = MMC3_GetPRGBank(b & (((reg[3] & 0x0D) == 0x0D) ? 0x02 : ((reg[3] & 0x01) ? 0 : 0x03)));
+		switch (reg[3] & 0x03) {
+		case 0: V = ((V << 1) & ~0x03) | (V & 0x03); break;
+		case 1: V = ((V << 1) & ~0x01) | (b & 0x03); break;
+		case 2: V = ((V << 2) & ~0x03) | (V & 0x03); break;
+		case 3: V = ((V << 2) & ~0x03) | (b & 0x03); break;
+		}
+	} else {
+		switch (reg[3] & 0x03) {
+		case 1:
+		case 2:
+			base = base | (mmc3.reg[6] & mask);
+			V = (A >> 13) & 0x01;
+			mask = 0x01;
+			break;
+		case 3:
+			base = base | (mmc3.reg[6] & mask);
+			V = (A >> 13) & 0x03;
+			mask = 0x03;
+			break;
+		}
+	}
+	setprg8(A, (base & ~mask) | (V & mask));
 }
 
+<<<<<<< HEAD
 static void wrapCHR (uint32_t A, uint8_t V) {
+=======
+<<<<<<< HEAD
+static void wrapCHR(uint32_t A, uint8_t V) {
+=======
+<<<<<<< HEAD
+static void wrapCHR(uint32 A, uint8 V) {
+>>>>>>> ae14339e (Update Makefile.libretro)
+>>>>>>> ccaecfc3 (Update Makefile.libretro)
 	int chrAND = EXPREGS[0] &0x80? 0x7F: 0xFF; /* 128 KiB or 256 KiB innter CHR bank selection */
 	int chrOR; /* outer CHR bank */
 	if (reverseCHR_A18_A19) /* Mapper 126 swaps CHR A18 and A19 */
@@ -120,10 +195,32 @@ static void wrapCHR (uint32_t A, uint8_t V) {
 		setchr8(EXPREGS[2] &(chrAND >>3) | (chrOR &~chrAND) >>3);
 	else /* MMC3 CHR mode */
 		setchr1(A, (V & chrAND) | chrOR);
+=======
+static void M126CW(uint16 A, uint16 V) {
+	uint8 reg0 = reg[0] ^ (oldump ? 0 : 0x20);
+	uint16 mask = (reg0 & 0x80) ? 0x7F : 0xFF;
+	uint16 base = (reg0 << 4) & 0x380;
+
+	if (iNESCart.mapper == 126) {
+		base = ((reg0 << 4) & 0x080) | ((reg0 << 3) & 0x100) | ((reg0 << 5) & 0x200);
+	}
+	if (reg[3] & 0x10) {
+		base = (((base & ~mask) >> 3) | (reg[2] & (mask >> 3))) << 3;
+		V = (A >> 10) & 0x07;
+		mask = 0x07;
+	}
+	setchr1(A, (base & ~mask) | (V & mask));
+>>>>>>> ff5b809 (Update Makefile.libretro)
 }
 
+<<<<<<< HEAD
 static void wrapMirroring (uint8_t V) {
 	A000B = V;
+=======
+<<<<<<< HEAD
+static void wrapMirroring(uint8_t V) {
+	A000B =V;
+>>>>>>> ccaecfc3 (Update Makefile.libretro)
 	if (EXPREGS[3] &0x20) { /* ANROM mirroring */
 		if (DRegBuf[6] &0x10)
 			setmirror(MI_1);
@@ -132,11 +229,19 @@ static void wrapMirroring (uint8_t V) {
 	} else
 	if (EXPREGS[1] &0x02) { /* Extended MMC3 mirroring */
 		switch(A000B &3) {
+=======
+static void M126MIR(void) {
+	if (reg[3] & 0x20) {
+		setmirror(MI_0 + ((mmc3.reg[6] & 0x10) >> 4));
+	} else if (reg[1] & 0x02) {
+		switch (mmc3.mirr & 0x03) {
+>>>>>>> ae14339e (Update Makefile.libretro)
 		case 0: setmirror(MI_V); break;
 		case 1: setmirror(MI_H); break;
 		case 2: setmirror(MI_0); break;
 		case 3: setmirror(MI_1); break;
 		}
+<<<<<<< HEAD
 	} else              /* Normal MMC3 mirroring */
 		setmirror(A000B &1? MI_H: MI_V);
 
@@ -217,6 +322,7 @@ static void writeCart(uint32 A, uint8 V) {
 
 static uint8 readPRG(uint32 A) {
 	if (EXPREGS[1] &1) A =A &~1 | SL0 &1; /* Replace A0 with SL0 input */
+<<<<<<< HEAD
 >>>>>>> 01e246a5 (Update Makefile.libretro)
 	return CartBR(A);
 }
@@ -242,10 +348,56 @@ static void init (CartInfo *info) {
 	pwrap = wrapPRG;
 	mwrap = wrapMirroring;
 	submapper = info->submapper;
+=======
+=======
+	} else {
+		setmirror((mmc3.mirr & 0x01) ^ 0x01);
+	}
+}
 
-	info->Power = power;
-	info->Reset = reset;
+static DECLFR(M126ReadDIP) {
+	if (reg[1] & 0x01) {
+		return CartBR((A & ~0x01) | (dipsw & 0x01));
+	}
+>>>>>>> 05517c6 (Update Makefile.libretro)
+	return CartBR(A);
+}
 
+static DECLFW(M126WriteWRAM) {
+	CartBW(A, V);
+	if (!(reg[3] & 0x80)) {
+		reg[A & 0x03] = V;
+		MMC3_FixPRG();
+		MMC3_FixCHR();
+		MMC3_FixMIR();
+	} else if ((A & 0x03) == 0x02) {
+		const uint8 mask = 0xFF & ~(reg[2] & 0x80 ? 0xF0 : 0x00) & ~((reg[2]) >> 3 & 0x0E);
+		reg[2] = (reg[2] & ~mask) | (V & mask);
+		MMC3_FixCHR();
+	}
+}
+
+static DECLFW(M534IRQWrite) {
+	V ^= 0xFF;
+	MMC3_IRQWrite(A, V);
+}
+
+static DECLFW(M126MMC3Write) {
+	if ((reg[3] & 0x09) == 0x09) {
+		MMC3_Write(0x8000 | (((reg[3] & 0x08) ? 0x01 : A) & 0x01), V);
+	} else {
+		MMC3_Write(A, V);
+	}
+}
+>>>>>>> ccaecfc3 (Update Makefile.libretro)
+
+static void M126Reset(void) {
+	dipsw++;
+	reg[0] = reg[1] = reg[2] = reg[3] = 0;
+	MMC3_Reset();
+}
+
+<<<<<<< HEAD
 	AddExState(EXPREGS, submapper < 5? 4: 5, 0, "EXPR");
 	AddExState(&SL0, 1, 0, "DPSW");
 }
@@ -299,4 +451,59 @@ void Mapper534_Init (CartInfo *info) {
 	reverseCHR_A18_A19 = 0;
 	invertC000 = 1;
 	init(info);
+=======
+static void M126Power(void) {
+	dipsw = 0;
+	reg[0] = reg[1] = reg[2] = reg[3] = 0;
+	MMC3_Power();
+	SetWriteHandler(0x6000, 0x7FFF, M126WriteWRAM);
+	SetWriteHandler(0x8000, 0xFFFF, M126MMC3Write);
+	SetReadHandler(0x8000, 0xFFFF, M126ReadDIP);
+	if (iNESCart.mapper == 534) {
+		SetWriteHandler(0xC000, 0xDFFF, M534IRQWrite);
+	}
+}
+
+static void InitCommon(CartInfo *info) {
+	uint8 ws = 8;
+	if (info->iNES2) {
+		ws = (info->PRGRamSize + info->PRGRamSaveSize) / 1024;
+	}
+	MMC3_Init(info, ws, info->battery);
+	MMC3_FixMIR = M126MIR;
+	MMC3_cwrap = M126CW;
+	MMC3_pwrap = M126PW;
+	info->Power = M126Power;
+	info->Reset = M126Reset;
+	AddExState(StateRegs, ~0, 0, NULL);
+
+	switch (iNESCart.CRC32) {
+	case 0xEAD80031: /* Gamezone 118-in-1 (AT-207) */
+	case 0x6FCBC309: /* Power Joy Classic TV Game 84-in-1 (PJ-008) */
+	case 0x6D61FE21: /* 1998 4000000-in-1 (BS-400 PCB) */
+	case 0x3FF46175:
+	case 0xA3FF9D9B:
+	case 0x2BDD0FC2:
+	case 0x5789017D: /* (GD-106) 18-in-1 */
+	case 0x46A01871: /* 3000000-in-1 (BS-300 PCB) */
+	case 0x2466B80A: /* 700000-in-1 (BS-400 PCB) */
+	case 0x871CFD16:
+	case 0xB2724618:
+	case 0x42A9219D:
+		oldump = TRUE;
+		break;
+	}
+}
+
+void Mapper126_Init(CartInfo *info) {
+	InitCommon(info);
+}
+
+void Mapper422_Init(CartInfo *info) {
+	InitCommon(info);
+}
+
+void Mapper534_Init(CartInfo *info) {
+	InitCommon(info);
+>>>>>>> ccaecfc3 (Update Makefile.libretro)
 }
