@@ -31,6 +31,7 @@ static SFORMAT StateRegs[] =
 	{ 0 }
 };
 
+<<<<<<< HEAD
 #if 0
 
 cmd[0] = response on/off
@@ -95,33 +96,29 @@ static const uint8_t sim0reset[0x1F] = {
 #endif
 
 static void Sync(void) {
+=======
+static void M216Sync(void) {
+>>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	setprg32(0x8000, prg_reg);
 	setchr8(chr_reg);
 }
 
-static void StateRestore(int version) {
-	Sync();
-}
+static void M216StateRestore(int version) { M216Sync(); }
 
-static DECLFW(M216WriteHi) {
+static void M216WriteHi(uint32 A, uint8 V) {
 	prg_reg = A & 1;
 	chr_reg = (A & 0x0E) >> 1;
-	Sync();
+	M216Sync();
 }
 
-static DECLFW(M216Write5000) {
-/*	FCEU_printf("WRITE: %04x:%04x (PC=%02x cnt=%02x)\n",A,V,X.PC,sim0bcnt); */
-}
+static void M216Write5000(uint32 A, uint8 V) { }
 
-static DECLFR(M216Read5000) {
-/*	FCEU_printf("READ: %04x PC=%04x out=%02x byte=%02x cnt=%02x bit=%02x\n",A,X.PC,sim0out,sim0byte,sim0bcnt,sim0bit); */
-	return 0;
-}
+static uint8 M216Read5000(uint32 A) { return 0; }
 
-static void Power(void) {
+static void M216Power(void) {
 	prg_reg = 0;
 	chr_reg = 0;
-	Sync();
+	M216Sync();
 	SetReadHandler(0x8000, 0xFFFF, CartBR);
 	SetWriteHandler(0x8000, 0xFFFF, M216WriteHi);
 	SetWriteHandler(0x5000, 0x5000, M216Write5000);
@@ -130,7 +127,7 @@ static void Power(void) {
 
 
 void Mapper216_Init(CartInfo *info) {
-	info->Power = Power;
-	GameStateRestore = StateRestore;
+	info->Power = M216Power;
+	GameStateRestore = M216StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
 }
