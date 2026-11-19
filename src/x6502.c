@@ -26,7 +26,24 @@
 #include "fceu.h"
 #include "sound.h"
 
+<<<<<<< HEAD
 X6502 X;
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+uint8_t encryptOpcodes = 0;
+uint8_t encryptOpcodesConfig = 0;
+=======
+<<<<<<< HEAD
+uint8_t encryptOpcodes =0;
+=======
+uint8 encryptOpcodes =0;
+=======
+X6502 cpu;
+>>>>>>> dd6d07c (Update libretro_core_options.h)
+>>>>>>> af749511 (Update libretro_core_options.h)
+>>>>>>> 53841943 (Update libretro_core_options.h)
+>>>>>>> cecfb492 (Update libretro_core_options.h)
 
 <<<<<<< HEAD
 uint32_t timestamp;
@@ -46,6 +63,7 @@ uint32 sound_timestamp;
 void (*MapIRQHook)(int a);
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 #define _PC        X.PC
 #define _A         X.A
@@ -71,6 +89,20 @@ void (*MapIRQHook)(int a);
 #define CPU_IRQlow    X.IRQlow
 #define CPU_jammed    X.jammed
 >>>>>>> 11db5a27 (Update libretro_core_options.h)
+=======
+#define CPU_PC     cpu.PC
+#define CPU_A      cpu.A
+#define CPU_X      cpu.X
+#define CPU_Y      cpu.Y
+#define CPU_S      cpu.S
+#define CPU_P      cpu.P
+#define CPU_PI     cpu.mooPI
+#define CPU_DB        cpu.DB
+#define CPU_count     cpu.count
+#define CPU_tcount    cpu.tcount
+#define CPU_IRQlow    cpu.IRQlow
+#define CPU_jammed    cpu.jammed
+>>>>>>> cecfb492 (Update libretro_core_options.h)
 
 #define ADDCYC_OC(x, oc) {							\
 	int __x = x;									\
@@ -147,7 +179,7 @@ uint8_t FASTAPASS(1) X6502_DMR(uint32_t A) {
 uint8 X6502_DMR(uint32 A) {
 >>>>>>> 3cd7a223 (Update libretro_core_options.h)
 	ADDCYC(1);
-	return(X.DB = ARead[A](A));
+	return(cpu.DB = ARead[A](A));
 }
 
 <<<<<<< HEAD
@@ -523,7 +555,7 @@ void X6502_Reset(void) {
 void X6502_Init(void) {
 	int x;
 
-	memset((void*)&X, 0, sizeof(X));
+	memset((void*)&cpu, 0, sizeof(cpu));
 	for (x = 0; x < 256; x++)
 		if (!x)
 			ZNTable[x] = Z_FLAG;
@@ -795,9 +827,13 @@ void X6502_Run(int32 cycles)
 			CPU_IRQlow &= ~(FCEU_IQTEMP);
 			if (CPU_count <= 0) {
 				CPU_PI = CPU_P;
+<<<<<<< HEAD
 >>>>>>> 11db5a27 (Update libretro_core_options.h)
 				X.PC = pbackus;
 				x6502_hook_ts = hook_ts;
+=======
+				cpu.PC = pbackus;
+>>>>>>> cecfb492 (Update libretro_core_options.h)
 				return;
 			}	/* Should increase accuracy without a
 				 * major speed hit.
@@ -830,6 +866,7 @@ void X6502_Run(int32 cycles)
 		if (MapIRQHook) MapIRQHook(temp);
 		if (!overclocked)
 			FCEU_SoundCPUHook(temp);
+<<<<<<< HEAD
 		X.PC = pbackus;
 <<<<<<< HEAD
 		_PC++;
@@ -848,6 +885,9 @@ void X6502_Run(int32 cycles)
 =======
 		if (encryptOpcodes ==67) b1 =b1 &0x3F | b1 >>1 &0x40 | b1 <<1 &0x80;
 =======
+=======
+		cpu.PC = pbackus;
+>>>>>>> dd6d07c (Update libretro_core_options.h)
 		CPU_PC++;
 >>>>>>> c0a2a7d (Backport macro changes to X6502.c)
 >>>>>>> 8b777a0 (Update libretro_core_options.h)
@@ -865,7 +905,7 @@ void X6502_Run(int32 cycles)
 	x6502_hook_ts = hook_ts;
 =======
 	#undef CPU_PC
-	#define CPU_PC X.PC
+	#define CPU_PC cpu.PC
 	CPU_PC = pbackus;
 >>>>>>> 11db5a27 (Update libretro_core_options.h)
 	#undef RdRAM
