@@ -27,9 +27,13 @@
 #include "mapinc.h"
 #include "mmc3.h"
 
+<<<<<<< HEAD
 static void BMCL6IN1CW(uint32_t A, uint8_t V) {
 	setchr8(V);
 }
+=======
+static void BMCL6IN1CW(uint32 A, uint8 V) { setchr8(V); }
+>>>>>>> f9553c43 (Update ppu.c)
 
 static void BMCL6IN1PW(uint32_t A, uint8_t V) {
 	if (EXPREGS[0] & 0x0C)
@@ -47,7 +51,7 @@ static void BMCL6IN1MW(uint8_t V) {
 	}
 }
 
-static DECLFW(BMCL6IN1Write) {
+static void BMCL6IN1Write(uint32 A, uint8 V) {
 	EXPREGS[0] = V;
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);

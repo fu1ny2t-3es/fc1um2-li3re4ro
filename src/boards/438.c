@@ -37,6 +37,7 @@ static void sync0 () {
 	setmirror(Latch_data &0x01? MI_H: MI_V);
 }
 
+<<<<<<< HEAD
 static void sync1 () {
 	int mask = ROM_size -9;
 	if (unrom) {
@@ -55,6 +56,12 @@ static void sync1 () {
 		setchr8(Latch_data >>1);
 		setmirror(Latch_data &0x01? MI_H: MI_V);
 	}
+=======
+static void Mapper438_WriteLatch(uint32 A, uint8 V) {
+	latch[0] =A &0xFF;
+	latch[1] =V;
+	Mapper438_Sync();
+>>>>>>> 27fb2e07 (Update ppu.c)
 }
 
 static DECLFR (interceptPRGRead) {

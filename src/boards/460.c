@@ -28,9 +28,13 @@ static uint8_t submapper;
 static uint8_t reg;
 static uint8_t pad;
 
+<<<<<<< HEAD
 static DECLFR (readPad) {
 	return CartBR(A &~3 | pad &3);
 }
+=======
+static uint8 Mapper460_ReadOB(uint32 A) { return X.DB; }
+>>>>>>> 8b538f0 (Update ppu.c)
 
 static void sync () {
 	MMC3_syncPRG(0x0F, reg <<4 &~0x0F);
@@ -41,12 +45,23 @@ static void sync () {
 	MMC3_syncMirror();
 }
 
+<<<<<<< HEAD
 static int getPRGBank (uint8_t bank) {
+=======
+<<<<<<< HEAD
+static int getPRGBank (uint8 bank) {
+>>>>>>> f9553c43 (Update ppu.c)
 	if (reg &0x08) {
 		int mask = reg &0x10? 3: 1;
 		return MMC3_getPRGBank(bank &1) &~mask | bank &mask;
 	} else
 		return MMC3_getPRGBank(bank);
+=======
+static void Mapper460_WriteExtra(uint32 A, uint8 V) {
+	if (A001B &0x80 && ~A001B &0x40) EXPREGS[0] =A &0xFF;
+	FixMMC3PRG(MMC3_cmd);
+	FixMMC3CHR(MMC3_cmd);
+>>>>>>> 8b538f0 (Update ppu.c)
 }
 
 static int getCHRBank (uint8_t bank) {
