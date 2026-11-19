@@ -32,12 +32,17 @@ static void Mapper437_Sync(void) {
 	setmirror(latch >>6 &1 ^1);
 }
 
+<<<<<<< HEAD
 static DECLFW(Mapper437_WriteOuterBank) {
 	latch =latch &7 | V <<3;
+=======
+static void Mapper437_WriteOuterBank(uint32 A, uint8 V) {
+	latch = latch & 7 | A <<3;
+>>>>>>> f8068a80 (Update Makefile.libretro)
 	Mapper437_Sync();
 }
 
-static DECLFW(Mapper437_WriteInnerBank) {
+static void Mapper437_WriteInnerBank(uint32 A, uint8 V) {
 	latch =latch &~7 | V &CartBR(A) &7;
 	Mapper437_Sync();
 }
