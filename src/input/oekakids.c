@@ -30,9 +30,14 @@ static uint8_t FP_FASTAPASS(2) OK_Read(int w, uint8_t ret) {
 	if (w) {
 =======
 static uint8 OK_Read(int w, uint8 ret) {
+<<<<<<< HEAD
 	if (w)
 >>>>>>> d5085b8d (Update libretro_core_options.h)
+=======
+	if (w) {
+>>>>>>> a1c8c17c (Update libretro_core_options.h)
 		ret |= OKValR;
+	}
 	return(ret);
 }
 
