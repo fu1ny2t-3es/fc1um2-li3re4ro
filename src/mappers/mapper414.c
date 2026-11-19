@@ -2,6 +2,7 @@
  *
  * Copyright notice for this file:
  *  Copyright (C) 2022
+ *  Copyright (C) 2023-2024 negativeExponent
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,16 +20,30 @@
  */
 
 #include "mapinc.h"
+#include "latch.h"
 
+<<<<<<< HEAD
 static uint8_t latch_data;
 static uint32_t latch_addr;
 static uint8_t dipswitch;
+=======
+<<<<<<< HEAD
+static uint8 latch_data;
+static uint32 latch_addr;
+static uint8 dipswitch;
+>>>>>>> 8bf4e730 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 
 static SFORMAT StateRegs[] =
 {
 	{ &latch_addr, 4 | FCEUSTATE_RLSB, "ADDR" },
 	{ &latch_data, 1, "DATA" },
 	{ &dipswitch,  1, "DIPS" },
+=======
+static uint8 dipsw;
+
+static SFORMAT StateRegs[] = {
+	{ &dipsw, 1, "DPSW" },
+>>>>>>> 760535c (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	{ 0 }
 };
 
@@ -37,23 +52,30 @@ static DECLFR(Mapper414_ReadOB) {
 }
 
 static void Sync(void) {
-	if (latch_addr & 0x2000) { /* NROM-256 */
-		setprg32(0x8000, latch_addr >> 2);
+	if (latch.addr & 0x2000) { /* NROM-256 */
+		setprg32(0x8000, latch.addr >> 2);
 	} else { /* NROM-128 */
-		setprg16(0x8000, latch_addr >> 1);
-		setprg16(0xC000, latch_addr >> 1);
+		setprg16(0x8000, latch.addr >> 1);
+		setprg16(0xC000, latch.addr >> 1);
 	}
+<<<<<<< HEAD
 	SetReadHandler(0xC000, 0xFFFF, ~latch_addr &0x100 && latch_addr &dipswitch? Mapper414_ReadOB: CartBR);
 	setchr8(latch_data);
 	setmirror((latch_addr & 1) ^ 1);
+=======
+	setchr8(latch.data);
+	setmirror((latch.addr & 0x01) ^ 0x01);
+>>>>>>> 760535c (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
 
-static void M414Write(uint32 A, uint8 V) {
-	latch_addr = A;
-	latch_data = V & CartBR(A);
-	Sync();
+static DECLFR(M414Read) {
+	if ((A >= 0xC000) && !(latch.addr & 0x100) && (latch.addr & (dipsw << 4))) {
+		return cpu.openbus;
+	}
+	return CartBR(A);
 }
 
+<<<<<<< HEAD
 static void M414Power(void) {
 	dipswitch =0;
 	Sync();
@@ -66,12 +88,23 @@ static void M414Reset(void) {
 }
 
 static void StateRestore(int version) {
+=======
+static void M414Reset(void) {
+	dipsw++;
+	dipsw &= 0x0F;
+>>>>>>> 760535c (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	Sync();
 }
 
 void Mapper414_Init(CartInfo *info) {
+<<<<<<< HEAD
 	info->Power = M414Power;
 	info->Reset = M414Reset;
 	GameStateRestore = StateRestore;
 	AddExState(&StateRegs, ~0, 0, 0);
+=======
+	Latch_Init(info, Sync, M414Read, FALSE, TRUE);
+	info->Reset = M414Reset;
+	AddExState(StateRegs, ~0, 0, NULL);
+>>>>>>> 760535c (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
