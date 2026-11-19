@@ -42,8 +42,13 @@ static SFORMAT StateRegs[] = {
 	{ 0 }
 };
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) RAMBO1IRQHook(int a) {
 	static int32_t smallcount;
+=======
+static void RAMBO1IRQHook(int a) {
+	static int32 smallcount;
+>>>>>>> f9553c43 (Update ppu.c)
 	if (IRQmode) {
 		smallcount += a;
 		while (smallcount >= 4) {
@@ -123,7 +128,7 @@ static void Sync(void) {
 }
 
 
-static DECLFW(RAMBO1_Write) {
+static void RAMBO1_Write(uint32 A, uint8 V) {
 	switch (A & 0xF001) {
 	case 0xA000:
 		if (!_isM158) {
@@ -198,7 +203,11 @@ void Mapper64_Init(CartInfo *info) {
 static uint8_t M158MIR[8];
 static uint8_t PPUCHRBus;
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(1) M158PPU(uint32_t A) {
+=======
+static void M158PPU(uint32 A) {
+>>>>>>> f9553c43 (Update ppu.c)
 	A &= 0x1FFF;
 	A >>= 10;
 	PPUCHRBus = A;

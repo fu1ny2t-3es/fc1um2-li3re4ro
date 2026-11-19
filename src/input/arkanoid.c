@@ -34,7 +34,11 @@ static void StrobeARKFC(void) {
 	FCArk.readbit = 0;
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(2) ReadARKFC(int w, uint8_t ret) {
+=======
+static uint8 ReadARKFC(int w, uint8 ret) {
+>>>>>>> f9553c43 (Update ppu.c)
 	ret &= ~2;
 	if (w) {
 		if (FCArk.readbit >= 8)
@@ -55,8 +59,13 @@ static uint32_t FixX(uint32_t x) {
 	return(x);
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(2) UpdateARKFC(void *data, int arg) {
 	uint32_t *ptr = (uint32_t*)data;
+=======
+static void UpdateARKFC(void *data, int arg) {
+	uint32 *ptr = (uint32*)data;
+>>>>>>> f9553c43 (Update ppu.c)
 	FCArk.mzx = FixX(ptr[0]);
 	FCArk.mzb = ptr[2] ? 1 : 0;
 }
@@ -69,8 +78,13 @@ INPUTCFC *FCEU_InitArkanoidFC(void) {
 	return(&ARKCFC);
 }
 
+<<<<<<< HEAD
 static uint8_t FP_FASTAPASS(1) ReadARK(int w) {
 	uint8_t ret = 0;
+=======
+static uint8 ReadARK(int w) {
+	uint8 ret = 0;
+>>>>>>> f9553c43 (Update ppu.c)
 	if (NESArk[w].readbit >= 8)
 		ret |= 1 << 4;
 	else {
@@ -81,12 +95,17 @@ static uint8_t FP_FASTAPASS(1) ReadARK(int w) {
 	return(ret);
 }
 
-static void FP_FASTAPASS(1) StrobeARK(int w) {
+static void StrobeARK(int w) {
 	NESArk[w].readbit = 0;
 }
 
+<<<<<<< HEAD
 static void FP_FASTAPASS(3) UpdateARK(int w, void *data, int arg) {
 	uint32_t *ptr = (uint32_t*)data;
+=======
+static void UpdateARK(int w, void *data, int arg) {
+	uint32 *ptr = (uint32*)data;
+>>>>>>> f9553c43 (Update ppu.c)
 	NESArk[w].mzx = FixX(ptr[0]);
 	NESArk[w].mzb = ptr[2] ? 1 : 0;
 }

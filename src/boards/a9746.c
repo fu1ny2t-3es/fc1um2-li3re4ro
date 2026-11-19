@@ -33,13 +33,21 @@ static void UNLA9746CWrap(uint32_t A, uint8_t V) {
 	setchr1(A, V &chrAND | chrOR &~chrAND);
 }
 
+<<<<<<< HEAD
 static DECLFW(UNLA9746WriteOuter) {
 	EXPREGS[A &1] = V;
+=======
+static void UNLA9746WriteOuter(uint32 A, uint8 V) {
+	switch(A &1) {
+		case 0: EXPREGS[1] =EXPREGS[1] &~1 | V >>3 &1; break;
+		case 1: EXPREGS[1] =EXPREGS[1] &~2 | V >>4 &2; break;
+	}
+>>>>>>> 27fb2e07 (Update ppu.c)
 	FixMMC3PRG(MMC3_cmd);
 	FixMMC3CHR(MMC3_cmd);
 }
 
-static DECLFW(UNLA9746WriteASIC) {
+static void UNLA9746WriteASIC(uint32 A, uint8 V) {
 	int index;
 	
 	if (A &1)

@@ -122,6 +122,7 @@ void FDSSoundStateAdd(void) {
 	AddExState(&fdso.mod_disabled, 1, 0, "MDIS");
 	AddExState(&fdso.mod_output,   4, 1, "MCRM");
 
+<<<<<<< HEAD
 	AddExState(&fdso.sweep_bias, 4, 1, "SWBS");
 
 	AddExState(&fdso.master_control,   1, 0, "MCTL");
@@ -133,18 +134,31 @@ void FDSSoundStateAdd(void) {
 	AddExState(&fdso.env_count_mul,      1, 0, "ECNM");
 	AddExState(&fdso.mod_pos_shift,      1, 0, "MPSH");
 	AddExState(&fdso.mod_overflow_shift, 1, 0, "MOFS");
+=======
+static uint8 FDSSRead(uint32 A) {
+	switch (A & 0xF) {
+	case 0x0: return(amplitude[0] | (X.DB & 0xC0));
+	case 0x2: return(amplitude[1] | (X.DB & 0xC0));
+	}
+	return(X.DB);
+>>>>>>> 4eee3a3e (Update ppu.c)
 }
 
 static void RenderSound(void);
 static void RenderSoundHQ(void);
 
+<<<<<<< HEAD
 static void FDSSoundUpdate(void) {
+=======
+static void FDSSWrite(uint32 A, uint8 V) {
+>>>>>>> 4eee3a3e (Update ppu.c)
 	if (FSettings.SndRate) {
 		if (FSettings.soundq >= 1)
 			RenderSoundHQ();
 		else
 			RenderSound();
 	}
+<<<<<<< HEAD
 }
 
 static DECLFR(FDSWaveRead) {
@@ -164,6 +178,74 @@ static DECLFW(FDSSReg0Write) {
 	fdso.EnvUnits[EVOL].speed   = V & 0x3F;
 	fdso.EnvUnits[EVOL].control = V & 0xC0;
 	fdso.EnvUnits[EVOL].counter = fdso.EnvUnits[EVOL].speed + 1;
+=======
+	A -= 0x4080;
+	switch (A) {
+	case 0x0:
+	case 0x4:
+		if (V & 0x80)
+			amplitude[(A & 0xF) >> 2] = V & 0x3F;
+		break;
+	case 0x7:
+		b17latch76 = 0;
+		SPSG[0x5] = 0;
+		break;
+	case 0x8:
+		b17latch76 = 0;
+		fdso.mwave[SPSG[0x5] & 0x1F] = V & 0x7;
+		SPSG[0x5] = (SPSG[0x5] + 1) & 0x1F;
+		break;
+	}
+	SPSG[A] = V;
+}
+
+/* $4080 - Fundamental wave amplitude data register 92
+ * $4082 - Fundamental wave frequency data register 58
+ * $4083 - Same as $4082($4083 is the upper 4 bits).
+ *
+ * $4084 - Modulation amplitude data register 78
+ * $4086 - Modulation frequency data register 72
+ * $4087 - Same as $4086($4087 is the upper 4 bits)
+ */
+
+
+static void DoEnv(void) {
+	int x;
+
+	for (x = 0; x < 2; x++)
+		if (!(SPSG[x << 2] & 0x80) && !(SPSG[0x3] & 0x40)) {
+			static int counto[2] = { 0, 0 };
+
+			if (counto[x] <= 0) {
+				if (!(SPSG[x << 2] & 0x80)) {
+					if (SPSG[x << 2] & 0x40) {
+						if (amplitude[x] < 0x3F)
+							amplitude[x]++;
+					} else {
+						if (amplitude[x] > 0)
+							amplitude[x]--;
+					}
+				}
+				counto[x] = (SPSG[x << 2] & 0x3F);
+			} else
+				counto[x]--;
+		}
+}
+
+static uint8 FDSWaveRead(uint32 A) {
+	return(fdso.cwave[A & 0x3f] | (X.DB & 0xC0));
+}
+
+static void FDSWaveWrite(uint32 A, uint8 V) {
+	if (SPSG[0x9] & 0x80)
+		fdso.cwave[A & 0x3f] = V & 0x3F;
+}
+
+static INLINE void ClockRise(void) {
+	if (!clockcount) {
+		b19shiftreg60 = (SPSG[0x2] | ((SPSG[0x3] & 0xF) << 8));
+		b17latch76 = (SPSG[0x6] | ((SPSG[0x07] & 0xF) << 8)) + b17latch76;
+>>>>>>> 4eee3a3e (Update ppu.c)
 
 	if (fdso.EnvUnits[EVOL].control & ENV_CTRL_DISABLE)
 		fdso.EnvUnits[EVOL].volume = fdso.EnvUnits[EVOL].speed;
@@ -384,11 +466,27 @@ static void FDSDoSound(void) {
 }
 
 static void RenderSound(void) {
+<<<<<<< HEAD
 	int32_t end = (SOUNDTS << 16) / soundtsinc;
 	int32_t start = FBC;
 	int32_t x;
 
 	if (end <= start) return;
+=======
+<<<<<<< HEAD
+	int32_t end, start;
+	int32_t x;
+
+	start = FBC;
+	end = (SOUNDTS << 16) / soundtsinc;
+=======
+	int32 x;
+	int32 start = FBC;
+	int32 end = (SOUNDTS << 16) / soundtsinc;
+>>>>>>> f9553c43 (Update ppu.c)
+	if (end <= start)
+		return;
+>>>>>>> 4eee3a3e (Update ppu.c)
 	FBC = end;
 
 	for (x = start; x < end; x++) {
