@@ -67,10 +67,16 @@ static DECLFR(M235Read) {
 static uint8 M235Read(uint32 A) {
 	if (openbus) {
 		openbus = 0;
+<<<<<<< HEAD
 >>>>>>> 8aea6a14 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 		return X.DB;
 	else
 		return CartBR(A);
+=======
+		return cpu.DB;
+	}
+	return CartBR(A);
+>>>>>>> dfe76466 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 }
 
 static void M235Write(uint32 A, uint8 V) {

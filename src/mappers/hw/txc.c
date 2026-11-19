@@ -184,11 +184,19 @@ static DECLFR(M36Read) {
 =======
 =======
 static uint8 M36Read(uint32 A) {
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+	uint8 ret = cpu.DB;
+>>>>>>> fa17363b (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 >>>>>>> c77115b9 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	  ret = (X.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
+=======
+	  ret = (cpu.DB & 0xCF) | ((TXC_CMDRead() << 4) & 0x30);
+>>>>>>> daa616bc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	return ret;
 }
 
@@ -225,11 +233,19 @@ static DECLFR(M132Read) {
 =======
 =======
 static uint8 M132Read(uint32 A) {
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+	uint8 ret = cpu.DB;
+>>>>>>> fa17363b (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 >>>>>>> c77115b9 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	  ret = ((X.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
+=======
+	  ret = ((cpu.DB & 0xF0) | (TXC_CMDRead() & 0x0F));
+>>>>>>> daa616bc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	return ret;
 }
 
@@ -282,11 +298,19 @@ static DECLFR(M136Read) {
 =======
 =======
 static uint8 M136Read(uint32 A) {
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+	uint8 ret = cpu.DB;
+>>>>>>> fa17363b (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 >>>>>>> c77115b9 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	  ret = ((X.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
+=======
+	  ret = ((cpu.DB & 0xC0) | (TXC_CMDRead() & 0x3F));
+>>>>>>> daa616bc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	return ret;
 }
 
@@ -321,8 +345,12 @@ static DECLFR(M147Read) {
 =======
 =======
 static uint8 M147Read(uint32 A) {
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+	uint8 ret = cpu.DB;
+>>>>>>> fa17363b (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if ((A & 0x103) == 0x100) {
 >>>>>>> c77115b9 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	  uint8_t value = TXC_CMDRead();
@@ -366,11 +394,19 @@ static DECLFR(M172Read) {
 =======
 =======
 static uint8 M172Read(uint32 A) {
+<<<<<<< HEAD
 	uint8 ret = X.DB;
 >>>>>>> 09aa6a76 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+=======
+	uint8 ret = cpu.DB;
+>>>>>>> fa17363b (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	if ((A & 0x103) == 0x100)
+<<<<<<< HEAD
 >>>>>>> c77115b9 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	  ret = (X.DB & 0xC0) | GetValue(TXC_CMDRead());
+=======
+	  ret = (cpu.DB & 0xC0) | GetValue(TXC_CMDRead());
+>>>>>>> daa616bc (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 	return ret;
 }
 
