@@ -11,7 +11,11 @@ of the base 64 color palette. */
 handle things however it wants. */
 
 /* Bits per pixel of output. Can be 15, 16, 32, or 24 (same as 32). */
+<<<<<<< HEAD
 #ifdef FRONTEND_SUPPORTS_RGB888
+=======
+#if defined(FRONTEND_SUPPORTS_ARGB888)
+>>>>>>> 97d91e7 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
 #define NES_NTSC_OUT_DEPTH 32
 #else
 #define NES_NTSC_OUT_DEPTH 16
