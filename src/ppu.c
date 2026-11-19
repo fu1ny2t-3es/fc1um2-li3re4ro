@@ -557,7 +557,11 @@ static void ResetRL(uint8 *target) {
 	Plinef = target;
 	Pline = target;
 	firsttile = 0;
+<<<<<<< HEAD
 	linestartts = x6502_count_base;
+=======
+	linestartts = timestamp * 48 + cpu.count;
+>>>>>>> a614fbc6 (Update Makefile.libretro)
 	tofix = 0;
 	FCEUPPU_LineUpdate();
 	tofix = 1;
