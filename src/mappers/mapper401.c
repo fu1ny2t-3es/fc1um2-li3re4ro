@@ -47,7 +47,7 @@ static void M401PW(uint32_t A, uint8_t V) {
 
 static uint8 M401Read(uint32 A) {
 	if ((dipswitch & 1) && (EXPREGS[1] & 0x80))
-		return cpu.DB;
+		return cpu.openbus;
 	return CartBR(A);
 }
 
