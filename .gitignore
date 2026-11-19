@@ -2,9 +2,12 @@
 *.a
 *.so
 .vscode
+<<<<<<< HEAD
 build.log
+<<<<<<< HEAD
 *.dll
 *.dylib
+<<<<<<< HEAD
 play_alloc
 play_alloc.exe
 play_alloc_test.nes
@@ -13,3 +16,10 @@ palette_round.exe
 palette_round_test.nes
 ntsc_simd
 ntsc_simd.exe
+=======
+=======
+=======
+.clang-format
+>>>>>>> 132d980e (Update)
+>>>>>>> 634f4c73 (Update libretro.c)
+>>>>>>> 1a667e32 (Update libretro.c)
