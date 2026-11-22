@@ -4,6 +4,14 @@
 
 #include "nes_ntsc.h"
 
+/* Before nes_ntsc_impl.h: it defines restrict, which MSVC's malloc.h
+(pulled in by emmintrin.h) uses as __declspec(restrict). */
+#if defined(NES_NTSC_SIMD_SSE2)
+#include <emmintrin.h>
+#elif defined(NES_NTSC_SIMD_NEON)
+#include <arm_neon.h>
+#endif
+
 /* Copyright (C) 2006-2007 Shay Green. This module is free software; you
 can redistribute it and/or modify it under the terms of the GNU Lesser
 General Public License as published by the Free Software Foundation; either
@@ -354,7 +362,6 @@ void nes_ntsc_blit_scalar( nes_ntsc_t const* ntsc, NES_NTSC_IN_T const* input, N
 #ifdef NES_NTSC_SIMD
 
 #if defined(NES_NTSC_SIMD_SSE2)
-#include <emmintrin.h>
 typedef __m128i nes_ntsc_v4;
 #define V4_LOAD( p )      _mm_loadu_si128( (__m128i const*) (p) )
 #define V4_STORE( p, v )  _mm_storeu_si128( (__m128i*) (p), (v) )
@@ -365,7 +372,6 @@ typedef __m128i nes_ntsc_v4;
 #define V4_SRL( v, n )    _mm_srli_epi32( (v), (n) )
 #define V4_SET1( x )      _mm_set1_epi32( (int) (x) )
 #else
-#include <arm_neon.h>
 typedef uint32x4_t nes_ntsc_v4;
 #define V4_LOAD( p )      vld1q_u32( (uint32_t const*) (p) )
 #define V4_STORE( p, v )  vst1q_u32( (uint32_t*) (p), (v) )
