@@ -2,9 +2,12 @@
 *.a
 *.so
 .vscode
+<<<<<<< HEAD
 build.log
+<<<<<<< HEAD
 *.dll
 *.dylib
+<<<<<<< HEAD
 play_alloc
 play_alloc.exe
 play_alloc_test.nes
@@ -13,5 +16,15 @@ palette_round.exe
 palette_round_test.nes
 ntsc_simd
 ntsc_simd.exe
+<<<<<<< HEAD
 ntsc_restrict_order
 ntsc_restrict_order.exe
+=======
+=======
+=======
+=======
+.clang-format
+>>>>>>> 94440a11 (Update)
+>>>>>>> 8dd5b584 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> 9ed77107 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
+>>>>>>> fd62e759 (Change PLATFORM_SUPPORTS_ references to FRONTEND_SUPPORTS_)
