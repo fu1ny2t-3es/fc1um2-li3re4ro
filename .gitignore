@@ -2,9 +2,12 @@
 *.a
 *.so
 .vscode
+<<<<<<< HEAD
 build.log
+<<<<<<< HEAD
 *.dll
 *.dylib
+<<<<<<< HEAD
 play_alloc
 play_alloc.exe
 play_alloc_test.nes
@@ -13,5 +16,15 @@ palette_round.exe
 palette_round_test.nes
 ntsc_simd
 ntsc_simd.exe
+<<<<<<< HEAD
 ntsc_restrict_order
 ntsc_restrict_order.exe
+=======
+=======
+=======
+=======
+.clang-format
+>>>>>>> 2b595c30 (Update)
+>>>>>>> a5fa3cd2 (Update ppu.c)
+>>>>>>> fb36ae61 (Update ppu.c)
+>>>>>>> 35ad62da (Update ppu.c)
