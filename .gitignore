@@ -2,9 +2,12 @@
 *.a
 *.so
 .vscode
+<<<<<<< HEAD
 build.log
+<<<<<<< HEAD
 *.dll
 *.dylib
+<<<<<<< HEAD
 play_alloc
 play_alloc.exe
 play_alloc_test.nes
@@ -13,5 +16,15 @@ palette_round.exe
 palette_round_test.nes
 ntsc_simd
 ntsc_simd.exe
+<<<<<<< HEAD
 ntsc_restrict_order
 ntsc_restrict_order.exe
+=======
+=======
+=======
+=======
+.clang-format
+>>>>>>> 8e3df92b (Update)
+>>>>>>> 1777dc54 (Update libretro.c)
+>>>>>>> 39a81f2a (Update libretro.c)
+>>>>>>> 165a9726 (Update libretro.c)
